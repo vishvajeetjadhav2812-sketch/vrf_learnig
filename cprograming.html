@@ -1,0 +1,1411 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C, Down to the Metal — A Complete Guide</title>
+<style>
+  :root{
+    --blue-deep:#003A66;
+    --blue:#00599C;
+    --blue-light:#4A93C9;
+    --slate:#555555;
+    --accent:#00B4D8;
+    --accent-warm:#FF6B35;
+    --paper:#F3F5F6;
+    --panel:#FFFFFF;
+    --ink:#171E24;
+    --ink-soft:#57636C;
+    --line:#DCE1E4;
+    --code-bg:#0C1418;
+    --code-ink:#DBE7ED;
+    --radius:12px;
+    --maxw:800px;
+    --sidebar-w:264px;
+  }
+ 
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+ 
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter','Helvetica Neue',Arial,sans-serif;
+    line-height:1.68;
+    -webkit-font-smoothing:antialiased;
+  }
+ 
+  code,pre,.mono,.nav-brand .logo-text{font-family:'JetBrains Mono',Menlo,Consolas,monospace;}
+ 
+  /* ---------- Layout shell ---------- */
+  .shell{
+    display:grid;
+    grid-template-columns:var(--sidebar-w) 1fr;
+    min-height:100vh;
+  }
+ 
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    background:var(--blue-deep);
+    color:#CFE1EC;
+    position:sticky;
+    top:0;
+    height:100vh;
+    overflow-y:auto;
+    padding:30px 22px 40px;
+    border-right:1px solid rgba(255,255,255,0.06);
+  }
+  .nav-brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:#fff;
+    text-decoration:none;
+    margin-bottom:6px;
+  }
+  .nav-brand .c-mark{
+    width:30px;height:30px;
+    border-radius:8px;
+    background:var(--accent);
+    color:var(--blue-deep);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;
+    font-size:0.95rem;
+    flex-shrink:0;
+  }
+  .nav-brand .logo-text{font-size:1.02rem;letter-spacing:0.01em;}
+  .nav-brand .logo-text b{color:var(--accent);}
+  .sidebar .subtitle{
+    font-size:0.8rem;
+    color:#82A0B3;
+    margin:0 0 30px;
+  }
+  .navgroup{margin-bottom:22px;}
+  .navgroup-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.66rem;
+    color:#6890A6;
+    letter-spacing:0.09em;
+    text-transform:uppercase;
+    margin-bottom:9px;
+    padding-left:2px;
+  }
+  .sidenav a{
+    display:block;
+    color:#BCD3E0;
+    text-decoration:none;
+    font-size:0.87rem;
+    padding:7px 10px;
+    border-radius:7px;
+    margin-bottom:2px;
+    border-left:2px solid transparent;
+    transition:background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .sidenav a:hover{background:rgba(255,255,255,0.07);color:#fff;}
+  .sidenav a.active{
+    color:#fff;
+    border-left-color:var(--accent);
+    background:rgba(0,180,216,0.12);
+  }
+ 
+  .theme-toggle{
+    margin-top:26px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:9px;
+    padding:9px 12px;
+    cursor:pointer;
+  }
+  .theme-toggle span{font-size:0.79rem;color:#BCD3E0;}
+  .toggle-track{
+    width:36px;height:19px;border-radius:20px;
+    background:#0F2A3D;position:relative;
+    border:1px solid rgba(255,255,255,0.16);
+  }
+  .toggle-thumb{
+    position:absolute;top:1px;left:1px;
+    width:15px;height:15px;border-radius:50%;
+    background:var(--accent);
+    transition:transform 0.2s ease;
+  }
+  body.dark .toggle-thumb{transform:translateX(17px);}
+ 
+  .mobile-bar{display:none;}
+ 
+  /* ---------- Main content ---------- */
+  main{
+    padding:66px 50px 130px;
+    max-width:calc(var(--maxw) + 100px);
+  }
+  .content-inner{max-width:var(--maxw); margin:0 auto;}
+ 
+  .hero{
+    margin-bottom:60px;
+    padding-bottom:38px;
+    border-bottom:1px solid var(--line);
+  }
+  .hero .kicker{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.76rem;color:var(--blue);
+    background:rgba(0,89,156,0.08);
+    padding:5px 11px;
+    border-radius:20px;
+    margin-bottom:20px;
+  }
+  .hero h1{
+    font-size:clamp(2rem,4vw,2.9rem);
+    line-height:1.12;
+    margin:0 0 18px;
+    color:var(--blue-deep);
+    font-weight:800;
+    letter-spacing:-0.01em;
+  }
+  .hero h1 .accent{color:var(--accent-warm);}
+  .hero p.lede{
+    font-size:1.1rem;
+    color:var(--ink-soft);
+    max-width:60ch;
+    margin:0 0 26px;
+  }
+  .hero-meta{
+    display:flex;
+    gap:20px;
+    flex-wrap:wrap;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.74rem;
+    color:var(--blue);
+  }
+  .hero-meta span b{color:var(--blue-deep);}
+ 
+  section.block{
+    margin-bottom:76px;
+    scroll-margin-top:28px;
+  }
+  section.block > h2{
+    font-size:1.6rem;
+    color:var(--blue-deep);
+    margin:0 0 8px;
+    display:flex;
+    align-items:baseline;
+    gap:12px;
+    font-weight:800;
+  }
+  section.block > h2 .idx{
+    color:var(--accent-warm);
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.95rem;
+  }
+  section.block > p.intro{
+    color:var(--ink-soft);
+    margin:0 0 28px;
+    max-width:62ch;
+  }
+ 
+  h3{
+    font-size:1.16rem;
+    color:var(--blue-deep);
+    margin:32px 0 10px;
+    padding-left:12px;
+    border-left:3px solid var(--accent);
+    font-weight:700;
+  }
+  h4{
+    font-size:0.98rem;
+    color:var(--blue);
+    margin:18px 0 8px;
+    font-weight:700;
+  }
+  p{margin:0 0 14px;}
+  ul,ol{margin:0 0 16px;padding-left:22px;}
+  li{margin-bottom:6px;}
+ 
+  a{color:var(--blue);}
+  a:hover{color:var(--accent-warm);}
+  strong{color:var(--blue-deep);}
+ 
+  /* ---------- Code blocks ---------- */
+  .code-card{
+    background:var(--code-bg);
+    border-radius:var(--radius);
+    margin:18px 0 22px;
+    overflow:hidden;
+    box-shadow:0 10px 28px rgba(10,25,35,0.22);
+  }
+  .code-card .code-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:10px 14px;
+    background:#081118;
+    border-bottom:1px solid rgba(255,255,255,0.06);
+  }
+  .code-head .dots{display:flex;gap:6px;}
+  .code-head .dots i{
+    width:9px;height:9px;border-radius:50%;display:inline-block;
+    background:#28353E;
+  }
+  .code-head .filename{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.72rem;
+    color:#77909E;
+  }
+  .copy-btn{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.7rem;
+    color:#9DB8C4;
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:6px;
+    padding:4px 10px;
+    cursor:pointer;
+    transition:background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .copy-btn:hover{background:rgba(0,180,216,0.14);color:var(--accent);border-color:rgba(0,180,216,0.35);}
+  .copy-btn.copied{background:rgba(0,180,216,0.2);color:var(--accent);border-color:var(--accent);}
+ 
+  .code-card pre{
+    margin:0;
+    padding:18px 20px;
+    overflow-x:auto;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.83rem;
+    line-height:1.68;
+    color:var(--code-ink);
+  }
+  .code-card code{font-family:inherit;}
+ 
+  .tok-kw{color:var(--accent-warm);}
+  .tok-type{color:#6FB8E0;}
+  .tok-str{color:#8FD19E;}
+  .tok-com{color:#5C7684;font-style:italic;}
+  .tok-num{color:#D397E8;}
+  .tok-fn{color:#FFC978;}
+  .tok-pre{color:#79D8C9;}
+  .tok-ptr{color:#F291B5;}
+ 
+  code.inline{
+    background:#E4EBEF;
+    color:#0B4A73;
+    padding:1.5px 6px;
+    border-radius:5px;
+    font-size:0.87em;
+    font-family:'JetBrains Mono',monospace;
+  }
+ 
+  /* ---------- Tables ---------- */
+  .tbl-wrap{overflow-x:auto;margin:18px 0 26px;border-radius:var(--radius);border:1px solid var(--line);}
+  table{
+    border-collapse:collapse;
+    width:100%;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.8rem;
+    background:var(--panel);
+  }
+  th,td{
+    text-align:left;
+    padding:12px 14px;
+    border-bottom:1px solid var(--line);
+    vertical-align:top;
+  }
+  thead th{
+    background:var(--blue-deep);
+    color:#fff;
+    font-weight:600;
+  }
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:nth-child(odd){background:#FAFBFB;}
+ 
+  /* ---------- Cards / grids ---------- */
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:20px 0 26px;}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0 26px;}
+  .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0 26px;}
+ 
+  .feat-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:16px 16px 14px;
+  }
+  .feat-card .fc-title{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.8rem;
+    color:var(--blue);
+    font-weight:700;
+    margin-bottom:6px;
+    display:flex;align-items:center;gap:6px;
+  }
+  .feat-card .fc-title .dot{width:7px;height:7px;border-radius:50%;background:var(--accent-warm);display:inline-block;}
+  .feat-card p{font-size:0.89rem;color:var(--ink-soft);margin:0;}
+ 
+  .stage-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:16px;
+    text-align:center;
+    position:relative;
+  }
+  .stage-card .stage-num{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.7rem;
+    color:#fff;
+    background:var(--accent-warm);
+    width:22px;height:22px;
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    margin:0 auto 10px;
+  }
+  .stage-card h4{margin:0 0 6px;}
+  .stage-card p{font-size:0.85rem;color:var(--ink-soft);margin:0;}
+ 
+  .note{
+    border-left:3px solid var(--blue);
+    background:#E9F1F6;
+    padding:12px 16px;
+    border-radius:0 8px 8px 0;
+    font-size:0.91rem;
+    color:var(--blue-deep);
+    margin:18px 0;
+  }
+  .note.warn{border-left-color:var(--accent-warm);background:#FFF0E9;color:#7A2E0E;}
+ 
+  /* ---------- Accordion ---------- */
+  .accordion{border-top:1px solid var(--line);}
+  .acc-item{border-bottom:1px solid var(--line);}
+  .acc-q{
+    width:100%;
+    text-align:left;
+    background:none;
+    border:none;
+    padding:16px 4px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.9rem;
+    color:var(--blue-deep);
+    font-weight:600;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    cursor:pointer;
+  }
+  .acc-q .plus{color:var(--accent-warm);font-size:1.15rem;transition:transform 0.2s ease;}
+  .acc-item.open .plus{transform:rotate(45deg);}
+  .acc-a{max-height:0;overflow:hidden;transition:max-height 0.25s ease;color:var(--ink-soft);font-size:0.93rem;}
+  .acc-a-inner{padding:0 4px 18px;}
+ 
+  /* ---------- Tabs ---------- */
+  .tabs{margin:20px 0 26px;}
+  .tab-bar{display:flex;gap:4px;border-bottom:1px solid var(--line);flex-wrap:wrap;}
+  .tab-btn{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.79rem;
+    background:none;
+    border:none;
+    padding:10px 16px;
+    color:var(--ink-soft);
+    cursor:pointer;
+    border-bottom:2px solid transparent;
+    margin-bottom:-1px;
+  }
+  .tab-btn.active{color:var(--blue-deep);border-bottom-color:var(--accent-warm);font-weight:700;}
+  .tab-panel{display:none;padding-top:16px;}
+  .tab-panel.active{display:block;}
+ 
+  footer{
+    padding:40px 50px 90px;
+    max-width:calc(var(--maxw) + 100px);
+    margin:0 auto;
+    color:var(--ink-soft);
+    font-size:0.85rem;
+    border-top:1px solid var(--line);
+  }
+ 
+  /* ---------- Dark mode ---------- */
+  body.dark{
+    --paper:#0B1318;
+    --panel:#121C22;
+    --ink:#DFE9EE;
+    --ink-soft:#8FA3AE;
+    --line:#233038;
+    --code-bg:#070E12;
+  }
+  body.dark table thead th{background:#123049;}
+  body.dark tbody tr:nth-child(odd){background:#0E1922;}
+  body.dark code.inline{background:#1B2A33;color:#6FC7EE;}
+  body.dark .note{background:#0F2130;}
+  body.dark .note.warn{background:#2A1B10;color:#FFB98A;}
+  body.dark .hero .kicker{background:rgba(74,147,201,0.14);}
+  body.dark .stage-card .stage-num{background:var(--accent);color:#04222E;}
+ 
+  /* ---------- Responsive ---------- */
+  @media (max-width:920px){
+    .shell{grid-template-columns:1fr;}
+    .sidebar{
+      position:fixed;
+      z-index:40;
+      left:0;top:0;
+      width:80%;
+      max-width:300px;
+      transform:translateX(-100%);
+      transition:transform 0.25s ease;
+      box-shadow:20px 0 40px rgba(0,0,0,0.3);
+    }
+    .sidebar.open{transform:translateX(0);}
+    .mobile-bar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      background:var(--blue-deep);
+      color:#fff;
+      padding:14px 18px;
+      position:sticky;
+      top:0;
+      z-index:30;
+    }
+    .mobile-bar .nav-brand{margin:0;}
+    .burger{
+      width:34px;height:34px;border-radius:8px;
+      background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.15);
+      color:#fff;
+      font-size:1.1rem;
+      cursor:pointer;
+    }
+    .scrim{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:35;}
+    .scrim.show{display:block;}
+    main{padding:36px 20px 90px;}
+    .hero h1{font-size:1.9rem;}
+    .grid-3,.grid-2,.grid-4{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+ 
+<div class="mobile-bar">
+  <a href="#top" class="nav-brand">
+    <span class="c-mark">C</span>
+    <span class="logo-text">c<b>.</b>guide</span>
+  </a>
+  <button class="burger" id="burgerBtn" aria-label="Open navigation">☰</button>
+</div>
+<div class="scrim" id="scrim"></div>
+ 
+<div class="shell">
+ 
+  <aside class="sidebar" id="sidebar">
+    <a href="#top" class="nav-brand">
+      <span class="c-mark">C</span>
+      <span class="logo-text">c<b>.</b>guide</span>
+    </a>
+    <p class="subtitle">memory to machine code</p>
+ 
+    <div class="navgroup">
+      <div class="navgroup-label">Orientation</div>
+      <nav class="sidenav">
+        <a href="#intro" data-nav>What is C</a>
+        <a href="#compilation" data-nav>Compilation Process</a>
+        <a href="#comparison" data-nav>C vs C++ vs Java</a>
+      </nav>
+    </div>
+ 
+    <div class="navgroup">
+      <div class="navgroup-label">Foundations</div>
+      <nav class="sidenav">
+        <a href="#structure" data-nav>Program Structure</a>
+        <a href="#datatypes" data-nav>Data Types</a>
+        <a href="#variables" data-nav>Variables &amp; Scope</a>
+        <a href="#io" data-nav>Input / Output</a>
+        <a href="#operators" data-nav>Operators</a>
+        <a href="#control" data-nav>Control Statements</a>
+        <a href="#hello-calc" data-nav>Hello World &amp; Factorial</a>
+      </nav>
+    </div>
+ 
+    <div class="navgroup">
+      <div class="navgroup-label">Functions</div>
+      <nav class="sidenav">
+        <a href="#functions" data-nav>Functions &amp; Call Types</a>
+        <a href="#recursion" data-nav>Recursion</a>
+        <a href="#storage" data-nav>Storage Classes</a>
+      </nav>
+    </div>
+ 
+    <div class="navgroup">
+      <div class="navgroup-label">Core Concepts</div>
+      <nav class="sidenav">
+        <a href="#arrays" data-nav>Arrays</a>
+        <a href="#strings" data-nav>Strings</a>
+        <a href="#pointers" data-nav>Pointers &amp; Memory</a>
+      </nav>
+    </div>
+ 
+    <div class="navgroup">
+      <div class="navgroup-label">Data Modeling</div>
+      <nav class="sidenav">
+        <a href="#structs" data-nav>Structures</a>
+        <a href="#unions" data-nav>Unions</a>
+        <a href="#typedef" data-nav>Typedef</a>
+        <a href="#preprocessor" data-nav>Preprocessor Directives</a>
+      </nav>
+    </div>
+ 
+    <div class="navgroup">
+      <div class="navgroup-label">Advanced</div>
+      <nav class="sidenav">
+        <a href="#files" data-nav>File Handling</a>
+        <a href="#errors" data-nav>Error Handling</a>
+        <a href="#faq" data-nav>FAQ</a>
+      </nav>
+    </div>
+ 
+    <div class="theme-toggle" id="themeToggle">
+      <span id="themeLabel">Light mode</span>
+      <div class="toggle-track"><div class="toggle-thumb"></div></div>
+    </div>
+  </aside>
+ 
+  <main id="top">
+    <div class="content-inner">
+ 
+      <div class="hero">
+        <div class="kicker">#include &lt;guide.h&gt; &nbsp;/* basics through advanced */</div>
+        <h1>C, down to the <span class="accent">metal</span>.</h1>
+        <p class="lede">C doesn't hide anything from you — memory, pointers, the exact size of every type, it's all right there. That's what makes it demanding to learn and invaluable once you have: understanding C means understanding how computers actually work underneath every higher-level language built on top of it.</p>
+        <div class="hero-meta">
+          <span><b>Level</b> Beginner → Intermediate</span>
+          <span><b>Reading time</b> ~40 min</span>
+          <span><b>Standard</b> C11 / C17 examples</span>
+        </div>
+      </div>
+ 
+      <!-- 1. INTRO -->
+      <section class="block" id="intro">
+        <h2><span class="idx">01</span> What is C?</h2>
+        <p class="intro">A procedural, statically-typed systems language that has quietly powered nearly every operating system, compiler, and embedded device since the 1970s.</p>
+ 
+        <p>C was developed by Dennis Ritchie at Bell Labs between 1969 and 1973, created alongside the early versions of Unix — in fact, Unix was rewritten in C shortly after, which is part of why the language spread so widely. Its significance is hard to overstate: the Linux kernel, Python's own interpreter (CPython), most databases, and most embedded firmware are written in C or a language directly descended from it.</p>
+ 
+        <h3>Core features</h3>
+        <div class="grid-3">
+          <div class="feat-card">
+            <div class="fc-title"><span class="dot"></span>Procedural</div>
+            <p>Code is organized around functions that execute in sequence, operating on data you pass explicitly.</p>
+          </div>
+          <div class="feat-card">
+            <div class="fc-title"><span class="dot"></span>Fast</div>
+            <p>Compiles directly to native machine code with minimal runtime overhead — no garbage collector, no interpreter.</p>
+          </div>
+          <div class="feat-card">
+            <div class="fc-title"><span class="dot"></span>Low-Level Memory Access</div>
+            <p>Pointers let you read and write memory addresses directly, giving fine control most languages don't expose.</p>
+          </div>
+          <div class="feat-card">
+            <div class="fc-title"><span class="dot"></span>Portable</div>
+            <p>A C compiler exists for nearly every processor architecture, so the same source runs almost anywhere with minor changes.</p>
+          </div>
+          <div class="feat-card">
+            <div class="fc-title"><span class="dot"></span>Small Core Language</div>
+            <p>Roughly 32 keywords. Everything beyond the essentials comes from libraries, not language syntax.</p>
+          </div>
+          <div class="feat-card">
+            <div class="fc-title"><span class="dot"></span>Manual Memory Management</div>
+            <p>You allocate and free memory yourself with malloc/free — powerful, but the responsibility is entirely yours.</p>
+          </div>
+        </div>
+      </section>
+ 
+      <section class="block" id="compilation">
+        <h2><span class="idx">02</span> The Compilation Process</h2>
+        <p class="intro">Unlike Python, a C program can't run until it's transformed through four distinct stages into a native executable.</p>
+ 
+        <div class="grid-4">
+          <div class="stage-card">
+            <div class="stage-num">1</div>
+            <h4>Preprocessing</h4>
+            <p>Expands #include and #define directives, strips comments. Output: expanded source (.i)</p>
+          </div>
+          <div class="stage-card">
+            <div class="stage-num">2</div>
+            <h4>Compilation</h4>
+            <p>Translates the preprocessed code into assembly language for the target CPU. Output: .s</p>
+          </div>
+          <div class="stage-card">
+            <div class="stage-num">3</div>
+            <h4>Assembly</h4>
+            <p>The assembler converts assembly code into machine code object files. Output: .o / .obj</p>
+          </div>
+          <div class="stage-card">
+            <div class="stage-num">4</div>
+            <h4>Linking</h4>
+            <p>Combines object files and libraries (like stdio) into a single executable. Output: .exe / a.out</p>
+          </div>
+        </div>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">terminal</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-com"># all four stages, triggered by one command:</span>
+gcc program.c -o program
+ 
+<span class="tok-com"># run just one stage at a time, to see the output of each:</span>
+gcc -E program.c -o program.i     <span class="tok-com"># preprocessing only</span>
+gcc -S program.c -o program.s     <span class="tok-com"># compilation only</span>
+gcc -c program.c -o program.o     <span class="tok-com"># assembly only</span>
+gcc program.o -o program          <span class="tok-com"># linking only</span></code></pre>
+        </div>
+      </section>
+ 
+      <section class="block" id="comparison">
+        <h2><span class="idx">03</span> C vs C++ vs Java</h2>
+        <p class="intro">Three languages that share syntax roots but make very different tradeoffs.</p>
+ 
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th></th><th>C</th><th>C++</th><th>Java</th></tr></thead>
+            <tbody>
+              <tr><td>Paradigm</td><td>Procedural</td><td>Procedural + OOP</td><td>Purely OOP</td></tr>
+              <tr><td>Memory management</td><td>Manual (malloc/free)</td><td>Manual or RAII/smart pointers</td><td>Automatic (garbage collected)</td></tr>
+              <tr><td>Execution</td><td>Compiled to native machine code</td><td>Compiled to native machine code</td><td>Compiled to bytecode, run on JVM</td></tr>
+              <tr><td>Speed</td><td>Fastest, minimal overhead</td><td>Near-C speed, some abstraction cost</td><td>Slower — JVM and GC overhead</td></tr>
+              <tr><td>Portability</td><td>Source-level (recompile per platform)</td><td>Source-level (recompile per platform)</td><td>Binary-level ("write once, run anywhere")</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">C++ is often described as "C with classes" — it's a near-superset of C, which is why most C code compiles as valid C++ with little modification.</div>
+      </section>
+ 
+      <!-- 2. BASICS -->
+      <section class="block" id="structure">
+        <h2><span class="idx">04</span> Basic Structure of a C Program</h2>
+        <p class="intro">Every C program shares the same skeleton: headers, then a mandatory entry point.</p>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">structure.c</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-pre">#include &lt;stdio.h&gt;</span>          <span class="tok-com">/* brings in printf, scanf, etc. */</span>
+ 
+<span class="tok-type">int</span> <span class="tok-fn">main</span>(<span class="tok-type">void</span>) {              <span class="tok-com">/* execution always starts here */</span>
+    <span class="tok-fn">printf</span>(<span class="tok-str">"Program starts here.\n"</span>);
+    <span class="tok-kw">return</span> <span class="tok-num">0</span>;                    <span class="tok-com">/* 0 tells the OS the program succeeded */</span>
+}</code></pre>
+        </div>
+        <ul>
+          <li><strong>#include</strong> pulls in a header file's declarations before compilation.</li>
+          <li><strong>main()</strong> must return an <code class="inline">int</code> — <code class="inline">0</code> conventionally means success, nonzero means an error occurred.</li>
+          <li>Every statement ends in a <strong>semicolon</strong>; blocks are wrapped in <strong>curly braces</strong>.</li>
+        </ul>
+      </section>
+ 
+      <section class="block" id="datatypes">
+        <h2><span class="idx">05</span> Data Types</h2>
+        <p class="intro">C is statically typed, and unlike higher-level languages, it makes you think about exactly how many bytes each value takes.</p>
+ 
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Category</th><th>Types</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr><td>Basic</td><td>int, float, char, double</td><td>The four fundamental building blocks</td></tr>
+              <tr><td>Derived</td><td>array, pointer, function</td><td>Built from basic types</td></tr>
+              <tr><td>Enumeration</td><td>enum</td><td>A set of named integer constants</td></tr>
+              <tr><td>Void</td><td>void</td><td>Represents "no value" — used for functions that return nothing</td></tr>
+            </tbody>
+          </table>
+        </div>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">data_types.c</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-type">int</span> age = <span class="tok-num">24</span>;                 <span class="tok-com">/* whole numbers, typically 4 bytes */</span>
+<span class="tok-type">float</span> price = <span class="tok-num">9.99f</span>;         <span class="tok-com">/* single-precision decimal */</span>
+<span class="tok-type">char</span> grade = <span class="tok-str">'A'</span>;             <span class="tok-com">/* a single character, 1 byte */</span>
+<span class="tok-type">double</span> pi = <span class="tok-num">3.14159265</span>;      <span class="tok-com">/* double-precision decimal */</span>
+ 
+<span class="tok-kw">enum</span> Day { MON, TUE, WED };     <span class="tok-com">/* MON=0, TUE=1, WED=2 by default */</span>
+<span class="tok-kw">enum</span> Day today = TUE;
+ 
+<span class="tok-type">void</span> <span class="tok-fn">logMessage</span>(<span class="tok-type">void</span>) {         <span class="tok-com">/* void return -- gives back nothing */</span>
+    <span class="tok-fn">printf</span>(<span class="tok-str">"logged\n"</span>);
+}</code></pre>
+        </div>
+      </section>
+ 
+      <section class="block" id="variables">
+        <h2><span class="idx">06</span> Variables, Constants &amp; Scope</h2>
+        <p class="intro">Where a variable is declared determines where it can be used — and C gives you two distinct ways to define a constant.</p>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">scope_and_const.c</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-pre">#include &lt;stdio.h&gt;</span>
+ 
+<span class="tok-type">int</span> globalCount = <span class="tok-num">0</span>;                  <span class="tok-com">/* global -- visible to every function below it */</span>
+<span class="tok-pre">#define MAX_USERS 100</span>              <span class="tok-com">/* preprocessor constant -- replaced before compiling */</span>
+ 
+<span class="tok-type">void</span> <span class="tok-fn">incrementCount</span>(<span class="tok-type">void</span>) {
+    <span class="tok-kw">const</span> <span class="tok-type">int</span> STEP = <span class="tok-num">1</span>;             <span class="tok-com">/* const -- a real, typed variable that can't change */</span>
+    globalCount += STEP;
+}
+ 
+<span class="tok-type">int</span> <span class="tok-fn">main</span>(<span class="tok-type">void</span>) {
+    <span class="tok-type">int</span> localCount = <span class="tok-num">5</span>;             <span class="tok-com">/* local -- only exists inside main() */</span>
+    <span class="tok-fn">incrementCount</span>();
+    <span class="tok-fn">printf</span>(<span class="tok-str">"Global: %d, Local: %d, Max: %d\n"</span>, globalCount, localCount, MAX_USERS);
+    <span class="tok-kw">return</span> <span class="tok-num">0</span>;
+}</code></pre>
+        </div>
+        <div class="note"><code class="inline">#define</code> is a text substitution done by the preprocessor before compilation even starts. <code class="inline">const</code> creates a genuine, type-checked variable the compiler enforces — prefer <code class="inline">const</code> in modern code.</div>
+      </section>
+ 
+      <section class="block" id="io">
+        <h2><span class="idx">07</span> Input / Output</h2>
+        <p class="intro"><code class="inline">printf</code> and <code class="inline">scanf</code> rely on format specifiers to know exactly how to interpret each value.</p>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">io.c</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-pre">#include &lt;stdio.h&gt;</span>
+ 
+<span class="tok-type">int</span> <span class="tok-fn">main</span>(<span class="tok-type">void</span>) {
+    <span class="tok-type">int</span> age;
+    <span class="tok-type">float</span> gpa;
+    <span class="tok-type">char</span> grade;
+ 
+    <span class="tok-fn">printf</span>(<span class="tok-str">"Enter your age: "</span>);
+    <span class="tok-fn">scanf</span>(<span class="tok-str">"%d"</span>, &amp;age);          <span class="tok-com">/* &amp; -- passes the address, so scanf can write into it */</span>
+ 
+    <span class="tok-fn">printf</span>(<span class="tok-str">"Enter your GPA: "</span>);
+    <span class="tok-fn">scanf</span>(<span class="tok-str">"%f"</span>, &amp;gpa);
+ 
+    grade = (gpa >= <span class="tok-num">3.5</span>) ? <span class="tok-str">'A'</span> : <span class="tok-str">'B'</span>;
+    <span class="tok-fn">printf</span>(<span class="tok-str">"Age: %d, GPA: %.2f, Grade: %c\n"</span>, age, gpa, grade);
+    <span class="tok-kw">return</span> <span class="tok-num">0</span>;
+}</code></pre>
+        </div>
+ 
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Specifier</th><th>Type</th></tr></thead>
+            <tbody>
+              <tr><td>%d</td><td>int</td></tr>
+              <tr><td>%f</td><td>float</td></tr>
+              <tr><td>%c</td><td>char</td></tr>
+              <tr><td>%s</td><td>string (char array)</td></tr>
+              <tr><td>%lf</td><td>double</td></tr>
+              <tr><td>%p</td><td>pointer address</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+ 
+      <section class="block" id="operators">
+        <h2><span class="idx">08</span> Operators</h2>
+        <p class="intro">C's operator set is where a lot of "clever" low-level code comes from — especially the bitwise family.</p>
+ 
+        <div class="grid-3">
+          <div class="feat-card"><div class="fc-title"><span class="dot"></span>Arithmetic</div><p><code class="inline">+ - * / %</code> — integer division truncates: <code class="inline">7 / 2</code> is <code class="inline">3</code>, not 3.5.</p></div>
+          <div class="feat-card"><div class="fc-title"><span class="dot"></span>Relational</div><p><code class="inline">== != &gt; &lt; &gt;= &lt;=</code> — return 1 (true) or 0 (false), since C has no true bool type in older standards.</p></div>
+          <div class="feat-card"><div class="fc-title"><span class="dot"></span>Logical</div><p><code class="inline">&amp;&amp; || !</code> — combine conditions; short-circuit like most languages.</p></div>
+          <div class="feat-card"><div class="fc-title"><span class="dot"></span>Bitwise</div><p><code class="inline">&amp; | ^ ~ &lt;&lt; &gt;&gt;</code> — operate directly on the binary bits of an integer.</p></div>
+          <div class="feat-card"><div class="fc-title"><span class="dot"></span>Assignment</div><p><code class="inline">= += -= *= /=</code> — compound forms combine a calculation with the assignment.</p></div>
+          <div class="feat-card"><div class="fc-title"><span class="dot"></span>Ternary</div><p><code class="inline">cond ? a : b</code> — a compact inline if-else that evaluates to a value.</p></div>
+        </div>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">operators.c</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-type">int</span> flags = <span class="tok-num">0b1010</span>;
+<span class="tok-type">int</span> masked = flags &amp; <span class="tok-num">0b0010</span>;      <span class="tok-com">/* bitwise AND -- checks if bit is set */</span>
+<span class="tok-type">int</span> shifted = flags &lt;&lt; <span class="tok-num">1</span>;        <span class="tok-com">/* left shift -- multiplies by 2 */</span>
+ 
+<span class="tok-type">int</span> max = (<span class="tok-num">10</span> > <span class="tok-num">20</span>) ? <span class="tok-num">10</span> : <span class="tok-num">20</span>;   <span class="tok-com">/* ternary -- max becomes 20 */</span></code></pre>
+        </div>
+      </section>
+ 
+      <section class="block" id="control">
+        <h2><span class="idx">09</span> Control Statements</h2>
+        <p class="intro">Branching, looping, and C's often-discouraged fifth jump statement: <code class="inline">goto</code>.</p>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">control_flow.c</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-type">int</span> score = <span class="tok-num">76</span>;
+ 
+<span class="tok-kw">if</span> (score >= <span class="tok-num">90</span>) {
+    <span class="tok-fn">printf</span>(<span class="tok-str">"Grade: A\n"</span>);
+} <span class="tok-kw">else if</span> (score >= <span class="tok-num">75</span>) {
+    <span class="tok-fn">printf</span>(<span class="tok-str">"Grade: B\n"</span>);
+} <span class="tok-kw">else</span> {
+    <span class="tok-fn">printf</span>(<span class="tok-str">"Grade: C or below\n"</span>);
+}
+ 
+<span class="tok-kw">switch</span> (score / <span class="tok-num">10</span>) {
+    <span class="tok-kw">case</span> <span class="tok-num">10</span>:
+    <span class="tok-kw">case</span> <span class="tok-num">9</span>:
+        <span class="tok-fn">printf</span>(<span class="tok-str">"Excellent\n"</span>);
+        <span class="tok-kw">break</span>;                 <span class="tok-com">/* without break, execution "falls through" to the next case */</span>
+    <span class="tok-kw">default</span>:
+        <span class="tok-fn">printf</span>(<span class="tok-str">"Keep practicing\n"</span>);
+}
+ 
+<span class="tok-kw">for</span> (<span class="tok-type">int</span> i = <span class="tok-num">0</span>; i &lt; <span class="tok-num">5</span>; i++) {
+    <span class="tok-kw">if</span> (i == <span class="tok-num">3</span>) <span class="tok-kw">continue</span>;   <span class="tok-com">/* skip this iteration */</span>
+    <span class="tok-kw">if</span> (i == <span class="tok-num">4</span>) <span class="tok-kw">break</span>;      <span class="tok-com">/* exit the loop entirely */</span>
+    <span class="tok-fn">printf</span>(<span class="tok-str">"i = %d\n"</span>, i);
+}</code></pre>
+        </div>
+        <div class="note warn"><code class="inline">goto</code> jumps directly to a labeled line and is almost always avoidable with loops and functions. It survives mainly for breaking out of deeply nested loops or centralized cleanup code in older C codebases.</div>
+      </section>
+ 
+      <section class="block" id="hello-calc">
+        <h2><span class="idx">10</span> Two Complete Programs</h2>
+        <p class="intro">The smallest possible C program, and a factorial finder that uses a loop to build up a result.</p>
+ 
+        <h3>Hello, World</h3>
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">hello_world.c</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-pre">#include &lt;stdio.h&gt;</span>
+ 
+<span class="tok-type">int</span> <span class="tok-fn">main</span>(<span class="tok-type">void</span>) {
+    <span class="tok-fn">printf</span>(<span class="tok-str">"Hello, World!\n"</span>);
+    <span class="tok-kw">return</span> <span class="tok-num">0</span>;
+}</code></pre>
+        </div>
+ 
+        <h3>Factorial Finder</h3>
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">factorial.c</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-pre">#include &lt;stdio.h&gt;</span>
+ 
+<span class="tok-type">int</span> <span class="tok-fn">main</span>(<span class="tok-type">void</span>) {
+    <span class="tok-type">int</span> n;
+    <span class="tok-type">unsigned long</span> result = <span class="tok-num">1</span>;
+ 
+    <span class="tok-fn">printf</span>(<span class="tok-str">"Enter a positive integer: "</span>);
+    <span class="tok-fn">scanf</span>(<span class="tok-str">"%d"</span>, &amp;n);
+ 
+    <span class="tok-kw">if</span> (n &lt; <span class="tok-num">0</span>) {
+        <span class="tok-fn">printf</span>(<span class="tok-str">"Factorial is undefined for negative numbers.\n"</span>);
+        <span class="tok-kw">return</span> <span class="tok-num">1</span>;
+    }
+ 
+    <span class="tok-kw">for</span> (<span class="tok-type">int</span> i = <span class="tok-num">1</span>; i &lt;= n; i++) {
+        result *= i;
+    }
+ 
+    <span class="tok-fn">printf</span>(<span class="tok-str">"%d! = %lu\n"</span>, n, result);
+    <span class="tok-kw">return</span> <span class="tok-num">0</span>;
+}</code></pre>
+        </div>
+      </section>
+ 
+      <!-- 3. FUNCTIONS -->
+      <section class="block" id="functions">
+        <h2><span class="idx">11</span> Functions &amp; Call Types</h2>
+        <p class="intro">A function has three parts in C: a declaration (the promise), a definition (the body), and a call (the use).</p>
+ 
+        <div class="tabs">
+          <div class="tab-bar">
+            <button class="tab-btn active" data-tab="f-value">Call by Value</button>
+            <button class="tab-btn" data-tab="f-ref">Call by Reference</button>
+          </div>
+          <div class="tab-panel active" id="f-value">
+            <p>The function receives a <strong>copy</strong> of the argument. Changes made inside the function never affect the original variable.</p>
+            <div class="code-card">
+              <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">call_by_value.c</span><button class="copy-btn" data-copy>Copy</button></div>
+              <pre><code><span class="tok-type">void</span> <span class="tok-fn">tryToDouble</span>(<span class="tok-type">int</span> x) {
+    x = x * <span class="tok-num">2</span>;              <span class="tok-com">/* only changes the local copy */</span>
+}
+ 
+<span class="tok-type">int</span> <span class="tok-fn">main</span>(<span class="tok-type">void</span>) {
+    <span class="tok-type">int</span> num = <span class="tok-num">5</span>;
+    <span class="tok-fn">tryToDouble</span>(num);
+    <span class="tok-fn">printf</span>(<span class="tok-str">"%d\n"</span>, num);    <span class="tok-com">/* still 5 -- the original was untouched */</span>
+    <span class="tok-kw">return</span> <span class="tok-num">0</span>;
+}</code></pre>
+            </div>
+          </div>
+          <div class="tab-panel" id="f-ref">
+            <p>The function receives a <strong>pointer</strong> to the original variable's memory address, so changes inside the function are visible outside it.</p>
+            <div class="code-card">
+              <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">call_by_reference.c</span><button class="copy-btn" data-copy>Copy</button></div>
+              <pre><code><span class="tok-type">void</span> <span class="tok-fn">doubleIt</span>(<span class="tok-type">int</span> <span class="tok-ptr">*x</span>) {
+    <span class="tok-ptr">*x</span> = <span class="tok-ptr">*x</span> * <span class="tok-num">2</span>;          <span class="tok-com">/* dereference -- modifies the real value */</span>
+}
+ 
+<span class="tok-type">int</span> <span class="tok-fn">main</span>(<span class="tok-type">void</span>) {
+    <span class="tok-type">int</span> num = <span class="tok-num">5</span>;
+    <span class="tok-fn">doubleIt</span>(&amp;num);         <span class="tok-com">/* &amp; passes num's address */</span>
+    <span class="tok-fn">printf</span>(<span class="tok-str">"%d\n"</span>, num);    <span class="tok-com">/* 10 -- the original was modified */</span>
+    <span class="tok-kw">return</span> <span class="tok-num">0</span>;
+}</code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+ 
+      <section class="block" id="recursion">
+        <h2><span class="idx">12</span> Recursion</h2>
+        <p class="intro">A function that calls itself, working toward a base case that stops the chain.</p>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">fibonacci.c</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-pre">#include &lt;stdio.h&gt;</span>
+ 
+<span class="tok-type">int</span> <span class="tok-fn">fibonacci</span>(<span class="tok-type">int</span> n) {
+    <span class="tok-kw">if</span> (n &lt;= <span class="tok-num">1</span>) {          <span class="tok-com">/* base case -- stops the recursion */</span>
+        <span class="tok-kw">return</span> n;
+    }
+    <span class="tok-kw">return</span> <span class="tok-fn">fibonacci</span>(n - <span class="tok-num">1</span>) + <span class="tok-fn">fibonacci</span>(n - <span class="tok-num">2</span>);   <span class="tok-com">/* recursive case */</span>
+}
+ 
+<span class="tok-type">int</span> <span class="tok-fn">main</span>(<span class="tok-type">void</span>) {
+    <span class="tok-kw">for</span> (<span class="tok-type">int</span> i = <span class="tok-num">0</span>; i &lt; <span class="tok-num">8</span>; i++) {
+        <span class="tok-fn">printf</span>(<span class="tok-str">"%d "</span>, <span class="tok-fn">fibonacci</span>(i));   <span class="tok-com">/* 0 1 1 2 3 5 8 13 */</span>
+    }
+    <span class="tok-kw">return</span> <span class="tok-num">0</span>;
+}</code></pre>
+        </div>
+        <div class="note">Every recursive function needs a base case, or it will keep calling itself until it exhausts the call stack — a "stack overflow" in the literal, original sense of the term.</div>
+      </section>
+ 
+      <section class="block" id="storage">
+        <h2><span class="idx">13</span> Storage Classes</h2>
+        <p class="intro">Four keywords that control a variable's lifetime, visibility, and default value — not its type.</p>
+ 
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Keyword</th><th>Lifetime</th><th>Scope</th><th>Default value</th></tr></thead>
+            <tbody>
+              <tr><td>auto</td><td>Function block</td><td>Local</td><td>Garbage (uninitialized)</td></tr>
+              <tr><td>register</td><td>Function block</td><td>Local</td><td>Garbage — hints the compiler to use a CPU register for speed</td></tr>
+              <tr><td>static</td><td>Entire program run</td><td>Local (but retains value between calls)</td><td>Zero</td></tr>
+              <tr><td>extern</td><td>Entire program run</td><td>Global — declared in one file, used in another</td><td>Zero</td></tr>
+            </tbody>
+          </table>
+        </div>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">static_demo.c</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-type">void</span> <span class="tok-fn">countCalls</span>(<span class="tok-type">void</span>) {
+    <span class="tok-kw">static</span> <span class="tok-type">int</span> calls = <span class="tok-num">0</span>;    <span class="tok-com">/* initialized only once, keeps its value between calls */</span>
+    calls++;
+    <span class="tok-fn">printf</span>(<span class="tok-str">"Called %d time(s)\n"</span>, calls);
+}
+<span class="tok-com">/* calling countCalls() three times prints 1, then 2, then 3 */</span></code></pre>
+        </div>
+      </section>
+ 
+      <!-- 4. ARRAYS, STRINGS, POINTERS -->
+      <section class="block" id="arrays">
+        <h2><span class="idx">14</span> Arrays</h2>
+        <p class="intro">A fixed-size, contiguous block of memory holding elements of the same type — the building block for almost every other data structure in C.</p>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">arrays.c</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-type">int</span> scores[<span class="tok-num">5</span>] = {<span class="tok-num">88</span>, <span class="tok-num">92</span>, <span class="tok-num">79</span>, <span class="tok-num">65</span>, <span class="tok-num">99</span>};   <span class="tok-com">/* 1D array -- 5 contiguous ints */</span>
+<span class="tok-fn">printf</span>(<span class="tok-str">"%d\n"</span>, scores[<span class="tok-num">2</span>]);                    <span class="tok-com">/* 79 -- indexing starts at 0 */</span>
+ 
+<span class="tok-type">int</span> grid[<span class="tok-num">2</span>][<span class="tok-num">3</span>] = {                        <span class="tok-com">/* 2D array -- rows x columns */</span>
+    {<span class="tok-num">1</span>, <span class="tok-num">2</span>, <span class="tok-num">3</span>},
+    {<span class="tok-num">4</span>, <span class="tok-num">5</span>, <span class="tok-num">6</span>}
+};
+<span class="tok-fn">printf</span>(<span class="tok-str">"%d\n"</span>, grid[<span class="tok-num">1</span>][<span class="tok-num">2</span>]);                     <span class="tok-com">/* 6 -- row 1, column 2 */</span></code></pre>
+        </div>
+        <div class="note">In memory, <code class="inline">scores</code> is one unbroken block: <code class="inline">scores[0]</code> and <code class="inline">scores[1]</code> sit at adjacent addresses. This is exactly why array indexing is fast — the compiler just computes <code class="inline">base_address + (index * element_size)</code>.</div>
+      </section>
+ 
+      <section class="block" id="strings">
+        <h2><span class="idx">15</span> Strings</h2>
+        <p class="intro">C has no dedicated string type — a string is just a <code class="inline">char</code> array ending in a null terminator, <code class="inline">'\0'</code>.</p>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">strings.c</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-pre">#include &lt;stdio.h&gt;</span>
+<span class="tok-pre">#include &lt;string.h&gt;</span>
+ 
+<span class="tok-type">int</span> <span class="tok-fn">main</span>(<span class="tok-type">void</span>) {
+    <span class="tok-type">char</span> first[<span class="tok-num">20</span>] = <span class="tok-str">"Hello"</span>;      <span class="tok-com">/* 'H','e','l','l','o','\0' under the hood */</span>
+    <span class="tok-type">char</span> second[] = <span class="tok-str">", World!"</span>;
+ 
+    <span class="tok-fn">printf</span>(<span class="tok-str">"Length: %zu\n"</span>, strlen(first));   <span class="tok-com">/* 5 -- doesn't count the '\0' */</span>
+ 
+    strcat(first, second);                <span class="tok-com">/* appends second onto first */</span>
+    <span class="tok-fn">printf</span>(<span class="tok-str">"%s\n"</span>, first);              <span class="tok-com">/* "Hello, World!" */</span>
+ 
+    <span class="tok-type">char</span> copy[<span class="tok-num">30</span>];
+    strcpy(copy, first);                  <span class="tok-com">/* copies first into copy */</span>
+ 
+    <span class="tok-kw">if</span> (strcmp(first, copy) == <span class="tok-num">0</span>) {      <span class="tok-com">/* 0 means the strings are identical */</span>
+        <span class="tok-fn">printf</span>(<span class="tok-str">"Strings match.\n"</span>);
+    }
+    <span class="tok-kw">return</span> <span class="tok-num">0</span>;
+}</code></pre>
+        </div>
+      </section>
+ 
+      <section class="block" id="pointers">
+        <h2><span class="idx">16</span> Pointers &amp; Dynamic Memory</h2>
+        <p class="intro">A pointer holds a memory address rather than a value directly. This is the single most powerful — and most dangerous — feature in C.</p>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">pointer_basics.c</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-type">int</span> num = <span class="tok-num">42</span>;
+<span class="tok-type">int</span> <span class="tok-ptr">*ptr</span> = &amp;num;              <span class="tok-com">/* ptr stores num's memory address */</span>
+ 
+<span class="tok-fn">printf</span>(<span class="tok-str">"Value: %d\n"</span>, num);     <span class="tok-com">/* 42 */</span>
+<span class="tok-fn">printf</span>(<span class="tok-str">"Address: %p\n"</span>, (<span class="tok-type">void</span><span class="tok-ptr">*</span>)&amp;num);
+<span class="tok-fn">printf</span>(<span class="tok-str">"Via pointer: %d\n"</span>, <span class="tok-ptr">*ptr</span>);  <span class="tok-com">/* *ptr "dereferences" -- follows the address to the value */</span>
+ 
+<span class="tok-type">int</span> arr[] = {<span class="tok-num">10</span>, <span class="tok-num">20</span>, <span class="tok-num">30</span>};
+<span class="tok-type">int</span> <span class="tok-ptr">*p</span> = arr;                <span class="tok-com">/* array name decays into a pointer to its first element */</span>
+<span class="tok-fn">printf</span>(<span class="tok-str">"%d\n"</span>, <span class="tok-ptr">*(p + 1)</span>);       <span class="tok-com">/* pointer arithmetic -- 20, same as arr[1] */</span></code></pre>
+        </div>
+ 
+        <h3>Dynamic memory allocation</h3>
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">dynamic_memory.c</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-pre">#include &lt;stdlib.h&gt;</span>
+ 
+<span class="tok-type">int</span> <span class="tok-ptr">*nums</span> = (<span class="tok-type">int</span><span class="tok-ptr">*</span>) malloc(<span class="tok-num">5</span> * <span class="tok-kw">sizeof</span>(<span class="tok-type">int</span>));   <span class="tok-com">/* allocate room for 5 ints, uninitialized */</span>
+<span class="tok-kw">if</span> (nums == <span class="tok-kw">NULL</span>) {                              <span class="tok-com">/* always check -- allocation can fail */</span>
+    <span class="tok-fn">printf</span>(<span class="tok-str">"Allocation failed.\n"</span>);
+    <span class="tok-kw">return</span> <span class="tok-num">1</span>;
+}
+ 
+<span class="tok-type">int</span> <span class="tok-ptr">*zeroed</span> = (<span class="tok-type">int</span><span class="tok-ptr">*</span>) calloc(<span class="tok-num">5</span>, <span class="tok-kw">sizeof</span>(<span class="tok-type">int</span>));   <span class="tok-com">/* like malloc, but zero-initialized */</span>
+ 
+nums = (<span class="tok-type">int</span><span class="tok-ptr">*</span>) realloc(nums, <span class="tok-num">10</span> * <span class="tok-kw">sizeof</span>(<span class="tok-type">int</span>));   <span class="tok-com">/* resize to hold 10 ints */</span>
+ 
+free(nums);       <span class="tok-com">/* release memory back to the system -- mandatory */</span>
+free(zeroed);
+nums = <span class="tok-kw">NULL</span>;     <span class="tok-com">/* prevents nums from becoming a dangling pointer */</span></code></pre>
+        </div>
+ 
+        <div class="grid-2">
+          <div class="feat-card">
+            <div class="fc-title"><span class="dot"></span>Dangling pointer</div>
+            <p>Points to memory that has already been freed. Using it afterward is undefined behavior — set pointers to <code class="inline">NULL</code> right after freeing them.</p>
+          </div>
+          <div class="feat-card">
+            <div class="fc-title"><span class="dot"></span>Null pointer</div>
+            <p>Explicitly points to nothing (<code class="inline">NULL</code>). Dereferencing one crashes the program — always the safe value to check against.</p>
+          </div>
+        </div>
+      </section>
+ 
+      <!-- 5. STRUCTS, UNIONS, PREPROCESSOR -->
+      <section class="block" id="structs">
+        <h2><span class="idx">17</span> Structures</h2>
+        <p class="intro">A <code class="inline">struct</code> groups different types together under one name — C's answer to a simple object.</p>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">structs.c</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-kw">struct</span> Point {
+    <span class="tok-type">int</span> x;
+    <span class="tok-type">int</span> y;
+};
+ 
+<span class="tok-kw">struct</span> Rectangle {         <span class="tok-com">/* nested structure -- a struct containing another struct */</span>
+    <span class="tok-kw">struct</span> Point topLeft;
+    <span class="tok-type">int</span> width;
+    <span class="tok-type">int</span> height;
+};
+ 
+<span class="tok-type">int</span> <span class="tok-fn">main</span>(<span class="tok-type">void</span>) {
+    <span class="tok-kw">struct</span> Point p1 = {<span class="tok-num">10</span>, <span class="tok-num">20</span>};       <span class="tok-com">/* initialization */</span>
+    <span class="tok-fn">printf</span>(<span class="tok-str">"(%d, %d)\n"</span>, p1.x, p1.y);
+ 
+    <span class="tok-kw">struct</span> Rectangle r = {{<span class="tok-num">0</span>, <span class="tok-num">0</span>}, <span class="tok-num">100</span>, <span class="tok-num">50</span>};
+    <span class="tok-fn">printf</span>(<span class="tok-str">"width: %d\n"</span>, r.width);
+ 
+    <span class="tok-kw">struct</span> Point points[<span class="tok-num">3</span>] = {         <span class="tok-com">/* array of structures */</span>
+        {<span class="tok-num">1</span>, <span class="tok-num">1</span>}, {<span class="tok-num">2</span>, <span class="tok-num">2</span>}, {<span class="tok-num">3</span>, <span class="tok-num">3</span>}
+    };
+    <span class="tok-fn">printf</span>(<span class="tok-str">"%d\n"</span>, points[<span class="tok-num">1</span>].y);        <span class="tok-com">/* 2 */</span>
+    <span class="tok-kw">return</span> <span class="tok-num">0</span>;
+}</code></pre>
+        </div>
+      </section>
+ 
+      <section class="block" id="unions">
+        <h2><span class="idx">18</span> Unions</h2>
+        <p class="intro">A <code class="inline">union</code> looks like a struct but stores all its members in the <em>same</em> block of memory — only one member holds a valid value at a time.</p>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">unions.c</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-kw">union</span> Data {
+    <span class="tok-type">int</span> i;
+    <span class="tok-type">float</span> f;
+    <span class="tok-type">char</span> str[<span class="tok-num">20</span>];
+};
+ 
+<span class="tok-type">int</span> <span class="tok-fn">main</span>(<span class="tok-type">void</span>) {
+    <span class="tok-kw">union</span> Data data;
+    data.i = <span class="tok-num">10</span>;
+    <span class="tok-fn">printf</span>(<span class="tok-str">"%d\n"</span>, data.i);     <span class="tok-com">/* 10 */</span>
+ 
+    data.f = <span class="tok-num">3.14</span>;            <span class="tok-com">/* overwrites data.i -- same memory, different interpretation */</span>
+    <span class="tok-fn">printf</span>(<span class="tok-str">"%f\n"</span>, data.f);     <span class="tok-com">/* 3.14 */</span>
+    <span class="tok-fn">printf</span>(<span class="tok-str">"%d\n"</span>, data.i);     <span class="tok-com">/* garbage now -- i and f share the same bytes */</span>
+    <span class="tok-kw">return</span> <span class="tok-num">0</span>;
+}</code></pre>
+        </div>
+ 
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th></th><th>struct</th><th>union</th></tr></thead>
+            <tbody>
+              <tr><td>Memory per member</td><td>Each gets its own space</td><td>All members share one space</td></tr>
+              <tr><td>Total size</td><td>Sum of all members</td><td>Size of the largest member</td></tr>
+              <tr><td>Example (int + float + char[20])</td><td>4 + 4 + 20 = 28 bytes</td><td>max(4, 4, 20) = 20 bytes</td></tr>
+              <tr><td>Valid members at once</td><td>All, simultaneously</td><td>Only one, at any given moment</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+ 
+      <section class="block" id="typedef">
+        <h2><span class="idx">19</span> Typedef</h2>
+        <p class="intro">Gives an existing type a new, usually shorter or clearer, name — especially useful for structs and complex declarations.</p>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">typedef.c</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-kw">typedef</span> <span class="tok-kw">struct</span> {
+    <span class="tok-type">int</span> x;
+    <span class="tok-type">int</span> y;
+} Point;                    <span class="tok-com">/* now "Point" can be used directly -- no "struct" prefix needed */</span>
+ 
+<span class="tok-kw">typedef</span> <span class="tok-type">unsigned long</span> ulong;   <span class="tok-com">/* shorter alias for a verbose built-in type */</span>
+ 
+<span class="tok-type">int</span> <span class="tok-fn">main</span>(<span class="tok-type">void</span>) {
+    Point p = {<span class="tok-num">5</span>, <span class="tok-num">10</span>};        <span class="tok-com">/* instead of: struct Point p */</span>
+    ulong big = <span class="tok-num">4000000000</span>;
+    <span class="tok-fn">printf</span>(<span class="tok-str">"(%d, %d)\n"</span>, p.x, p.y);
+    <span class="tok-kw">return</span> <span class="tok-num">0</span>;
+}</code></pre>
+        </div>
+      </section>
+ 
+      <section class="block" id="preprocessor">
+        <h2><span class="idx">20</span> Preprocessor Directives</h2>
+        <p class="intro">Instructions that run before compilation even begins — text substitution and conditional inclusion of code.</p>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">preprocessor.h</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-pre">#ifndef MYHEADER_H</span>          <span class="tok-com">/* "include guard" -- prevents double inclusion */</span>
+<span class="tok-pre">#define MYHEADER_H</span>
+ 
+<span class="tok-pre">#define PI 3.14159</span>          <span class="tok-com">/* simple macro constant */</span>
+<span class="tok-pre">#define SQUARE(x) ((x) * (x))</span>  <span class="tok-com">/* macro function -- watch the parentheses */</span>
+ 
+<span class="tok-pre">#ifdef DEBUG</span>                 <span class="tok-com">/* only compiled if DEBUG is defined elsewhere */</span>
+    <span class="tok-pre">#define LOG(msg) printf("[DEBUG] %s\n", msg)</span>
+<span class="tok-pre">#else</span>
+    <span class="tok-pre">#define LOG(msg)</span>            <span class="tok-com">/* expands to nothing in release builds */</span>
+<span class="tok-pre">#endif</span>
+ 
+<span class="tok-pre">#endif</span></code></pre>
+        </div>
+        <div class="note">Include guards (<code class="inline">#ifndef</code> / <code class="inline">#define</code> / <code class="inline">#endif</code>) stop a header from being processed twice if it's included by multiple files in the same build — without them, you'd get "redefinition" errors.</div>
+      </section>
+ 
+      <!-- 6. ADVANCED -->
+      <section class="block" id="files">
+        <h2><span class="idx">21</span> File Handling</h2>
+        <p class="intro">C treats files through a <code class="inline">FILE*</code> handle, opened in a specific mode that determines what operations are allowed.</p>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">file_io.c</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-pre">#include &lt;stdio.h&gt;</span>
+ 
+<span class="tok-type">int</span> <span class="tok-fn">main</span>(<span class="tok-type">void</span>) {
+    <span class="tok-type">FILE</span> <span class="tok-ptr">*file</span> = fopen(<span class="tok-str">"notes.txt"</span>, <span class="tok-str">"w"</span>);   <span class="tok-com">/* "w" -- write, overwrites existing file */</span>
+    <span class="tok-kw">if</span> (file == <span class="tok-kw">NULL</span>) {
+        <span class="tok-fn">printf</span>(<span class="tok-str">"Could not open file.\n"</span>);
+        <span class="tok-kw">return</span> <span class="tok-num">1</span>;
+    }
+    fprintf(file, <span class="tok-str">"Line one\n"</span>);
+    fclose(file);                              <span class="tok-com">/* always close what you open */</span>
+ 
+    file = fopen(<span class="tok-str">"notes.txt"</span>, <span class="tok-str">"r"</span>);            <span class="tok-com">/* "r" -- read only */</span>
+    <span class="tok-type">char</span> buffer[<span class="tok-num">100</span>];
+    <span class="tok-kw">while</span> (fscanf(file, <span class="tok-str">"%99s"</span>, buffer) == <span class="tok-num">1</span>) {
+        <span class="tok-fn">printf</span>(<span class="tok-str">"Read: %s\n"</span>, buffer);
+    }
+    fclose(file);
+    <span class="tok-kw">return</span> <span class="tok-num">0</span>;
+}</code></pre>
+        </div>
+ 
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Mode</th><th>Meaning</th></tr></thead>
+            <tbody>
+              <tr><td>"r"</td><td>Read — file must already exist</td></tr>
+              <tr><td>"w"</td><td>Write — creates a new file, or overwrites an existing one</td></tr>
+              <tr><td>"a"</td><td>Append — writes are added to the end of the file</td></tr>
+              <tr><td>"r+"</td><td>Read and write, file must exist</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p><code class="inline">fread</code> and <code class="inline">fwrite</code> work the same way but move raw bytes rather than formatted text — useful for binary files and structs.</p>
+      </section>
+ 
+      <section class="block" id="errors">
+        <h2><span class="idx">22</span> Error Handling</h2>
+        <p class="intro">C has no exceptions — most functions signal failure through a return value, and the global <code class="inline">errno</code> variable explains why.</p>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">error_handling.c</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-pre">#include &lt;stdio.h&gt;</span>
+<span class="tok-pre">#include &lt;errno.h&gt;</span>
+<span class="tok-pre">#include &lt;string.h&gt;</span>
+ 
+<span class="tok-type">int</span> <span class="tok-fn">main</span>(<span class="tok-type">void</span>) {
+    <span class="tok-type">FILE</span> <span class="tok-ptr">*file</span> = fopen(<span class="tok-str">"does_not_exist.txt"</span>, <span class="tok-str">"r"</span>);
+ 
+    <span class="tok-kw">if</span> (file == <span class="tok-kw">NULL</span>) {
+        perror(<span class="tok-str">"fopen failed"</span>);          <span class="tok-com">/* prints your message + the system's reason */</span>
+        <span class="tok-fn">printf</span>(<span class="tok-str">"errno was: %d (%s)\n"</span>, errno, strerror(errno));
+        <span class="tok-kw">return</span> <span class="tok-num">1</span>;
+    }
+    fclose(file);
+    <span class="tok-kw">return</span> <span class="tok-num">0</span>;
+}</code></pre>
+        </div>
+        <div class="note"><code class="inline">perror()</code> is the fastest way to report a failed system call — it automatically appends a human-readable explanation based on the current <code class="inline">errno</code> value.</div>
+      </section>
+ 
+      <!-- FAQ -->
+      <section class="block" id="faq">
+        <h2><span class="idx">23</span> Common Questions</h2>
+        <p class="intro">A few things almost everyone asks in their first weeks with C.</p>
+ 
+        <div class="accordion" id="accordion">
+          <div class="acc-item open">
+            <button class="acc-q"><span>Why do I have to free() everything I malloc()?</span><span class="plus">+</span></button>
+            <div class="acc-a"><div class="acc-a-inner">C has no garbage collector. Memory you allocate with malloc/calloc/realloc stays reserved until you explicitly free it — forgetting to do so is a memory leak, and in a long-running program it can exhaust available memory entirely.</div></div>
+          </div>
+          <div class="acc-item">
+            <button class="acc-q"><span>What's the difference between an array and a pointer?</span><span class="plus">+</span></button>
+            <div class="acc-a"><div class="acc-a-inner">An array name decays into a pointer to its first element in most expressions, which is why arr[i] and *(arr + i) behave identically. But an array itself owns its memory and knows its size at declaration; a pointer is just an address and can be reassigned to point anywhere.</div></div>
+          </div>
+          <div class="acc-item">
+            <button class="acc-q"><span>Why does my program crash with "segmentation fault"?</span><span class="plus">+</span></button>
+            <div class="acc-a"><div class="acc-a-inner">You're almost always accessing memory you don't own — dereferencing a NULL or dangling pointer, writing past the end of an array, or using memory after it's been freed. Tools like Valgrind or AddressSanitizer are the standard way to track these down.</div></div>
+          </div>
+          <div class="acc-item">
+            <button class="acc-q"><span>Should I use malloc or calloc?</span><span class="plus">+</span></button>
+            <div class="acc-a"><div class="acc-a-inner">calloc zero-initializes the memory it allocates; malloc leaves it as garbage. Use calloc when you need a clean starting state (like a fresh array of counters), and malloc when you're about to overwrite every byte anyway and want to skip the extra work.</div></div>
+          </div>
+          <div class="acc-item">
+            <button class="acc-q"><span>What should I learn after this?</span><span class="plus">+</span></button>
+            <div class="acc-a"><div class="acc-a-inner">Linked lists and other pointer-based data structures, the Makefile build system, multi-file projects with header files, and a debugger like gdb. After that, look at how an OS manages processes and memory — C is the natural on-ramp to systems programming.</div></div>
+          </div>
+        </div>
+      </section>
+ 
+    </div>
+  </main>
+</div>
+ 
+<footer>
+  Built as a single self-contained HTML file — no external dependencies, works offline. Every snippet on this page compiles with gcc/clang targeting C11 or later.
+</footer>
+ 
+<script>
+  // ---------- Mobile sidebar ----------
+  const sidebar = document.getElementById('sidebar');
+  const burgerBtn = document.getElementById('burgerBtn');
+  const scrim = document.getElementById('scrim');
+ 
+  function openSidebar(){ sidebar.classList.add('open'); scrim.classList.add('show'); }
+  function closeSidebar(){ sidebar.classList.remove('open'); scrim.classList.remove('show'); }
+ 
+  if (burgerBtn) burgerBtn.addEventListener('click', () => {
+    sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+  });
+  scrim.addEventListener('click', closeSidebar);
+  document.querySelectorAll('.sidenav a').forEach(a => a.addEventListener('click', closeSidebar));
+ 
+  // ---------- Scrollspy ----------
+  const sections = document.querySelectorAll('section.block[id]');
+  const navLinks = document.querySelectorAll('.sidenav a[data-nav]');
+ 
+  const spy = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const id = entry.target.getAttribute('id');
+      const link = document.querySelector(`.sidenav a[href="#${id}"]`);
+      if (!link) return;
+      if (entry.isIntersecting) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
+ 
+  sections.forEach(s => spy.observe(s));
+ 
+  // ---------- Dark / light mode toggle ----------
+  const themeToggle = document.getElementById('themeToggle');
+  const themeLabel = document.getElementById('themeLabel');
+  themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark');
+    const isDark = document.body.classList.contains('dark');
+    themeLabel.textContent = isDark ? 'Dark mode' : 'Light mode';
+  });
+ 
+  // ---------- Accordion (FAQ) ----------
+  document.querySelectorAll('.acc-item').forEach(item => {
+    const q = item.querySelector('.acc-q');
+    const a = item.querySelector('.acc-a');
+    if (item.classList.contains('open')) {
+      a.style.maxHeight = a.scrollHeight + 'px';
+    }
+    q.addEventListener('click', () => {
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.acc-item').forEach(other => {
+        other.classList.remove('open');
+        other.querySelector('.acc-a').style.maxHeight = null;
+      });
+      if (!isOpen) {
+        item.classList.add('open');
+        a.style.maxHeight = a.scrollHeight + 'px';
+      }
+    });
+  });
+ 
+  // ---------- Tabs ----------
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.getAttribute('data-tab');
+      const tabGroup = btn.closest('.tabs');
+      tabGroup.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      tabGroup.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      tabGroup.querySelector('#' + target).classList.add('active');
+    });
+  });
+ 
+  // ---------- Copy code buttons ----------
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const codeEl = btn.closest('.code-card').querySelector('pre code');
+      const text = codeEl.innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const original = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = original;
+          btn.classList.remove('copied');
+        }, 1800);
+      }).catch(() => {
+        btn.textContent = 'Failed';
+        setTimeout(() => { btn.textContent = 'Copy'; }, 1800);
+      });
+    });
+  });
+</script>
+ 
+</body>
+</html>
+ 

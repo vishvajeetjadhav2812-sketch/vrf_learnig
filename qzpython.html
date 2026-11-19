@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Basics to OOPs Quiz (50 Questions)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 700px;
+            padding: 30px;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #eef0f3;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #306998;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            height: 10px;
+            border-radius: 5px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #ffd43b;
+            transition: width 0.3s ease;
+        }
+
+        .question-number {
+            font-size: 14px;
+            color: #5f6368;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            color: #202124;
+            margin-bottom: 20px;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background-color: #f8f9fa;
+            border: 2px solid #dadce0;
+            border-radius: 8px;
+            padding: 14px 18px;
+            font-size: 16px;
+            color: #3c4043;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .option-btn:hover {
+            background-color: #e8f0fe;
+            border-color: #306998;
+        }
+
+        .option-btn.correct {
+            background-color: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+            font-weight: bold;
+        }
+
+        .option-btn.incorrect {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+            font-weight: bold;
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+        }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .result-box.correct-msg {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .result-box.incorrect-msg {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .next-btn {
+            margin-top: 25px;
+            background-color: #306998;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.2s;
+            display: none;
+        }
+
+        .next-btn:hover {
+            background-color: #244f73;
+        }
+
+        .score-container {
+            text-align: center;
+            display: none;
+        }
+
+        .score-container h2 {
+            color: #202124;
+            margin-bottom: 15px;
+        }
+
+        .score-text {
+            font-size: 22px;
+            color: #306998;
+            margin-bottom: 25px;
+        }
+
+        .restart-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .restart-btn:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div class="header">
+        <h1>Python Basics to OOPs Quiz</h1>
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+    </div>
+
+    <div id="quiz-box">
+        <div class="question-number" id="question-number">Question 1 of 50</div>
+        <div class="question-text" id="question-text">Loading question...</div>
+        
+        <div class="options-container" id="options-container">
+            </div>
+
+        <div class="result-box" id="result-box"></div>
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question</button>
+    </div>
+
+    <div class="score-container" id="score-container">
+        <h2>Quiz Completed!</h2>
+        <div class="score-text" id="score-text">You scored 0 out of 50</div>
+        <button class="restart-btn" onclick="restartQuiz()">Restart Quiz</button>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        // --- BASICS & DATA TYPES ---
+        { question: "Who created the Python programming language?", options: ["Guido van Rossum", "Dennis Ritchie", "James Gosling", "Bjarne Stroustrup"], correct: 0 },
+        { question: "Which file extension is used for Python source files?", options: [".pyt", ".python", ".py", ".pyw"], correct: 2 },
+        { question: "How do you output text to the console in Python?", options: ["echo('Hello')", "System.out.println('Hello')", "print('Hello')", "console.log('Hello')"], correct: 2 },
+        { question: "Which keyword is used to define a function in Python?", options: ["function", "def", "fun", "define"], correct: 1 },
+        { question: "How do you create a single-line comment in Python?", options: ["// comment", "/* comment */", "# comment", ""], correct: 2 },
+        { question: "Which of the following data types is IMMUTABLE in Python?", options: ["List", "Dictionary", "Set", "Tuple"], correct: 3 },
+        { question: "What is the correct syntax to create a list in Python?", options: ["(1, 2, 3)", "[1, 2, 3]", "{1, 2, 3}", "<1, 2, 3>"], correct: 1 },
+        { question: "Which symbol is used for floor division (integer result) in Python?", options: ["/", "//", "%", "**"], correct: 1 },
+        { question: "Which operator is used to calculate power/exponentiation in Python?", options: ["^", "**", "pow", "pwr"], correct: 1 },
+        { question: "What is the result of type(3.14) in Python?", options: ["<class 'int'>", "<class 'double'>", "<class 'float'>", "<class 'decimal'>"], correct: 2 },
+
+        // --- CONTROL FLOW & DATA STRUCTURES ---
+        { question: "Which statement is used to handle conditional execution in Python?", options: ["else if", "elseif", "elif", "if else"], correct: 2 },
+        { question: "What is the output of len('Python')?", options: ["5", "6", "7", "Error"], correct: 1 },
+        { question: "How do you access the last element of a list 'lst' in Python?", options: ["lst[last]", "lst[-1]", "lst.last()", "lst[end]"], correct: 1 },
+        { question: "Which method is used to add an item to the end of a list?", options: ["add()", "insert()", "append()", "push()"], correct: 2 },
+        { question: "How do you remove a key-value pair from a dictionary?", options: ["dict.remove(key)", "del dict[key]", "dict.delete(key)", "dict.discard(key)"], correct: 1 },
+        { question: "Which builtin function returns a sequence of numbers from start to stop?", options: ["range()", "seq()", "loop()", "series()"], correct: 0 },
+        { question: "What statement is used as a placeholder for future code without causing syntax errors?", options: ["continue", "skip", "pass", "break"], correct: 2 },
+        { question: "What does the 'break' statement do inside a loop?", options: ["Exits the loop immediately", "Skips to the next iteration", "Pauses execution", "Restarts the loop"], correct: 0 },
+        { question: "What is the output of bool([]) in Python?", options: ["True", "False", "None", "Error"], correct: 1 },
+        { question: "Which collection data type does NOT allow duplicate elements?", options: ["List", "Tuple", "Set", "Dictionary Values"], correct: 2 },
+
+        // --- FUNCTIONS & MODULES ---
+        { question: "What keyword is used to return a value from a function?", options: ["send", "output", "return", "yield"], correct: 2 },
+        { question: "What does *args allow in a function definition?", options: ["Keyword arguments", "Variable number of positional arguments", "Default arguments", "Type checking"], correct: 1 },
+        { question: "What does **kwargs allow in a function definition?", options: ["Variable number of keyword (named) arguments", "Positional arguments", "Tuple arguments", "Global variables"], correct: 0 },
+        { question: "Which keyword is used to create an anonymous (nameless) function in Python?", options: ["anonymous", "lambda", "def", "inline"], correct: 1 },
+        { question: "How do you modify a global variable inside a function in Python?", options: ["Use global keyword", "Use extern keyword", "Direct assignment", "Use super keyword"], correct: 0 },
+        { question: "Which keyword is used to import a module in Python?", options: ["include", "using", "import", "require"], correct: 2 },
+        { question: "What function is used to convert an integer to a string?", options: ["toString()", "str()", "string()", "convert()"], correct: 1 },
+        { question: "What function returns input entered by the user as a string?", options: ["get()", "read()", "input()", "scan()"], correct: 2 },
+        { question: "Which built-in module provides functions for mathematical operations like sqrt() and sin()?", options: ["calc", "math", "numbers", "science"], correct: 1 },
+        { question: "What is a generator function in Python?", options: ["A function that creates classes", "A function that uses 'yield' to produce a stream of values", "A function with no arguments", "A function that compiles C code"], correct: 1 },
+
+        // --- CORE OOPS CONCEPTS ---
+        { question: "Which keyword is used to define a class in Python?", options: ["Class", "class", "def class", "struct"], correct: 1 },
+        { question: "What is the constructor method called in a Python class?", options: ["__construct__()", "__init__()", "Class()", "new()"], correct: 1 },
+        { question: "What parameter must be explicitly passed as the first parameter to instance methods in Python?", options: ["this", "self", "me", "instance"], correct: 1 },
+        { question: "How do you instantiate an object of class 'Car' in Python?", options: ["Car my_car = new Car()", "my_car = Car()", "my_car = new Car()", "Car my_car = Car()"], correct: 1 },
+        { question: "How does a class 'Dog' inherit from class 'Animal' in Python?", options: ["class Dog extends Animal:", "class Dog(Animal):", "class Dog implements Animal:", "class Dog : Animal:"], correct: 1 },
+        { question: "Does Python support Multiple Inheritance?", options: ["Yes", "No", "Only through interfaces", "Only in Python 2"], correct: 0 },
+        { question: "Which built-in function is used to call a method from a superclass?", options: ["parent()", "base()", "super()", "upper()"], correct: 2 },
+        { question: "How do you denote a private attribute convention in a Python class?", options: ["private attr", "attr__private", "__attr (double underscore)", "@private attr"], correct: 2 },
+        { question: "What is Name Mangling in Python OOPs?", options: ["Converting method names to uppercase", "Transforming double underscore attribute names to include class name", "Renaming variables automatically", "Deleting unused variables"], correct: 1 },
+        { question: "What is Method Overriding in Python?", options: ["Defining methods with the same name in separate modules", "Redefining a parent class method in a subclass", "Passing multiple arguments to a method", "Deleting a method"], correct: 1 },
+
+        // --- ADVANCED OOPS & SPECIAL METHODS ---
+        { question: "What are Special Methods (dunder methods) in Python?", options: ["Methods starting and ending with double underscores like __str__", "Methods written in C language", "Methods with private access", "Methods defined inside functions"], correct: 0 },
+        { question: "Which magic method controls the string representation of an object for developers/debugging?", options: ["__str__", "__repr__", "__print__", "__show__"], correct: 1 },
+        { question: "Which decorator is used to define a static method inside a class?", options: ["@staticmethod", "@classmethod", "@static", "@property"], correct: 0 },
+        { question: "What is the first parameter passed to a method decorated with @classmethod?", options: ["self", "cls", "class", "this"], correct: 1 },
+        { question: "Which decorator allows a method to be accessed like an attribute?", options: ["@attribute", "@getter", "@property", "@accessor"], correct: 2 },
+        { question: "Which module provides infrastructure for defining Abstract Base Classes (ABCs)?", options: ["abstract", "oop", "abc", "base"], correct: 2 },
+        { question: "Which decorator marks a method as abstract in Python's 'abc' module?", options: ["@abstract", "@abstractmethod", "@virtual", "@pure"], correct: 1 },
+        { question: "What happens if you try to instantiate a class containing an unimplemented @abstractmethod?", options: ["Instantiates normally", "TypeError is raised", "Warning is printed", "Converts to None"], correct: 1 },
+        { question: "Which built-in function checks if an object is an instance of a specific class?", options: ["isinstance()", "typeof()", "type()", "checkinstance()"], correct: 0 },
+        { question: "Which built-in function checks if a class is a subclass of another class?", options: ["issubclass()", "isderived()", "isparent()", "checksub()"], correct: 0 }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    const questionNumberEl = document.getElementById("question-number");
+    const questionTextEl = document.getElementById("question-text");
+    const optionsContainerEl = document.getElementById("options-container");
+    const resultBoxEl = document.getElementById("result-box");
+    const nextBtnEl = document.getElementById("next-btn");
+    const progressBarEl = document.getElementById("progress-bar");
+    const quizBoxEl = document.getElementById("quiz-box");
+    const scoreContainerEl = document.getElementById("score-container");
+    const scoreTextEl = document.getElementById("score-text");
+
+    function loadQuestion() {
+        const currentQuiz = quizData[currentQuestionIndex];
+        
+        questionNumberEl.innerText = `Question ${currentQuestionIndex + 1} of ${quizData.length}`;
+        questionTextEl.innerText = currentQuiz.question;
+        progressBarEl.style.width = `${((currentQuestionIndex + 1) / quizData.length) * 100}%`;
+
+        optionsContainerEl.innerHTML = "";
+        resultBoxEl.style.display = "none";
+        nextBtnEl.style.display = "none";
+
+        currentQuiz.options.forEach((option, index) => {
+            const button = document.createElement("button");
+            button.classList.add("option-btn");
+            button.innerText = option;
+            button.onclick = () => selectOption(index, button);
+            optionsContainerEl.appendChild(button);
+        });
+    }
+
+    function selectOption(selectedIndex, selectedBtn) {
+        const currentQuiz = quizData[currentQuestionIndex];
+        const allButtons = optionsContainerEl.querySelectorAll(".option-btn");
+
+        allButtons.forEach(btn => btn.disabled = true);
+
+        if (selectedIndex === currentQuiz.correct) {
+            selectedBtn.classList.add("correct");
+            resultBoxEl.className = "result-box correct-msg";
+            resultBoxEl.innerText = "YES! Correct Answer! 🎉";
+            score++;
+        } else {
+            selectedBtn.classList.add("incorrect");
+            allButtons[currentQuiz.correct].classList.add("correct");
+            resultBoxEl.className = "result-box incorrect-msg";
+            resultBoxEl.innerText = "NOT CORRECT! Wrong Answer. ❌";
+        }
+
+        resultBoxEl.style.display = "block";
+        nextBtnEl.style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < quizData.length) {
+            loadQuestion();
+        } else {
+            showScore();
+        }
+    }
+
+    function showScore() {
+        quizBoxEl.style.display = "none";
+        scoreContainerEl.style.display = "block";
+        scoreTextEl.innerText = `You scored ${score} out of ${quizData.length}!`;
+    }
+
+    function restartQuiz() {
+        currentQuestionIndex = 0;
+        score = 0;
+        quizBoxEl.style.display = "block";
+        scoreContainerEl.style.display = "none";
+        loadQuestion();
+    }
+
+    // Start Quiz
+    loadQuestion();
+</script>
+
+</body>
+</html>

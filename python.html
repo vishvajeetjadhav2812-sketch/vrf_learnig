@@ -1,0 +1,1328 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python, End to End — A Complete Guide</title>
+<style>
+  :root{
+    --blue-deep:#264D6B;
+    --blue:#306998;
+    --blue-light:#5B8DB8;
+    --gold:#FFD43B;
+    --gold-deep:#E8B923;
+    --paper:#F5F7F6;
+    --panel:#FFFFFF;
+    --ink:#152430;
+    --ink-soft:#54636E;
+    --line:#DDE3E1;
+    --code-bg:#0F1A24;
+    --code-ink:#DCE6EC;
+    --radius:12px;
+    --maxw:800px;
+    --sidebar-w:264px;
+  }
+ 
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+ 
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter','Helvetica Neue',Arial,sans-serif;
+    line-height:1.68;
+    -webkit-font-smoothing:antialiased;
+  }
+ 
+  code,pre,.mono,.nav-brand .logo-text{font-family:'JetBrains Mono',Menlo,Consolas,monospace;}
+ 
+  /* ---------- Layout shell ---------- */
+  .shell{
+    display:grid;
+    grid-template-columns:var(--sidebar-w) 1fr;
+    min-height:100vh;
+  }
+ 
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    background:var(--blue-deep);
+    color:#D7E3EC;
+    position:sticky;
+    top:0;
+    height:100vh;
+    overflow-y:auto;
+    padding:30px 22px 40px;
+    border-right:1px solid rgba(255,255,255,0.06);
+  }
+  .nav-brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:#fff;
+    text-decoration:none;
+    margin-bottom:6px;
+  }
+  .nav-brand .py-mark{
+    width:30px;height:30px;
+    display:inline-block;
+    flex-shrink:0;
+  }
+  .nav-brand .logo-text{font-size:1.02rem;letter-spacing:0.01em;}
+  .nav-brand .logo-text b{color:var(--gold);}
+  .sidebar .subtitle{
+    font-size:0.8rem;
+    color:#8FA9BC;
+    margin:0 0 30px;
+  }
+  .navgroup{margin-bottom:22px;}
+  .navgroup-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.66rem;
+    color:#6E8AA0;
+    letter-spacing:0.09em;
+    text-transform:uppercase;
+    margin-bottom:9px;
+    padding-left:2px;
+  }
+  .sidenav a{
+    display:block;
+    color:#C3D5E1;
+    text-decoration:none;
+    font-size:0.87rem;
+    padding:7px 10px;
+    border-radius:7px;
+    margin-bottom:2px;
+    border-left:2px solid transparent;
+    transition:background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .sidenav a:hover{background:rgba(255,255,255,0.07);color:#fff;}
+  .sidenav a.active{
+    color:#fff;
+    border-left-color:var(--gold);
+    background:rgba(255,212,59,0.10);
+  }
+ 
+  .theme-toggle{
+    margin-top:26px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:9px;
+    padding:9px 12px;
+    cursor:pointer;
+  }
+  .theme-toggle span{font-size:0.79rem;color:#C3D5E1;}
+  .toggle-track{
+    width:36px;height:19px;border-radius:20px;
+    background:#1B3549;position:relative;
+    border:1px solid rgba(255,255,255,0.16);
+  }
+  .toggle-thumb{
+    position:absolute;top:1px;left:1px;
+    width:15px;height:15px;border-radius:50%;
+    background:var(--gold);
+    transition:transform 0.2s ease;
+  }
+  body.dark .toggle-thumb{transform:translateX(17px);}
+ 
+  .mobile-bar{display:none;}
+ 
+  /* ---------- Main content ---------- */
+  main{
+    padding:66px 50px 130px;
+    max-width:calc(var(--maxw) + 100px);
+  }
+  .content-inner{max-width:var(--maxw); margin:0 auto;}
+ 
+  .hero{
+    margin-bottom:60px;
+    padding-bottom:38px;
+    border-bottom:1px solid var(--line);
+  }
+  .hero .kicker{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.76rem;color:var(--blue);
+    background:rgba(48,105,152,0.08);
+    padding:5px 11px;
+    border-radius:20px;
+    margin-bottom:20px;
+  }
+  .hero h1{
+    font-size:clamp(2rem,4vw,2.9rem);
+    line-height:1.12;
+    margin:0 0 18px;
+    color:var(--blue-deep);
+    font-weight:800;
+    letter-spacing:-0.01em;
+  }
+  .hero h1 .accent{color:var(--gold-deep);}
+  .hero p.lede{
+    font-size:1.1rem;
+    color:var(--ink-soft);
+    max-width:60ch;
+    margin:0 0 26px;
+  }
+  .hero-meta{
+    display:flex;
+    gap:20px;
+    flex-wrap:wrap;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.74rem;
+    color:var(--blue);
+  }
+  .hero-meta span b{color:var(--blue-deep);}
+ 
+  section.block{
+    margin-bottom:76px;
+    scroll-margin-top:28px;
+  }
+  section.block > h2{
+    font-size:1.6rem;
+    color:var(--blue-deep);
+    margin:0 0 8px;
+    display:flex;
+    align-items:baseline;
+    gap:12px;
+    font-weight:800;
+  }
+  section.block > h2 .idx{
+    color:var(--gold-deep);
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.95rem;
+  }
+  section.block > p.intro{
+    color:var(--ink-soft);
+    margin:0 0 28px;
+    max-width:62ch;
+  }
+ 
+  h3{
+    font-size:1.16rem;
+    color:var(--blue-deep);
+    margin:32px 0 10px;
+    padding-left:12px;
+    border-left:3px solid var(--gold);
+    font-weight:700;
+  }
+  h4{
+    font-size:0.98rem;
+    color:var(--blue);
+    margin:18px 0 8px;
+    font-weight:700;
+  }
+  p{margin:0 0 14px;}
+  ul,ol{margin:0 0 16px;padding-left:22px;}
+  li{margin-bottom:6px;}
+ 
+  a{color:var(--blue);}
+  a:hover{color:var(--gold-deep);}
+  strong{color:var(--blue-deep);}
+ 
+  /* ---------- Code blocks ---------- */
+  .code-card{
+    background:var(--code-bg);
+    border-radius:var(--radius);
+    margin:18px 0 22px;
+    overflow:hidden;
+    box-shadow:0 10px 28px rgba(21,44,63,0.2);
+  }
+  .code-card .code-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:10px 14px;
+    background:#0A141C;
+    border-bottom:1px solid rgba(255,255,255,0.06);
+  }
+  .code-head .dots{display:flex;gap:6px;}
+  .code-head .dots i{
+    width:9px;height:9px;border-radius:50%;display:inline-block;
+    background:#2B3D4B;
+  }
+  .code-head .filename{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.72rem;
+    color:#7E96A6;
+  }
+  .copy-btn{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.7rem;
+    color:#9DB4C4;
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:6px;
+    padding:4px 10px;
+    cursor:pointer;
+    transition:background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .copy-btn:hover{background:rgba(255,212,59,0.12);color:var(--gold);border-color:rgba(255,212,59,0.3);}
+  .copy-btn.copied{background:rgba(255,212,59,0.18);color:var(--gold);border-color:var(--gold);}
+ 
+  .code-card pre{
+    margin:0;
+    padding:18px 20px;
+    overflow-x:auto;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.83rem;
+    line-height:1.68;
+    color:var(--code-ink);
+  }
+  .code-card code{font-family:inherit;}
+ 
+  .tok-kw{color:var(--gold);}
+  .tok-type{color:#7FB0D8;}
+  .tok-str{color:#8FD19E;}
+  .tok-com{color:#5C7284;font-style:italic;}
+  .tok-num{color:#D397E8;}
+  .tok-fn{color:#FFB454;}
+  .tok-self{color:#E88AAE;}
+  .tok-dec{color:#79D8C9;}
+ 
+  code.inline{
+    background:#E7EEF3;
+    color:#1C4A6B;
+    padding:1.5px 6px;
+    border-radius:5px;
+    font-size:0.87em;
+    font-family:'JetBrains Mono',monospace;
+  }
+ 
+  /* ---------- Tables ---------- */
+  .tbl-wrap{overflow-x:auto;margin:18px 0 26px;border-radius:var(--radius);border:1px solid var(--line);}
+  table{
+    border-collapse:collapse;
+    width:100%;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.8rem;
+    background:var(--panel);
+  }
+  th,td{
+    text-align:left;
+    padding:12px 14px;
+    border-bottom:1px solid var(--line);
+    vertical-align:top;
+  }
+  thead th{
+    background:var(--blue-deep);
+    color:#fff;
+    font-weight:600;
+  }
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:nth-child(odd){background:#FAFBFA;}
+ 
+  /* ---------- Cards / grids ---------- */
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:20px 0 26px;}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0 26px;}
+  .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0 26px;}
+ 
+  .feat-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:16px 16px 14px;
+  }
+  .feat-card .fc-title{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.8rem;
+    color:var(--blue);
+    font-weight:700;
+    margin-bottom:6px;
+    display:flex;align-items:center;gap:6px;
+  }
+  .feat-card .fc-title .dot{width:7px;height:7px;border-radius:50%;background:var(--gold);display:inline-block;}
+  .feat-card p{font-size:0.89rem;color:var(--ink-soft);margin:0;}
+ 
+  .ds-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:16px 16px 14px;
+    border-top:3px solid var(--blue);
+  }
+  .ds-card h4{margin-top:0;color:var(--blue-deep);}
+  .ds-card .tag{
+    display:inline-block;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.68rem;
+    padding:2px 8px;
+    border-radius:20px;
+    background:#FFF6D9;
+    color:#8A6D00;
+    margin:4px 4px 0 0;
+  }
+ 
+  .note{
+    border-left:3px solid var(--blue);
+    background:#EBF1F6;
+    padding:12px 16px;
+    border-radius:0 8px 8px 0;
+    font-size:0.91rem;
+    color:var(--blue-deep);
+    margin:18px 0;
+  }
+  .note.warn{border-left-color:var(--gold-deep);background:#FFF8E1;color:#5C4700;}
+ 
+  /* ---------- Accordion ---------- */
+  .accordion{border-top:1px solid var(--line);}
+  .acc-item{border-bottom:1px solid var(--line);}
+  .acc-q{
+    width:100%;
+    text-align:left;
+    background:none;
+    border:none;
+    padding:16px 4px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.9rem;
+    color:var(--blue-deep);
+    font-weight:600;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    cursor:pointer;
+  }
+  .acc-q .plus{color:var(--gold-deep);font-size:1.15rem;transition:transform 0.2s ease;}
+  .acc-item.open .plus{transform:rotate(45deg);}
+  .acc-a{max-height:0;overflow:hidden;transition:max-height 0.25s ease;color:var(--ink-soft);font-size:0.93rem;}
+  .acc-a-inner{padding:0 4px 18px;}
+ 
+  /* ---------- Tabs ---------- */
+  .tabs{margin:20px 0 26px;}
+  .tab-bar{display:flex;gap:4px;border-bottom:1px solid var(--line);flex-wrap:wrap;}
+  .tab-btn{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.79rem;
+    background:none;
+    border:none;
+    padding:10px 16px;
+    color:var(--ink-soft);
+    cursor:pointer;
+    border-bottom:2px solid transparent;
+    margin-bottom:-1px;
+  }
+  .tab-btn.active{color:var(--blue-deep);border-bottom-color:var(--gold);font-weight:700;}
+  .tab-panel{display:none;padding-top:16px;}
+  .tab-panel.active{display:block;}
+ 
+  footer{
+    padding:40px 50px 90px;
+    max-width:calc(var(--maxw) + 100px);
+    margin:0 auto;
+    color:var(--ink-soft);
+    font-size:0.85rem;
+    border-top:1px solid var(--line);
+  }
+ 
+  /* ---------- Dark mode ---------- */
+  body.dark{
+    --paper:#0D1620;
+    --panel:#141F2A;
+    --ink:#E3EAEF;
+    --ink-soft:#93A6B4;
+    --line:#243544;
+    --code-bg:#080F16;
+  }
+  body.dark table thead th{background:#1B3549;}
+  body.dark tbody tr:nth-child(odd){background:#101B25;}
+  body.dark code.inline{background:#1E2E3B;color:#7FC4FF;}
+  body.dark .note{background:#132434;}
+  body.dark .note.warn{background:#2C2409;color:#FFD43B;}
+  body.dark .ds-card .tag{background:#2C2409;color:#FFD43B;}
+  body.dark .hero .kicker{background:rgba(91,141,184,0.14);}
+ 
+  /* ---------- Responsive ---------- */
+  @media (max-width:920px){
+    .shell{grid-template-columns:1fr;}
+    .sidebar{
+      position:fixed;
+      z-index:40;
+      left:0;top:0;
+      width:80%;
+      max-width:300px;
+      transform:translateX(-100%);
+      transition:transform 0.25s ease;
+      box-shadow:20px 0 40px rgba(0,0,0,0.3);
+    }
+    .sidebar.open{transform:translateX(0);}
+    .mobile-bar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      background:var(--blue-deep);
+      color:#fff;
+      padding:14px 18px;
+      position:sticky;
+      top:0;
+      z-index:30;
+    }
+    .mobile-bar .nav-brand{margin:0;}
+    .burger{
+      width:34px;height:34px;border-radius:8px;
+      background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.15);
+      color:#fff;
+      font-size:1.1rem;
+      cursor:pointer;
+    }
+    .scrim{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:35;}
+    .scrim.show{display:block;}
+    main{padding:36px 20px 90px;}
+    .hero h1{font-size:1.9rem;}
+    .grid-3,.grid-2,.grid-4{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+ 
+<div class="mobile-bar">
+  <a href="#top" class="nav-brand">
+    <svg class="py-mark" viewBox="0 0 24 24" fill="none"><path d="M12 2c-4 0-4 2-4 2v3h4v1H6s-3 0-3 5 3 5 3 5h2v-3s0-2 2-2h4s3 0 3-3V5s0-3-4-3h-1zM9.5 4a.9.9 0 110 1.8.9.9 0 010-1.8z" fill="%23306998"/><path d="M12 22c4 0 4-2 4-2v-3h-4v-1h6s3 0 3-5-3-5-3-5h-2v3s0 2-2 2H10s-3 0-3 3v4s0 3 4 3h1zM14.5 20a.9.9 0 110-1.8.9.9 0 010 1.8z" fill="%23FFD43B"/></svg>
+    <span class="logo-text">py<b>.</b>guide</span>
+  </a>
+  <button class="burger" id="burgerBtn" aria-label="Open navigation">☰</button>
+</div>
+<div class="scrim" id="scrim"></div>
+ 
+<div class="shell">
+ 
+  <aside class="sidebar" id="sidebar">
+    <a href="#top" class="nav-brand">
+      <svg class="py-mark" viewBox="0 0 24 24" fill="none"><path d="M12 2c-4 0-4 2-4 2v3h4v1H6s-3 0-3 5 3 5 3 5h2v-3s0-2 2-2h4s3 0 3-3V5s0-3-4-3h-1zM9.5 4a.9.9 0 110 1.8.9.9 0 010-1.8z" fill="%23FFD43B"/><path d="M12 22c4 0 4-2 4-2v-3h-4v-1h6s3 0 3-5-3-5-3-5h-2v3s0 2-2 2H10s-3 0-3 3v4s0 3 4 3h1zM14.5 20a.9.9 0 110-1.8.9.9 0 010 1.8z" fill="%23fff"/></svg>
+      <span class="logo-text">py<b>.</b>guide</span>
+    </a>
+    <p class="subtitle">indentation to interfaces</p>
+ 
+    <div class="navgroup">
+      <div class="navgroup-label">Orientation</div>
+      <nav class="sidenav">
+        <a href="#intro" data-nav>What is Python</a>
+        <a href="#execution" data-nav>Py2 vs Py3 &amp; Execution</a>
+      </nav>
+    </div>
+ 
+    <div class="navgroup">
+      <div class="navgroup-label">Foundations</div>
+      <nav class="sidenav">
+        <a href="#syntax" data-nav>Syntax &amp; Indentation</a>
+        <a href="#variables" data-nav>Variables &amp; Types</a>
+        <a href="#io" data-nav>Casting &amp; I/O</a>
+        <a href="#operators" data-nav>Operators</a>
+        <a href="#control" data-nav>Control Flow</a>
+        <a href="#hello-game" data-nav>Hello World &amp; Guessing Game</a>
+      </nav>
+    </div>
+ 
+    <div class="navgroup">
+      <div class="navgroup-label">Data &amp; Functions</div>
+      <nav class="sidenav">
+        <a href="#data-structures" data-nav>Data Structures</a>
+        <a href="#comprehensions" data-nav>Comprehensions</a>
+        <a href="#functions" data-nav>Functions</a>
+        <a href="#functional" data-nav>Lambda, map, filter</a>
+        <a href="#modules" data-nav>Modules &amp; Packages</a>
+      </nav>
+    </div>
+ 
+    <div class="navgroup">
+      <div class="navgroup-label">Object&#8211;Oriented Python</div>
+      <nav class="sidenav">
+        <a href="#classes" data-nav>Classes &amp; Objects</a>
+        <a href="#encapsulation" data-nav>Encapsulation</a>
+        <a href="#inheritance" data-nav>Inheritance</a>
+        <a href="#polymorphism" data-nav>Polymorphism</a>
+        <a href="#abc" data-nav>Abstract Base Classes</a>
+      </nav>
+    </div>
+ 
+    <div class="navgroup">
+      <div class="navgroup-label">Advanced</div>
+      <nav class="sidenav">
+        <a href="#exceptions" data-nav>Exception Handling</a>
+        <a href="#files" data-nav>File Handling</a>
+        <a href="#decorators" data-nav>Decorators &amp; Generators</a>
+        <a href="#faq" data-nav>FAQ</a>
+      </nav>
+    </div>
+ 
+    <div class="theme-toggle" id="themeToggle">
+      <span id="themeLabel">Light mode</span>
+      <div class="toggle-track"><div class="toggle-thumb"></div></div>
+    </div>
+  </aside>
+ 
+  <main id="top">
+    <div class="content-inner">
+ 
+      <div class="hero">
+        <div class="kicker">&gt;&gt;&gt; import guide &nbsp;#&nbsp; basics through advanced</div>
+        <h1>Python, from indentation to <span class="accent">interfaces</span>.</h1>
+        <p class="lede">Python's whole pitch is that code should read like plain instructions. That readability is also what makes it forgiving to learn — this guide moves through the language in the order you'll actually use it: syntax, data, functions, then objects and the standard library once you're comfortable enough to reach for them.</p>
+        <div class="hero-meta">
+          <span><b>Level</b> Beginner → Intermediate</span>
+          <span><b>Reading time</b> ~40 min</span>
+          <span><b>Python version</b> 3.11+ examples</span>
+        </div>
+      </div>
+ 
+      <!-- 1. INTRO -->
+      <section class="block" id="intro">
+        <h2><span class="idx">01</span> What is Python?</h2>
+        <p class="intro">A high-level, general-purpose language designed around one core value: code is read far more often than it's written.</p>
+ 
+        <p>Python was created by Guido van Rossum and first released in 1991, named after Monty Python's Flying Circus rather than the snake. Its defining trait is that indentation isn't just style — it's syntax. Where other languages use curly braces to mark a block of code, Python uses whitespace, which forces every Python program into a consistent, readable shape.</p>
+ 
+        <h3>Core features</h3>
+        <div class="grid-3">
+          <div class="feat-card">
+            <div class="fc-title"><span class="dot"></span>Interpreted</div>
+            <p>Code runs line by line through an interpreter rather than being compiled to a standalone binary first.</p>
+          </div>
+          <div class="feat-card">
+            <div class="fc-title"><span class="dot"></span>Dynamically Typed</div>
+            <p>You never declare a variable's type — it's inferred at runtime, and can even change as the program runs.</p>
+          </div>
+          <div class="feat-card">
+            <div class="fc-title"><span class="dot"></span>High-Level</div>
+            <p>Memory management and low-level details are handled for you, so code focuses on logic, not housekeeping.</p>
+          </div>
+          <div class="feat-card">
+            <div class="fc-title"><span class="dot"></span>Multi-paradigm</div>
+            <p>Supports procedural, object-oriented, and functional styles — pick whichever fits the problem.</p>
+          </div>
+          <div class="feat-card">
+            <div class="fc-title"><span class="dot"></span>Batteries-Included</div>
+            <p>The standard library ships with modules for file I/O, networking, math, dates, and more — no setup required.</p>
+          </div>
+          <div class="feat-card">
+            <div class="fc-title"><span class="dot"></span>Cross-Platform</div>
+            <p>The same source runs on Windows, macOS, and Linux wherever a Python interpreter is installed.</p>
+          </div>
+        </div>
+      </section>
+ 
+      <section class="block" id="execution">
+        <h2><span class="idx">02</span> Python 2 vs 3, and How Python Runs</h2>
+        <p class="intro">A brief note on history, then the pipeline your code actually travels through.</p>
+ 
+        <div class="note">Python 2 reached end-of-life on <strong>January 1, 2020</strong>. All new work should target Python 3 — string handling, integer division, and print syntax all changed between the two, and Python 2 no longer receives security updates. If you see <code class="inline">print "text"</code> without parentheses anywhere, that's Python 2 code.</div>
+ 
+        <h3>Source code → Bytecode → PVM</h3>
+        <div class="grid-3">
+          <div class="feat-card">
+            <div class="fc-title"><span class="dot"></span>1. Source (.py)</div>
+            <p>The human-readable code you write, saved in a <code class="inline">.py</code> file.</p>
+          </div>
+          <div class="feat-card">
+            <div class="fc-title"><span class="dot"></span>2. Bytecode (.pyc)</div>
+            <p>The interpreter compiles your source into a lower-level, platform-independent instruction set.</p>
+          </div>
+          <div class="feat-card">
+            <div class="fc-title"><span class="dot"></span>3. PVM</div>
+            <p>The Python Virtual Machine executes that bytecode line by line — this is the interpreter actually "running."</p>
+          </div>
+        </div>
+        <p>This is why Python is called <em>interpreted</em> rather than compiled in the C/Java sense: there's no separate build step producing a standalone executable — the PVM reads and runs the bytecode every time you execute the script.</p>
+      </section>
+ 
+      <!-- 2. BASICS -->
+      <section class="block" id="syntax">
+        <h2><span class="idx">03</span> Basic Syntax &amp; Indentation</h2>
+        <p class="intro">Whitespace is not cosmetic in Python — it's how blocks of code are defined.</p>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">indentation.py</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-kw">def</span> <span class="tok-fn">check_age</span>(age):
+    <span class="tok-kw">if</span> age >= <span class="tok-num">18</span>:
+        <span class="tok-fn">print</span>(<span class="tok-str">"You can vote."</span>)      <span class="tok-com"># indented 4 spaces — inside the if</span>
+    <span class="tok-kw">else</span>:
+        <span class="tok-fn">print</span>(<span class="tok-str">"Not yet."</span>)            <span class="tok-com"># same rule applies here</span>
+    <span class="tok-fn">print</span>(<span class="tok-str">"Check complete."</span>)          <span class="tok-com"># back at function level — always runs</span></code></pre>
+        </div>
+ 
+        <ul>
+          <li><strong>No braces, no semicolons.</strong> A colon <code class="inline">:</code> opens a block; the next line's indentation defines what's inside it.</li>
+          <li><strong>Be consistent.</strong> Mixing tabs and spaces raises an <code class="inline">IndentationError</code> — most style guides recommend 4 spaces.</li>
+          <li><strong>Comments</strong> start with <code class="inline">#</code> and run to the end of the line.</li>
+          <li>Everything in Python — functions, numbers, even modules — is an <strong>object</strong>.</li>
+        </ul>
+      </section>
+ 
+      <section class="block" id="variables">
+        <h2><span class="idx">04</span> Variables, Dynamic Typing &amp; Data Types</h2>
+        <p class="intro">A variable is just a name bound to an object — and that name can be rebound to a different type at any time.</p>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">dynamic_typing.py</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code>x = <span class="tok-num">10</span>            <span class="tok-com"># x is an int</span>
+<span class="tok-fn">print</span>(<span class="tok-fn">type</span>(x))    <span class="tok-com"># &lt;class 'int'&gt;</span>
+ 
+x = <span class="tok-str">"now a string"</span>  <span class="tok-com"># same name, new type — perfectly legal</span>
+<span class="tok-fn">print</span>(<span class="tok-fn">type</span>(x))    <span class="tok-com"># &lt;class 'str'&gt;</span></code></pre>
+        </div>
+ 
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Type</th><th>Example</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr><td>int</td><td>age = 24</td><td>Whole numbers, arbitrary precision</td></tr>
+              <tr><td>float</td><td>gpa = 3.98</td><td>Decimal numbers</td></tr>
+              <tr><td>str</td><td>name = "Ada"</td><td>Immutable sequence of characters</td></tr>
+              <tr><td>bool</td><td>is_done = True</td><td>True / False — a subtype of int</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+ 
+      <section class="block" id="io">
+        <h2><span class="idx">05</span> Type Casting &amp; Input / Output</h2>
+        <p class="intro">Converting between types explicitly, and getting data in and out of a program.</p>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">io_and_casting.py</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code>name = <span class="tok-fn">input</span>(<span class="tok-str">"What's your name? "</span>)       <span class="tok-com"># input() always returns a string</span>
+age_text = <span class="tok-fn">input</span>(<span class="tok-str">"What's your age? "</span>)
+age = <span class="tok-fn">int</span>(age_text)                        <span class="tok-com"># explicit cast: str -> int</span>
+ 
+<span class="tok-fn">print</span>(<span class="tok-kw">f</span><span class="tok-str">"Hi {name}, in 5 years you'll be {age + 5}."</span>)  <span class="tok-com"># f-string</span></code></pre>
+        </div>
+        <p>The <code class="inline">f</code> before the string turns it into an <strong>f-string</strong> — anything inside <code class="inline">{}</code> is evaluated and inserted directly. Common casts: <code class="inline">int()</code>, <code class="inline">float()</code>, <code class="inline">str()</code>, <code class="inline">bool()</code>.</p>
+      </section>
+ 
+      <section class="block" id="operators">
+        <h2><span class="idx">06</span> Operators</h2>
+        <p class="intro">Python adds two operator families most languages don't have: <code class="inline">is</code> for identity and <code class="inline">in</code> for membership.</p>
+ 
+        <div class="grid-3">
+          <div class="feat-card"><div class="fc-title"><span class="dot"></span>Arithmetic</div><p><code class="inline">+ - * / // % **</code> — <code class="inline">//</code> is floor division, <code class="inline">**</code> is exponentiation.</p></div>
+          <div class="feat-card"><div class="fc-title"><span class="dot"></span>Comparison</div><p><code class="inline">== != &gt; &lt; &gt;= &lt;=</code> — always return a bool.</p></div>
+          <div class="feat-card"><div class="fc-title"><span class="dot"></span>Logical</div><p><code class="inline">and or not</code> — written as words, not symbols.</p></div>
+          <div class="feat-card"><div class="fc-title"><span class="dot"></span>Bitwise</div><p><code class="inline">&amp; | ^ ~ &lt;&lt; &gt;&gt;</code> — operate on the binary representation of integers.</p></div>
+          <div class="feat-card"><div class="fc-title"><span class="dot"></span>Assignment</div><p><code class="inline">= += -= *= /=</code> — compound forms combine an operation with assignment.</p></div>
+          <div class="feat-card"><div class="fc-title"><span class="dot"></span>Identity &amp; Membership</div><p><code class="inline">is</code> checks if two names point to the same object; <code class="inline">in</code> checks membership in a sequence.</p></div>
+        </div>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">is_vs_equals.py</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code>a = [<span class="tok-num">1</span>, <span class="tok-num">2</span>, <span class="tok-num">3</span>]
+b = [<span class="tok-num">1</span>, <span class="tok-num">2</span>, <span class="tok-num">3</span>]
+ 
+<span class="tok-fn">print</span>(a == b)   <span class="tok-com"># True  -- same contents</span>
+<span class="tok-fn">print</span>(a <span class="tok-kw">is</span> b)    <span class="tok-com"># False -- different objects in memory</span>
+<span class="tok-fn">print</span>(<span class="tok-num">3</span> <span class="tok-kw">in</span> a)     <span class="tok-com"># True  -- membership check</span></code></pre>
+        </div>
+      </section>
+ 
+      <section class="block" id="control">
+        <h2><span class="idx">07</span> Control Flow</h2>
+        <p class="intro">Branching, looping, and the three keywords that fine-tune loop behavior.</p>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">control_flow.py</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code>score = <span class="tok-num">76</span>
+ 
+<span class="tok-kw">if</span> score >= <span class="tok-num">90</span>:
+    <span class="tok-fn">print</span>(<span class="tok-str">"Grade: A"</span>)
+<span class="tok-kw">elif</span> score >= <span class="tok-num">75</span>:
+    <span class="tok-fn">print</span>(<span class="tok-str">"Grade: B"</span>)
+<span class="tok-kw">else</span>:
+    <span class="tok-fn">print</span>(<span class="tok-str">"Grade: C or below"</span>)
+ 
+<span class="tok-kw">for</span> i <span class="tok-kw">in</span> <span class="tok-fn">range</span>(<span class="tok-num">5</span>):              <span class="tok-com"># 0, 1, 2, 3, 4</span>
+    <span class="tok-kw">if</span> i == <span class="tok-num">3</span>:
+        <span class="tok-kw">continue</span>            <span class="tok-com"># skip the rest of this iteration</span>
+    <span class="tok-kw">if</span> i == <span class="tok-num">4</span>:
+        <span class="tok-kw">break</span>               <span class="tok-com"># exit the loop entirely</span>
+    <span class="tok-fn">print</span>(<span class="tok-str">"i is"</span>, i)
+ 
+fuel = <span class="tok-num">3</span>
+<span class="tok-kw">while</span> fuel > <span class="tok-num">0</span>:
+    <span class="tok-kw">pass</span>                    <span class="tok-com"># placeholder — does nothing, keeps syntax valid</span>
+    fuel -= <span class="tok-num">1</span></code></pre>
+        </div>
+      </section>
+ 
+      <section class="block" id="hello-game">
+        <h2><span class="idx">08</span> Two Complete Programs</h2>
+        <p class="intro">The smallest possible Python program, and an interactive guessing game that ties loops, conditionals, and I/O together.</p>
+ 
+        <h3>Hello, World</h3>
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">hello_world.py</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-fn">print</span>(<span class="tok-str">"Hello, World!"</span>)</code></pre>
+        </div>
+        <p>That's the entire program — no class, no main function required. Python executes top-level statements directly.</p>
+ 
+        <h3>Number Guessing Game</h3>
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">guessing_game.py</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-kw">import</span> random
+ 
+secret = random.randint(<span class="tok-num">1</span>, <span class="tok-num">20</span>)
+attempts = <span class="tok-num">0</span>
+ 
+<span class="tok-fn">print</span>(<span class="tok-str">"I'm thinking of a number between 1 and 20."</span>)
+ 
+<span class="tok-kw">while</span> <span class="tok-kw">True</span>:
+    guess = <span class="tok-fn">int</span>(<span class="tok-fn">input</span>(<span class="tok-str">"Your guess: "</span>))
+    attempts += <span class="tok-num">1</span>
+ 
+    <span class="tok-kw">if</span> guess < secret:
+        <span class="tok-fn">print</span>(<span class="tok-str">"Too low."</span>)
+    <span class="tok-kw">elif</span> guess > secret:
+        <span class="tok-fn">print</span>(<span class="tok-str">"Too high."</span>)
+    <span class="tok-kw">else</span>:
+        <span class="tok-fn">print</span>(<span class="tok-kw">f</span><span class="tok-str">"Correct! You got it in {attempts} tries."</span>)
+        <span class="tok-kw">break</span></code></pre>
+        </div>
+      </section>
+ 
+      <!-- 3. DATA STRUCTURES -->
+      <section class="block" id="data-structures">
+        <h2><span class="idx">09</span> Data Structures</h2>
+        <p class="intro">Four built-in containers cover almost every situation you'll run into.</p>
+ 
+        <div class="grid-2">
+          <div class="ds-card">
+            <h4>List</h4>
+            <span class="tag">mutable</span><span class="tag">ordered</span><span class="tag">duplicates OK</span>
+            <p style="font-size:0.89rem;color:var(--ink-soft);margin-top:10px;">General-purpose sequence. <code class="inline">nums = [3, 1, 2]</code>. Common methods: <code class="inline">.append()</code>, <code class="inline">.pop()</code>, <code class="inline">.sort()</code>.</p>
+          </div>
+          <div class="ds-card">
+            <h4>Tuple</h4>
+            <span class="tag">immutable</span><span class="tag">ordered</span><span class="tag">duplicates OK</span>
+            <p style="font-size:0.89rem;color:var(--ink-soft);margin-top:10px;">Like a list, but locked after creation. <code class="inline">point = (3, 4)</code>. Faster than a list, and safe to use as a dict key.</p>
+          </div>
+          <div class="ds-card">
+            <h4>Set</h4>
+            <span class="tag">mutable</span><span class="tag">unordered</span><span class="tag">no duplicates</span>
+            <p style="font-size:0.89rem;color:var(--ink-soft);margin-top:10px;">Unique, unordered items. <code class="inline">ids = {1, 2, 3}</code>. Great for de-duplication and fast membership checks.</p>
+          </div>
+          <div class="ds-card">
+            <h4>Dictionary</h4>
+            <span class="tag">mutable</span><span class="tag">ordered*</span><span class="tag">unique keys</span>
+            <p style="font-size:0.89rem;color:var(--ink-soft);margin-top:10px;">Key-value pairs. <code class="inline">ages = {"Ada": 36}</code>. *Insertion order preserved since Python 3.7.</p>
+          </div>
+        </div>
+ 
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Structure</th><th>Mutable?</th><th>Ordered?</th><th>Duplicates?</th><th>Syntax</th></tr></thead>
+            <tbody>
+              <tr><td>list</td><td>Yes</td><td>Yes</td><td>Yes</td><td>[1, 2, 3]</td></tr>
+              <tr><td>tuple</td><td>No</td><td>Yes</td><td>Yes</td><td>(1, 2, 3)</td></tr>
+              <tr><td>set</td><td>Yes</td><td>No</td><td>No</td><td>{1, 2, 3}</td></tr>
+              <tr><td>dict</td><td>Yes</td><td>Yes (3.7+)</td><td>No (keys)</td><td>{"a": 1}</td></tr>
+            </tbody>
+          </table>
+        </div>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">data_structures.py</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code>fruits = [<span class="tok-str">"apple"</span>, <span class="tok-str">"banana"</span>]
+fruits.append(<span class="tok-str">"cherry"</span>)              <span class="tok-com"># ['apple', 'banana', 'cherry']</span>
+ 
+point = (<span class="tok-num">10</span>, <span class="tok-num">20</span>)                       <span class="tok-com"># cannot be modified after creation</span>
+ 
+unique_ids = {<span class="tok-num">1</span>, <span class="tok-num">2</span>, <span class="tok-num">2</span>, <span class="tok-num">3</span>}                <span class="tok-com"># {1, 2, 3} -- duplicate 2 is dropped</span>
+ 
+ages = {<span class="tok-str">"Ada"</span>: <span class="tok-num">36</span>, <span class="tok-str">"Grace"</span>: <span class="tok-num">85</span>}
+<span class="tok-fn">print</span>(ages[<span class="tok-str">"Ada"</span>])                     <span class="tok-com"># 36</span></code></pre>
+        </div>
+      </section>
+ 
+      <section class="block" id="comprehensions">
+        <h2><span class="idx">10</span> List &amp; Dictionary Comprehensions</h2>
+        <p class="intro">A one-line way to build a new collection from an existing one — arguably the most "Pythonic" idiom in the language.</p>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">comprehensions.py</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-com"># list comprehension: [expression for item in iterable if condition]</span>
+squares = [n**<span class="tok-num">2</span> <span class="tok-kw">for</span> n <span class="tok-kw">in</span> <span class="tok-fn">range</span>(<span class="tok-num">6</span>)]
+<span class="tok-com"># [0, 1, 4, 9, 16, 25]</span>
+ 
+evens = [n <span class="tok-kw">for</span> n <span class="tok-kw">in</span> <span class="tok-fn">range</span>(<span class="tok-num">10</span>) <span class="tok-kw">if</span> n % <span class="tok-num">2</span> == <span class="tok-num">0</span>]
+<span class="tok-com"># [0, 2, 4, 6, 8]</span>
+ 
+<span class="tok-com"># dict comprehension: {key_expr: value_expr for item in iterable}</span>
+name_lengths = {name: <span class="tok-fn">len</span>(name) <span class="tok-kw">for</span> name <span class="tok-kw">in</span> [<span class="tok-str">"Ada"</span>, <span class="tok-str">"Grace"</span>]}
+<span class="tok-com"># {'Ada': 3, 'Grace': 5}</span></code></pre>
+        </div>
+        <div class="note">A comprehension is equivalent to a <code class="inline">for</code> loop with an <code class="inline">.append()</code> — just faster to write, and often faster to run.</div>
+      </section>
+ 
+      <!-- 4. FUNCTIONS -->
+      <section class="block" id="functions">
+        <h2><span class="idx">11</span> Functions</h2>
+        <p class="intro">Reusable blocks of logic, with flexible ways to accept arguments.</p>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">functions.py</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-kw">def</span> <span class="tok-fn">greet</span>(name, greeting=<span class="tok-str">"Hello"</span>):    <span class="tok-com"># default argument</span>
+    <span class="tok-kw">return</span> <span class="tok-kw">f</span><span class="tok-str">"{greeting}, {name}!"</span>
+ 
+<span class="tok-fn">print</span>(<span class="tok-fn">greet</span>(<span class="tok-str">"Ada"</span>))                  <span class="tok-com"># "Hello, Ada!"</span>
+<span class="tok-fn">print</span>(<span class="tok-fn">greet</span>(<span class="tok-str">"Ada"</span>, <span class="tok-str">"Hi"</span>))            <span class="tok-com"># "Hi, Ada!"</span>
+ 
+<span class="tok-kw">def</span> <span class="tok-fn">total</span>(*args):                     <span class="tok-com"># *args -- any number of positional args, as a tuple</span>
+    <span class="tok-kw">return</span> <span class="tok-fn">sum</span>(args)
+ 
+<span class="tok-fn">print</span>(<span class="tok-fn">total</span>(<span class="tok-num">1</span>, <span class="tok-num">2</span>, <span class="tok-num">3</span>, <span class="tok-num">4</span>))            <span class="tok-com"># 10</span>
+ 
+<span class="tok-kw">def</span> <span class="tok-fn">build_profile</span>(**kwargs):          <span class="tok-com"># **kwargs -- any number of named args, as a dict</span>
+    <span class="tok-kw">return</span> kwargs
+ 
+<span class="tok-fn">print</span>(<span class="tok-fn">build_profile</span>(name=<span class="tok-str">"Ada"</span>, age=<span class="tok-num">36</span>))
+<span class="tok-com"># {'name': 'Ada', 'age': 36}</span></code></pre>
+        </div>
+      </section>
+ 
+      <section class="block" id="functional">
+        <h2><span class="idx">12</span> Lambda, map(), filter() &amp; reduce()</h2>
+        <p class="intro">Small, anonymous functions and the tools built to apply them across a collection.</p>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">functional.py</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-kw">from</span> functools <span class="tok-kw">import</span> reduce
+ 
+square = <span class="tok-kw">lambda</span> x: x ** <span class="tok-num">2</span>          <span class="tok-com"># anonymous, single-expression function</span>
+<span class="tok-fn">print</span>(square(<span class="tok-num">5</span>))                  <span class="tok-com"># 25</span>
+ 
+nums = [<span class="tok-num">1</span>, <span class="tok-num">2</span>, <span class="tok-num">3</span>, <span class="tok-num">4</span>, <span class="tok-num">5</span>]
+ 
+doubled = <span class="tok-fn">list</span>(<span class="tok-fn">map</span>(<span class="tok-kw">lambda</span> n: n * <span class="tok-num">2</span>, nums))
+<span class="tok-com"># [2, 4, 6, 8, 10]</span>
+ 
+evens = <span class="tok-fn">list</span>(<span class="tok-fn">filter</span>(<span class="tok-kw">lambda</span> n: n % <span class="tok-num">2</span> == <span class="tok-num">0</span>, nums))
+<span class="tok-com"># [2, 4]</span>
+ 
+total = reduce(<span class="tok-kw">lambda</span> acc, n: acc + n, nums)
+<span class="tok-com"># 15 -- collapses the list to a single value</span></code></pre>
+        </div>
+        <p><code class="inline">map()</code> transforms every item, <code class="inline">filter()</code> keeps only items matching a condition, and <code class="inline">reduce()</code> (from <code class="inline">functools</code>) folds the whole sequence into one result.</p>
+      </section>
+ 
+      <section class="block" id="modules">
+        <h2><span class="idx">13</span> Modules &amp; Packages</h2>
+        <p class="intro">Splitting code across files, and reusing code others have written.</p>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">modules.py</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-kw">import</span> math                       <span class="tok-com"># import the whole module</span>
+<span class="tok-fn">print</span>(math.sqrt(<span class="tok-num">16</span>))              <span class="tok-com"># 4.0 -- access via math.</span>
+ 
+<span class="tok-kw">from</span> datetime <span class="tok-kw">import</span> date       <span class="tok-com"># import one name directly</span>
+<span class="tok-fn">print</span>(date.today())
+ 
+<span class="tok-kw">import</span> numpy <span class="tok-kw">as</span> np             <span class="tok-com"># alias -- common for third-party packages</span></code></pre>
+        </div>
+        <p>A <strong>module</strong> is a single <code class="inline">.py</code> file. A <strong>package</strong> is a folder of modules containing an <code class="inline">__init__.py</code> file, letting you organize larger projects into a namespace.</p>
+      </section>
+ 
+      <!-- 5. OOP -->
+      <section class="block" id="classes">
+        <h2><span class="idx">14</span> Classes &amp; Objects</h2>
+        <p class="intro"><code class="inline">self</code> is Python's explicit way of saying "this particular object" — every instance method takes it as the first parameter.</p>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">classes.py</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-kw">class</span> <span class="tok-type">Car</span>:
+    wheels = <span class="tok-num">4</span>                          <span class="tok-com"># class variable -- shared by every instance</span>
+ 
+    <span class="tok-kw">def</span> <span class="tok-fn">__init__</span>(<span class="tok-self">self</span>, color, speed=<span class="tok-num">0</span>):    <span class="tok-com"># constructor</span>
+        <span class="tok-self">self</span>.color = color               <span class="tok-com"># instance variable -- unique per object</span>
+        <span class="tok-self">self</span>.speed = speed
+ 
+    <span class="tok-kw">def</span> <span class="tok-fn">accelerate</span>(<span class="tok-self">self</span>, amount):
+        <span class="tok-self">self</span>.speed += amount
+        <span class="tok-fn">print</span>(<span class="tok-kw">f</span><span class="tok-str">"{self.color} car now going {self.speed} km/h"</span>)
+ 
+mine = <span class="tok-type">Car</span>(<span class="tok-str">"Red"</span>)                    <span class="tok-com"># object #1</span>
+mine.accelerate(<span class="tok-num">40</span>)
+ 
+yours = <span class="tok-type">Car</span>(<span class="tok-str">"Blue"</span>, speed=<span class="tok-num">10</span>)        <span class="tok-com"># object #2, independent state</span>
+yours.accelerate(<span class="tok-num">15</span>)</code></pre>
+        </div>
+        <div class="note"><code class="inline">wheels</code> is a class variable — every <code class="inline">Car</code> shares one copy. <code class="inline">color</code> and <code class="inline">speed</code> are instance variables — each object gets its own.</div>
+      </section>
+ 
+      <section class="block" id="encapsulation">
+        <h2><span class="idx">15</span> Encapsulation</h2>
+        <p class="intro">Python doesn't have a true "private" keyword — it uses naming conventions and name mangling instead, backed by a trust-based culture.</p>
+ 
+        <div class="grid-3">
+          <div class="feat-card"><div class="fc-title"><span class="dot"></span>public</div><p><code class="inline">self.name</code> — freely accessible from anywhere.</p></div>
+          <div class="feat-card"><div class="fc-title"><span class="dot"></span>_protected</div><p>Single underscore — a convention meaning "internal use," but still accessible.</p></div>
+          <div class="feat-card"><div class="fc-title"><span class="dot"></span>__private</div><p>Double underscore — triggers name mangling to <code class="inline">_ClassName__attr</code>, discouraging accidental access.</p></div>
+        </div>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">encapsulation.py</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-kw">class</span> <span class="tok-type">BankAccount</span>:
+    <span class="tok-kw">def</span> <span class="tok-fn">__init__</span>(<span class="tok-self">self</span>, balance=<span class="tok-num">0</span>):
+        <span class="tok-self">self</span>.__balance = balance        <span class="tok-com"># name-mangled -- discourages direct access</span>
+ 
+    <span class="tok-dec">@property</span>
+    <span class="tok-kw">def</span> <span class="tok-fn">balance</span>(<span class="tok-self">self</span>):                  <span class="tok-com"># getter -- accessed like an attribute, no ()</span>
+        <span class="tok-kw">return</span> <span class="tok-self">self</span>.__balance
+ 
+    <span class="tok-dec">@balance.setter</span>
+    <span class="tok-kw">def</span> <span class="tok-fn">balance</span>(<span class="tok-self">self</span>, amount):          <span class="tok-com"># setter -- runs validation on assignment</span>
+        <span class="tok-kw">if</span> amount < <span class="tok-num">0</span>:
+            <span class="tok-kw">raise</span> <span class="tok-type">ValueError</span>(<span class="tok-str">"Balance can't go negative"</span>)
+        <span class="tok-self">self</span>.__balance = amount
+ 
+acct = <span class="tok-type">BankAccount</span>(<span class="tok-num">100</span>)
+acct.balance = <span class="tok-num">150</span>          <span class="tok-com"># calls the setter</span>
+<span class="tok-fn">print</span>(acct.balance)     <span class="tok-com"># calls the getter -- 150</span></code></pre>
+        </div>
+      </section>
+ 
+      <section class="block" id="inheritance">
+        <h2><span class="idx">16</span> Inheritance</h2>
+        <p class="intro">A class can build on another class's behavior — and unlike Java, Python allows inheriting from more than one class at once.</p>
+ 
+        <div class="grid-3">
+          <div class="feat-card"><div class="fc-title"><span class="dot"></span>Single</div><p>One parent, one child. <code class="inline">class Dog(Animal):</code></p></div>
+          <div class="feat-card"><div class="fc-title"><span class="dot"></span>Multiple</div><p>A class inherits from more than one parent at once. <code class="inline">class Robot(Machine, Animal):</code></p></div>
+          <div class="feat-card"><div class="fc-title"><span class="dot"></span>Multilevel</div><p>A chain of inheritance. <code class="inline">class Puppy(Dog):</code> where Dog already extends Animal.</p></div>
+        </div>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">inheritance.py</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-kw">class</span> <span class="tok-type">Animal</span>:
+    <span class="tok-kw">def</span> <span class="tok-fn">__init__</span>(<span class="tok-self">self</span>, name):
+        <span class="tok-self">self</span>.name = name
+ 
+    <span class="tok-kw">def</span> <span class="tok-fn">eat</span>(<span class="tok-self">self</span>):
+        <span class="tok-fn">print</span>(<span class="tok-kw">f</span><span class="tok-str">"{self.name} is eating."</span>)
+ 
+<span class="tok-kw">class</span> <span class="tok-type">Dog</span>(<span class="tok-type">Animal</span>):                    <span class="tok-com"># single inheritance</span>
+    <span class="tok-kw">def</span> <span class="tok-fn">__init__</span>(<span class="tok-self">self</span>, name, breed):
+        <span class="tok-fn">super</span>().__init__(name)         <span class="tok-com"># calls Animal's constructor</span>
+        <span class="tok-self">self</span>.breed = breed
+ 
+    <span class="tok-kw">def</span> <span class="tok-fn">bark</span>(<span class="tok-self">self</span>):
+        <span class="tok-fn">print</span>(<span class="tok-kw">f</span><span class="tok-str">"{self.name} says Woof!"</span>)
+ 
+rex = <span class="tok-type">Dog</span>(<span class="tok-str">"Rex"</span>, <span class="tok-str">"Labrador"</span>)
+rex.eat()      <span class="tok-com"># inherited from Animal</span>
+rex.bark()     <span class="tok-com"># defined on Dog</span></code></pre>
+        </div>
+        <div class="note"><code class="inline">super()</code> gives you access to the parent class's methods without naming the parent directly — useful for calling the parent's <code class="inline">__init__</code> before adding subclass-specific setup.</div>
+      </section>
+ 
+      <section class="block" id="polymorphism">
+        <h2><span class="idx">17</span> Polymorphism</h2>
+        <p class="intro">Python leans on <strong>duck typing</strong> more than formal interfaces: "if it walks like a duck and quacks like a duck, treat it like a duck."</p>
+ 
+        <div class="tabs">
+          <div class="tab-bar">
+            <button class="tab-btn active" data-tab="p-override">Method Overriding</button>
+            <button class="tab-btn" data-tab="p-duck">Duck Typing</button>
+          </div>
+          <div class="tab-panel active" id="p-override">
+            <p>A subclass redefines a method it inherited, replacing the parent's version when called on that subclass.</p>
+            <div class="code-card">
+              <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">overriding.py</span><button class="copy-btn" data-copy>Copy</button></div>
+              <pre><code><span class="tok-kw">class</span> <span class="tok-type">Animal</span>:
+    <span class="tok-kw">def</span> <span class="tok-fn">speak</span>(<span class="tok-self">self</span>):
+        <span class="tok-fn">print</span>(<span class="tok-str">"Some generic animal sound"</span>)
+ 
+<span class="tok-kw">class</span> <span class="tok-type">Dog</span>(<span class="tok-type">Animal</span>):
+    <span class="tok-kw">def</span> <span class="tok-fn">speak</span>(<span class="tok-self">self</span>):             <span class="tok-com"># same name, overrides the parent</span>
+        <span class="tok-fn">print</span>(<span class="tok-str">"Woof!"</span>)
+ 
+<span class="tok-kw">for</span> creature <span class="tok-kw">in</span> [<span class="tok-type">Animal</span>(), <span class="tok-type">Dog</span>()]:
+    creature.speak()      <span class="tok-com"># each calls its own version</span></code></pre>
+            </div>
+          </div>
+          <div class="tab-panel" id="p-duck">
+            <p>Python doesn't check an object's type before calling a method — it just tries. If the object has the method, it works, regardless of what class it belongs to.</p>
+            <div class="code-card">
+              <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">duck_typing.py</span><button class="copy-btn" data-copy>Copy</button></div>
+              <pre><code><span class="tok-kw">class</span> <span class="tok-type">Duck</span>:
+    <span class="tok-kw">def</span> <span class="tok-fn">sound</span>(<span class="tok-self">self</span>):
+        <span class="tok-kw">return</span> <span class="tok-str">"Quack"</span>
+ 
+<span class="tok-kw">class</span> <span class="tok-type">Person</span>:
+    <span class="tok-kw">def</span> <span class="tok-fn">sound</span>(<span class="tok-self">self</span>):               <span class="tok-com"># unrelated class, same method name</span>
+        <span class="tok-kw">return</span> <span class="tok-str">"I'm quacking like a duck!"</span>
+ 
+<span class="tok-kw">def</span> <span class="tok-fn">make_it_quack</span>(thing):        <span class="tok-com"># no type check -- just calls .sound()</span>
+    <span class="tok-fn">print</span>(thing.sound())
+ 
+make_it_quack(<span class="tok-type">Duck</span>())
+make_it_quack(<span class="tok-type">Person</span>())</code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+ 
+      <section class="block" id="abc">
+        <h2><span class="idx">18</span> Abstract Base Classes</h2>
+        <p class="intro">The <code class="inline">abc</code> module lets Python enforce a contract when duck typing alone isn't strict enough.</p>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">abstract_base.py</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-kw">from</span> abc <span class="tok-kw">import</span> ABC, abstractmethod
+ 
+<span class="tok-kw">class</span> <span class="tok-type">Shape</span>(<span class="tok-type">ABC</span>):                     <span class="tok-com"># inherits from ABC</span>
+    <span class="tok-dec">@abstractmethod</span>
+    <span class="tok-kw">def</span> <span class="tok-fn">area</span>(<span class="tok-self">self</span>):                    <span class="tok-com"># no implementation -- subclasses must provide one</span>
+        <span class="tok-kw">pass</span>
+ 
+<span class="tok-kw">class</span> <span class="tok-type">Circle</span>(<span class="tok-type">Shape</span>):
+    <span class="tok-kw">def</span> <span class="tok-fn">__init__</span>(<span class="tok-self">self</span>, radius):
+        <span class="tok-self">self</span>.radius = radius
+ 
+    <span class="tok-kw">def</span> <span class="tok-fn">area</span>(<span class="tok-self">self</span>):
+        <span class="tok-kw">return</span> <span class="tok-num">3.14159</span> * <span class="tok-self">self</span>.radius ** <span class="tok-num">2</span>
+ 
+<span class="tok-com"># Shape()        -> TypeError: can't instantiate an abstract class</span>
+c = <span class="tok-type">Circle</span>(<span class="tok-num">3</span>)
+<span class="tok-fn">print</span>(c.area())</code></pre>
+        </div>
+        <div class="note">Trying to instantiate <code class="inline">Shape</code> directly raises a <code class="inline">TypeError</code> — and any subclass that skips implementing <code class="inline">area()</code> will too. This is Python's closest equivalent to Java's abstract classes.</div>
+      </section>
+ 
+      <!-- 6. ADVANCED -->
+      <section class="block" id="exceptions">
+        <h2><span class="idx">19</span> Exception Handling</h2>
+        <p class="intro">Anticipating failure gracefully, with a fuller set of blocks than most languages offer.</p>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">exceptions.py</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-kw">class</span> <span class="tok-type">NegativeAmountError</span>(<span class="tok-type">Exception</span>):    <span class="tok-com"># custom exception</span>
+    <span class="tok-kw">pass</span>
+ 
+<span class="tok-kw">def</span> <span class="tok-fn">withdraw</span>(balance, amount):
+    <span class="tok-kw">if</span> amount < <span class="tok-num">0</span>:
+        <span class="tok-kw">raise</span> <span class="tok-type">NegativeAmountError</span>(<span class="tok-str">"Amount can't be negative"</span>)
+    <span class="tok-kw">return</span> balance - amount
+ 
+<span class="tok-kw">try</span>:
+    result = <span class="tok-fn">withdraw</span>(<span class="tok-num">100</span>, -<span class="tok-num">10</span>)
+<span class="tok-kw">except</span> <span class="tok-type">NegativeAmountError</span> <span class="tok-kw">as</span> e:
+    <span class="tok-fn">print</span>(<span class="tok-kw">f</span><span class="tok-str">"Caught: {e}"</span>)
+<span class="tok-kw">except</span> <span class="tok-type">Exception</span> <span class="tok-kw">as</span> e:
+    <span class="tok-fn">print</span>(<span class="tok-kw">f</span><span class="tok-str">"Unexpected error: {e}"</span>)
+<span class="tok-kw">else</span>:
+    <span class="tok-fn">print</span>(<span class="tok-kw">f</span><span class="tok-str">"Success, new balance: {result}"</span>)   <span class="tok-com"># runs only if no exception occurred</span>
+<span class="tok-kw">finally</span>:
+    <span class="tok-fn">print</span>(<span class="tok-str">"Withdrawal attempt finished."</span>)          <span class="tok-com"># always runs</span></code></pre>
+        </div>
+ 
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Block</th><th>Runs when</th></tr></thead>
+            <tbody>
+              <tr><td>try</td><td>Always — wraps the risky code</td></tr>
+              <tr><td>except</td><td>Only if a matching exception is raised</td></tr>
+              <tr><td>else</td><td>Only if no exception occurred</td></tr>
+              <tr><td>finally</td><td>Always — regardless of what happened, for cleanup</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+ 
+      <section class="block" id="files">
+        <h2><span class="idx">20</span> File Handling</h2>
+        <p class="intro">The <code class="inline">with</code> statement guarantees a file gets closed, even if an error interrupts the code inside it.</p>
+ 
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">file_handling.py</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-com"># writing to a file</span>
+<span class="tok-kw">with</span> <span class="tok-fn">open</span>(<span class="tok-str">"notes.txt"</span>, <span class="tok-str">"w"</span>) <span class="tok-kw">as</span> file:
+    file.write(<span class="tok-str">"Python makes file handling simple.\n"</span>)
+ 
+<span class="tok-com"># reading it back</span>
+<span class="tok-kw">with</span> <span class="tok-fn">open</span>(<span class="tok-str">"notes.txt"</span>, <span class="tok-str">"r"</span>) <span class="tok-kw">as</span> file:
+    contents = file.read()
+    <span class="tok-fn">print</span>(contents)
+ 
+<span class="tok-com"># file is automatically closed here, even if an exception happened above</span></code></pre>
+        </div>
+        <p>This pattern is called a <strong>context manager</strong>. Common modes: <code class="inline">"r"</code> read, <code class="inline">"w"</code> write (overwrites), <code class="inline">"a"</code> append, <code class="inline">"r+"</code> read and write.</p>
+      </section>
+ 
+      <section class="block" id="decorators">
+        <h2><span class="idx">21</span> Decorators &amp; Generators</h2>
+        <p class="intro">Two features that make Python code more expressive: wrapping a function's behavior, and lazily producing a sequence of values.</p>
+ 
+        <h3>Decorators</h3>
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">decorators.py</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-kw">import</span> time
+ 
+<span class="tok-kw">def</span> <span class="tok-fn">timer</span>(func):                    <span class="tok-com"># a decorator: a function that wraps another function</span>
+    <span class="tok-kw">def</span> <span class="tok-fn">wrapper</span>(*args, **kwargs):
+        start = time.time()
+        result = func(*args, **kwargs)
+        <span class="tok-fn">print</span>(<span class="tok-kw">f</span><span class="tok-str">"{func.__name__} took {time.time() - start:.4f}s"</span>)
+        <span class="tok-kw">return</span> result
+    <span class="tok-kw">return</span> wrapper
+ 
+<span class="tok-dec">@timer</span>                              <span class="tok-com"># applies timer() to slow_square automatically</span>
+<span class="tok-kw">def</span> <span class="tok-fn">slow_square</span>(n):
+    time.sleep(<span class="tok-num">0.5</span>)
+    <span class="tok-kw">return</span> n * n
+ 
+slow_square(<span class="tok-num">4</span>)</code></pre>
+        </div>
+ 
+        <h3>Generators</h3>
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">generators.py</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-kw">def</span> <span class="tok-fn">count_up_to</span>(limit):
+    n = <span class="tok-num">1</span>
+    <span class="tok-kw">while</span> n <= limit:
+        <span class="tok-kw">yield</span> n              <span class="tok-com"># pauses here, returns n, resumes on next call</span>
+        n += <span class="tok-num">1</span>
+ 
+<span class="tok-kw">for</span> number <span class="tok-kw">in</span> count_up_to(<span class="tok-num">5</span>):
+    <span class="tok-fn">print</span>(number)          <span class="tok-com"># 1 2 3 4 5 -- values produced one at a time, not all at once</span></code></pre>
+        </div>
+        <div class="note">A generator never builds the whole sequence in memory — <code class="inline">yield</code> hands back one value at a time, which matters a lot when the sequence is huge or infinite.</div>
+      </section>
+ 
+      <!-- FAQ -->
+      <section class="block" id="faq">
+        <h2><span class="idx">22</span> Common Questions</h2>
+        <p class="intro">A few things almost everyone asks in their first week with Python.</p>
+ 
+        <div class="accordion" id="accordion">
+          <div class="acc-item open">
+            <button class="acc-q"><span>Why does indentation matter so much?</span><span class="plus">+</span></button>
+            <div class="acc-a"><div class="acc-a-inner">Python uses indentation instead of braces to define code blocks, so inconsistent spacing isn't just ugly — it's a syntax error. Stick to 4 spaces per level and most editors will handle it automatically.</div></div>
+          </div>
+          <div class="acc-item">
+            <button class="acc-q"><span>What's the difference between a list and a tuple, practically?</span><span class="plus">+</span></button>
+            <div class="acc-a"><div class="acc-a-inner">Use a list when the collection might change — adding, removing, reordering items. Use a tuple for fixed data, like coordinates or a function returning multiple values, since it's slightly faster and can't be accidentally modified.</div></div>
+          </div>
+          <div class="acc-item">
+            <button class="acc-q"><span>Is Python slow?</span><span class="plus">+</span></button>
+            <div class="acc-a"><div class="acc-a-inner">Compared to compiled languages like C or Rust, yes, for raw CPU-bound loops. In practice most Python programs spend their time waiting on I/O or calling into fast C-based libraries (NumPy, pandas), so the difference matters less than it sounds.</div></div>
+          </div>
+          <div class="acc-item">
+            <button class="acc-q"><span>When should I use a dataclass instead of a plain class?</span><span class="plus">+</span></button>
+            <div class="acc-a"><div class="acc-a-inner">The @dataclass decorator (from the dataclasses module) auto-generates __init__, __repr__, and __eq__ for classes that are mostly just holding data, saving you the boilerplate this guide wrote out by hand.</div></div>
+          </div>
+          <div class="acc-item">
+            <button class="acc-q"><span>What should I learn after this?</span><span class="plus">+</span></button>
+            <div class="acc-a"><div class="acc-a-inner">Virtual environments and pip, type hints, the itertools and collections modules, async/await for concurrency, and a testing framework like pytest. After that, pick a direction — web (Flask/Django), data (pandas/NumPy), or automation.</div></div>
+          </div>
+        </div>
+      </section>
+ 
+    </div>
+  </main>
+</div>
+ 
+<footer>
+  Built as a single self-contained HTML file — no external dependencies, works offline. Every snippet on this page targets Python 3.11+ syntax and can be pasted straight into a .py file or REPL.
+</footer>
+ 
+<script>
+  // ---------- Mobile sidebar ----------
+  const sidebar = document.getElementById('sidebar');
+  const burgerBtn = document.getElementById('burgerBtn');
+  const scrim = document.getElementById('scrim');
+ 
+  function openSidebar(){ sidebar.classList.add('open'); scrim.classList.add('show'); }
+  function closeSidebar(){ sidebar.classList.remove('open'); scrim.classList.remove('show'); }
+ 
+  if (burgerBtn) burgerBtn.addEventListener('click', () => {
+    sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+  });
+  scrim.addEventListener('click', closeSidebar);
+  document.querySelectorAll('.sidenav a').forEach(a => a.addEventListener('click', closeSidebar));
+ 
+  // ---------- Scrollspy ----------
+  const sections = document.querySelectorAll('section.block[id]');
+  const navLinks = document.querySelectorAll('.sidenav a[data-nav]');
+ 
+  const spy = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const id = entry.target.getAttribute('id');
+      const link = document.querySelector(`.sidenav a[href="#${id}"]`);
+      if (!link) return;
+      if (entry.isIntersecting) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
+ 
+  sections.forEach(s => spy.observe(s));
+ 
+  // ---------- Dark / light mode toggle ----------
+  const themeToggle = document.getElementById('themeToggle');
+  const themeLabel = document.getElementById('themeLabel');
+  themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark');
+    const isDark = document.body.classList.contains('dark');
+    themeLabel.textContent = isDark ? 'Dark mode' : 'Light mode';
+  });
+ 
+  // ---------- Accordion (FAQ) ----------
+  document.querySelectorAll('.acc-item').forEach(item => {
+    const q = item.querySelector('.acc-q');
+    const a = item.querySelector('.acc-a');
+    if (item.classList.contains('open')) {
+      a.style.maxHeight = a.scrollHeight + 'px';
+    }
+    q.addEventListener('click', () => {
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.acc-item').forEach(other => {
+        other.classList.remove('open');
+        other.querySelector('.acc-a').style.maxHeight = null;
+      });
+      if (!isOpen) {
+        item.classList.add('open');
+        a.style.maxHeight = a.scrollHeight + 'px';
+      }
+    });
+  });
+ 
+  // ---------- Tabs ----------
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.getAttribute('data-tab');
+      const tabGroup = btn.closest('.tabs');
+      tabGroup.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      tabGroup.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      tabGroup.querySelector('#' + target).classList.add('active');
+    });
+  });
+ 
+  // ---------- Copy code buttons ----------
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const codeEl = btn.closest('.code-card').querySelector('pre code');
+      const text = codeEl.innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const original = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = original;
+          btn.classList.remove('copied');
+        }, 1800);
+      }).catch(() => {
+        btn.textContent = 'Failed';
+        setTimeout(() => { btn.textContent = 'Copy'; }, 1800);
+      });
+    });
+  });
+</script>
+ 
+</body>
+</html>
+ 

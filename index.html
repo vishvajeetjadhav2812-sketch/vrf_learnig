@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VRA Learning - Choose Your Programming Language</title>
+ 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+ 
+    <style>
+        :root {
+            --bg-primary: #0d0e14;
+            --bg-secondary: #171a24;
+            --bg-tertiary: #1d212d;
+            --bg-code: #0b0c11;
+            --text-primary: #f2ede2;
+            --text-secondary: #9aa1b4;
+            --border-color: #272b38;
+            --accent: #c9a66b;
+            --accent-strong: #e8c98a;
+            --accent-glow: rgba(201, 166, 107, 0.25);
+            --card-hover-y: -5px;
+        }
+ 
+        [data-theme="light"] {
+            --bg-primary: #f7f4ee;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #efeade;
+            --bg-code: #14161c;
+            --text-primary: #191a1f;
+            --text-secondary: #5c5f6b;
+            --border-color: #e2ddce;
+            --accent: #9c7a3d;
+            --accent-strong: #7e6230;
+            --accent-glow: rgba(156, 122, 61, 0.18);
+        }
+ 
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+ 
+        /* Header */
+        header {
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.1rem 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+ 
+        .brand-logo {
+            font-family: 'Fraunces', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+ 
+        .brand-logo span.mark { color: var(--accent); }
+ 
+        .theme-btn {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 8px 18px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.85rem;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.25s ease, color 0.25s ease;
+        }
+ 
+        .theme-btn:hover { border-color: var(--accent); color: var(--accent); }
+ 
+        #userProfile span {
+            font-weight: 500;
+            color: var(--accent) !important;
+            font-size: 0.92rem;
+        }
+ 
+        /* Hero */
+        .hero-wrap {
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+ 
+        .hero-wrap::before {
+            content: '';
+            position: absolute;
+            top: -140px;
+            right: -120px;
+            width: 480px;
+            height: 480px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            pointer-events: none;
+        }
+ 
+        .hero {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 4.5rem 1.5rem 5rem;
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 3rem;
+            align-items: center;
+            position: relative;
+        }
+ 
+        .hero h1 {
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            font-size: clamp(2.3rem, 4.2vw, 3.4rem);
+            line-height: 1.1;
+            margin-bottom: 1.1rem;
+        }
+ 
+        .hero p {
+            color: var(--text-secondary);
+            font-size: 1.08rem;
+            max-width: 46ch;
+            line-height: 1.65;
+            margin-bottom: 1.6rem;
+        }
+ 
+        .hero-rule {
+            width: 56px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), transparent);
+            margin-bottom: 1.6rem;
+        }
+ 
+        /* Code window centerpiece */
+        .code-window {
+            background-color: var(--bg-code);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(201, 166, 107, 0.06);
+            overflow: hidden;
+            transform: rotate(-1.2deg);
+        }
+ 
+        .code-titlebar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.7rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            background-color: rgba(255,255,255,0.02);
+        }
+ 
+        .code-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .code-dot.red { background: #e0605a; }
+        .code-dot.yellow { background: #e0b95a; }
+        .code-dot.green { background: #5ec46a; }
+ 
+        .code-filename {
+            margin-left: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+        }
+ 
+        .code-body {
+            padding: 1.4rem 1.5rem 1.6rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.86rem;
+            line-height: 1.75;
+            overflow-x: auto;
+        }
+ 
+        .code-body .ln { color: #565b6b; user-select: none; display: inline-block; width: 1.4rem; }
+        .code-body .kw { color: #e8a4a4; }
+        .code-body .fn { color: #7fb7e8; }
+        .code-body .str { color: #9fd9a8; }
+        .code-body .cm { color: #63687a; font-style: italic; }
+        .code-body .accent-tok { color: var(--accent-strong); }
+ 
+        /* Main content */
+        .main-container {
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3.5rem 1.5rem;
+            width: 100%;
+        }
+ 
+        .section-head {
+            display: flex;
+            align-items: baseline;
+            gap: 0.8rem;
+            margin-bottom: 1.6rem;
+        }
+ 
+        .section-head .tick {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 1px;
+            flex-shrink: 0;
+        }
+ 
+        .section-head h2 {
+            font-family: 'Fraunces', serif;
+            font-weight: 500;
+            font-size: 1.4rem;
+        }
+ 
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+            gap: 1.1rem;
+        }
+ 
+        .lang-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-left: 3px solid var(--lang-color, var(--accent));
+            border-radius: 6px;
+            padding: 1.7rem 1.8rem;
+            text-decoration: none;
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 190px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.25s ease, background-color 0.25s ease;
+        }
+ 
+        .lang-card::after {
+            content: attr(data-mark);
+            position: absolute;
+            right: -6px;
+            top: -22px;
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            font-size: 5.8rem;
+            color: var(--lang-color, var(--accent));
+            opacity: 0.09;
+            line-height: 1;
+            pointer-events: none;
+        }
+ 
+        .lang-card:hover {
+            transform: translateY(var(--card-hover-y));
+            background-color: var(--bg-tertiary);
+        }
+ 
+        .card-c { --lang-color: #A8B9CC; }
+        .card-cpp { --lang-color: #5b8fc9; }
+        .card-csharp { --lang-color: #9B6DCA; }
+        .card-java { --lang-color: #d8695c; }
+        .card-python { --lang-color: #5b9bd9; }
+        .card-db { --lang-color: var(--accent); }
+        .card-web { --lang-color: #e5a242; } /* Web tech theme color */
+ 
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 0.8rem;
+            gap: 0.75rem;
+            position: relative;
+            z-index: 1;
+        }
+ 
+        .card-title {
+            font-family: 'Fraunces', serif;
+            font-size: 1.3rem;
+            font-weight: 500;
+        }
+ 
+        .badge {
+            font-size: 0.75rem;
+            padding: 3px 10px;
+            border-radius: 3px;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-weight: 500;
+            white-space: nowrap;
+            background-color: var(--bg-secondary);
+        }
+ 
+        .card-desc {
+            color: var(--text-secondary);
+            font-size: 0.92rem;
+            margin-bottom: 1.4rem;
+            line-height: 1.55;
+            position: relative;
+            z-index: 1;
+        }
+ 
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--lang-color, var(--accent));
+            position: relative;
+            z-index: 1;
+        }
+ 
+        /* Practice section */
+        .vra-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.1rem;
+        }
+ 
+        .vra-card {
+            text-decoration: none;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-left: 3px solid var(--accent);
+            border-radius: 6px;
+            padding: 1.9rem 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 200px;
+            transition: transform 0.25s ease, background-color 0.25s ease;
+        }
+ 
+        .vra-card:hover {
+            transform: translateY(var(--card-hover-y));
+            background-color: var(--bg-tertiary);
+        }
+ 
+        .vra-card .card-title { color: var(--text-primary); }
+ 
+        .card-tag {
+            padding: 3px 10px;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+ 
+        .vra-card .card-desc { margin-bottom: 1.6rem; }
+ 
+        .card-btn {
+            font-weight: 500;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent);
+        }
+ 
+        footer {
+            text-align: center;
+            padding: 1.8rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+ 
+        @media (max-width: 860px) {
+            .hero { grid-template-columns: 1fr; padding-bottom: 3rem; }
+            .code-window { transform: none; }
+        }
+ 
+        @media (prefers-reduced-motion: reduce) {
+            * { transition: none !important; }
+        }
+    </style>
+</head>
+<body>
+ 
+    <header>
+        <div class="brand-logo"><span class="mark">VRA</span> Learning</div>
+        <button class="theme-btn" onclick="toggleTheme()">Dark / Light Mode</button>
+        <div id="userProfile" style="display: flex; align-items: center; gap: 15px;">
+            <span id="welcomeText"></span>
+            <button onclick="logoutUser()" class="theme-btn" style="border-color: #a34a4a; color: #c77b7b;">Logout</button>
+        </div>
+ 
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const storedUser = localStorage.getItem('vrf_user');
+                if (!storedUser) {
+                    window.location.href = 'login.html';
+                } else {
+                    const user = JSON.parse(storedUser);
+                    document.getElementById('welcomeText').innerText = `Welcome, ${user.name}!`;
+                }
+            });
+ 
+            function logoutUser() {
+                localStorage.removeItem('vrf_user');
+                window.location.href = 'login.html';
+            }
+        </script>
+    </header>
+ 
+    <div class="hero-wrap">
+        <div class="hero">
+            <div>
+                <div class="hero-rule"></div>
+                <h1>Learn a language properly, one concept at a time.</h1>
+                <p>Structured lessons from fundamentals to advanced concepts, with a quiz portal and a live compiler to practice as you go.</p>
+            </div>
+ 
+            <div class="code-window">
+                <div class="code-titlebar">
+                    <span class="code-dot red"></span>
+                    <span class="code-dot yellow"></span>
+                    <span class="code-dot green"></span>
+                    <span class="code-filename">hello.py</span>
+                </div>
+                <pre class="code-body"><code><span class="ln">1</span><span class="cm">// first lesson, every language</span>
+<span class="ln">2</span><span class="kw">def</span> <span class="fn">greet</span>(name):
+<span class="ln">3</span>    <span class="kw">return</span> <span class="str">f"Hello, {name}!"</span>
+<span class="ln">4</span>
+<span class="ln">5</span><span class="accent-tok">print</span>(greet(<span class="str">"World"</span>))</code></pre>
+            </div>
+        </div>
+    </div>
+ 
+    <div class="main-container">
+        <div class="section-head">
+            <span class="tick"></span>
+            <h2>Programming languages</h2>
+        </div>
+        <div class="grid-container">
+ 
+            <a href="cprograming.html" class="lang-card card-c" data-mark="C">
+                <div>
+                    <div class="card-header">
+                        <span class="card-title">C Language</span>
+                        <span class="badge">Procedural</span>
+                    </div>
+                    <p class="card-desc">Low-level memory management, compilers, fast execution, and core syntax fundamentals.</p>
+                </div>
+                <div class="action-btn">Learn C Programming &rarr;</div>
+            </a>
+ 
+            <a href="c++.html" class="lang-card card-cpp" data-mark="C++">
+                <div>
+                    <div class="card-header">
+                        <span class="card-title">C++ Programming</span>
+                        <span class="badge">OOP & STL</span>
+                    </div>
+                    <p class="card-desc">Smart pointers, high performance, multi-paradigm design, systems programming & game dev.</p>
+                </div>
+                <div class="action-btn">Learn C++ Programming &rarr;</div>
+            </a>
+ 
+            <a href="cshap.html" class="lang-card card-csharp" data-mark="C#">
+                <div>
+                    <div class="card-header">
+                        <span class="card-title">C# (.NET)</span>
+                        <span class="badge">Enterprise & Unity</span>
+                    </div>
+                    <p class="card-desc">Type-safe OOP, LINQ, async/await, Unity game development & cross-platform .NET.</p>
+                </div>
+                <div class="action-btn">Learn C# Programming &rarr;</div>
+            </a>
+ 
+            <a href="java.html" class="lang-card card-java" data-mark="J">
+                <div>
+                    <div class="card-header">
+                        <span class="card-title">Java</span>
+                        <span class="badge">JVM & Enterprise</span>
+                    </div>
+                    <p class="card-desc">Write once, run anywhere, Spring Boot framework, garbage collection & Android dev.</p>
+                </div>
+                <div class="action-btn">Learn Java Programming &rarr;</div>
+            </a>
+ 
+            <a href="python.html" class="lang-card card-python" data-mark="Py">
+                <div>
+                    <div class="card-header">
+                        <span class="card-title">Python</span>
+                        <span class="badge">AI & Data Science</span>
+                    </div>
+                    <p class="card-desc">Clean syntax, data analytics, machine learning, automation & web backend services.</p>
+                </div>
+                <div class="action-btn">Learn Python Programming &rarr;</div>
+            </a>
+
+            <!-- HTML, CSS & JavaScript Card Add Kiya Gaya Hai -->
+            <a href="htmlcssjs.html" class="lang-card card-web" data-mark="JS">
+                <div>
+                    <div class="card-header">
+                        <span class="card-title">HTML, CSS & JS</span>
+                        <span class="badge">Web Development</span>
+                    </div>
+                    <p class="card-desc">DOM manipulation, responsive UI design, modern CSS layouts, and frontend web development.</p>
+                </div>
+                <div class="action-btn">Learn Web Development &rarr;</div>
+            </a>
+ 
+            <a href="detabase.html" class="lang-card card-db" data-mark="DB">
+                <div>
+                    <div class="card-header">
+                        <span class="card-title">SQL & Databases</span>
+                        <span class="badge">Relational & NoSQL</span>
+                    </div>
+                    <p class="card-desc">Queries, joins, indexing, database design, MySQL, PostgreSQL & MongoDB concepts.</p>
+                </div>
+                <div class="action-btn">Learn Databases &rarr;</div>
+            </a>
+ 
+        </div>
+ 
+        <div style="margin-top: 3.5rem;">
+            <div class="section-head">
+                <span class="tick"></span>
+                <h2>Practice</h2>
+            </div>
+            <div class="vra-grid">
+ 
+                <a href="qz_section.html" class="vra-card quiz">
+                    <div>
+                        <div class="card-header">
+                            <h2 class="card-title">Quiz Portal</h2>
+                            <span class="card-tag">Interactive</span>
+                        </div>
+                        <p class="card-desc">Practice multiple choice questions, test your core syntax understanding, and track your progress live.</p>
+                    </div>
+                    <div class="card-btn">Open Quiz Portal <span>→</span></div>
+                </a>
+ 
+                <a href="compliler_section.html" class="vra-card compiler">
+                    <div>
+                        <div class="card-header">
+                            <h2 class="card-title">Online Compiler</h2>
+                            <span class="card-tag">Live IDE</span>
+                        </div>
+                        <p class="card-desc">Write, edit, and run code instantly in your browser with real-time execution & output terminal.</p>
+                    </div>
+                    <div class="card-btn">Open Online Compiler <span>→</span></div>
+                </a>
+ 
+            </div>
+        </div>
+    </div>
+ 
+    <footer>
+        &copy; VRA Learning. All rights reserved.
+    </footer>
+ 
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            if (body.getAttribute('data-theme') === 'light') {
+                body.removeAttribute('data-theme');
+            } else {
+                body.setAttribute('data-theme', 'light');
+            }
+        }
+    </script>
+ 
+    <style>
+        #global-loader {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background-color: rgba(13, 14, 20, 0.96);
+            backdrop-filter: blur(6px);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 999999;
+        }
+        .custom-spinner {
+            width: 44px; height: 44px;
+            border: 3px solid #272b38;
+            border-top: 3px solid #c9a66b;
+            border-radius: 50%;
+            animation: loader-spin 0.8s linear infinite;
+            margin-bottom: 1rem;
+        }
+        .loader-txt {
+            color: #9aa1b4;
+            font-size: 0.95rem;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+        }
+        @keyframes loader-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+ 
+    <div id="global-loader">
+        <div class="custom-spinner"></div>
+        <div class="loader-txt">Please wait, loading...</div>
+    </div>
+ 
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const loader = document.getElementById("global-loader");
+            const DELAY_TIME = 1500;
+ 
+            document.addEventListener("click", function(e) {
+                const card = e.target.closest(".card, .vra-card, .lang-card, a");
+ 
+                if (card) {
+                    let targetUrl = card.getAttribute("href");
+                    if (!targetUrl) {
+                        const innerLink = card.querySelector("a");
+                        if (innerLink) targetUrl = innerLink.getAttribute("href");
+                    }
+ 
+                    if (targetUrl && targetUrl !== "#" && !targetUrl.startsWith("javascript:")) {
+                        e.preventDefault();
+ 
+                        const targetAttr = card.getAttribute("target") || (card.querySelector("a")?.getAttribute("target"));
+ 
+                        loader.style.display = "flex";
+ 
+                        setTimeout(function() {
+                            if (targetAttr === "_blank") {
+                                window.open(targetUrl, "_blank");
+                                loader.style.display = "none";
+                            } else {
+                                window.location.href = targetUrl;
+                            }
+                        }, DELAY_TIME);
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

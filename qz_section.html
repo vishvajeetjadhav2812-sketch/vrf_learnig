@@ -1,0 +1,440 @@
+
+
+Qz section · HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VRA Learning - Quiz Portal</title>
+ 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+ 
+  <style>
+    :root {
+      --bg-primary: #0d0e14;
+      --bg-secondary: #171a24;
+      --bg-tertiary: #1d212d;
+      --text-primary: #f2ede2;
+      --text-secondary: #9aa1b4;
+      --border-color: #272b38;
+      --accent: #c9a66b;
+      --accent-soft: rgba(201, 166, 107, 0.14);
+      --card-hover-y: -5px;
+    }
+ 
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+ 
+    /* Navbar */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.1rem 2.5rem;
+      background-color: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+ 
+    .logo {
+      font-family: 'Fraunces', serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+ 
+    .logo span.mark { color: var(--accent); }
+ 
+    .header-right { display: flex; align-items: center; gap: 15px; }
+ 
+    .back-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      border: 1px solid var(--border-color);
+      padding: 8px 16px;
+      border-radius: 4px;
+      transition: border-color 0.25s ease, color 0.25s ease;
+    }
+ 
+    .back-link:hover { border-color: var(--accent); color: var(--accent); }
+ 
+    /* Main */
+    .main-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3.5rem 1.5rem 5rem;
+    }
+ 
+    .hero-rule {
+      width: 56px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+      margin: 0 auto 1.3rem;
+    }
+ 
+    .main-title {
+      font-family: 'Fraunces', serif;
+      font-weight: 600;
+      font-size: clamp(2rem, 3.6vw, 2.7rem);
+      text-align: center;
+      margin-bottom: 0.8rem;
+    }
+ 
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      text-align: center;
+      max-width: 56ch;
+      margin: 0 auto 3.2rem;
+      line-height: 1.6;
+    }
+ 
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      gap: 0.8rem;
+      margin-bottom: 1.4rem;
+    }
+ 
+    .section-head .tick {
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 1px;
+      flex-shrink: 0;
+    }
+ 
+    .section-head h2 {
+      font-family: 'Fraunces', serif;
+      font-weight: 500;
+      font-size: 1.3rem;
+    }
+ 
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.1rem;
+      margin-bottom: 3.2rem;
+    }
+ 
+    .card {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-left: 3px solid var(--lang-color, var(--accent));
+      border-radius: 6px;
+      padding: 1.7rem 1.8rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 190px;
+      text-decoration: none;
+      color: var(--text-primary);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.25s ease, background-color 0.25s ease;
+    }
+ 
+    .card::after {
+      content: attr(data-mark);
+      position: absolute;
+      right: -6px;
+      top: -22px;
+      font-family: 'Fraunces', serif;
+      font-weight: 600;
+      font-size: 5.4rem;
+      color: var(--lang-color, var(--accent));
+      opacity: 0.09;
+      line-height: 1;
+      pointer-events: none;
+    }
+ 
+    .card:hover {
+      transform: translateY(var(--card-hover-y));
+      background-color: var(--bg-tertiary);
+    }
+ 
+    .card.c-lang { --lang-color: #A8B9CC; }
+    .card.cpp { --lang-color: #5b8fc9; }
+    .card.csharp { --lang-color: #9B6DCA; }
+    .card.java { --lang-color: #d8695c; }
+    .card.python { --lang-color: #5b9bd9; }
+    .card.sql { --lang-color: var(--accent); }
+    .card.html-lang { --lang-color: #e0724a; }
+    .card.css-lang { --lang-color: #4d8fe0; }
+    .card.js-lang { --lang-color: #d9c15a; }
+ 
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.9rem;
+      gap: 0.75rem;
+      position: relative;
+      z-index: 1;
+    }
+ 
+    .card-title {
+      font-family: 'Fraunces', serif;
+      font-size: 1.28rem;
+      font-weight: 500;
+    }
+ 
+    .tag {
+      background-color: transparent;
+      color: var(--text-secondary);
+      padding: 3px 10px;
+      border-radius: 3px;
+      font-size: 0.75rem;
+      border: 1px solid var(--border-color);
+      white-space: nowrap;
+    }
+ 
+    .quiz-info {
+      color: var(--text-secondary);
+      font-size: 0.92rem;
+      margin-bottom: 1.4rem;
+      line-height: 1.55;
+      position: relative;
+      z-index: 1;
+    }
+ 
+    .start-btn {
+      color: var(--lang-color, var(--accent));
+      font-weight: 500;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      position: relative;
+      z-index: 1;
+    }
+ 
+    /* Responsive Design */
+    @media (max-width: 900px) {
+      .grid-container { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .grid-container { grid-template-columns: 1fr; }
+      header { padding: 1rem 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+ 
+  <header>
+    <div class="logo"><span class="mark">VRA</span> Learning</div>
+    <div class="header-right">
+      <a href="index.html" class="back-link">&larr; Back to home</a>
+    </div>
+  </header>
+ 
+  <div class="main-container">
+    <div class="hero-rule"></div>
+    <h1 class="main-title">VRA Quiz Portal</h1>
+    <p class="subtitle">Choose your language and test what you know, from basics to advanced concepts. Fifty questions per track.</p>
+ 
+    <div class="section-head">
+      <span class="tick"></span>
+      <h2>Programming languages</h2>
+    </div>
+    <div class="grid-container">
+ 
+      <a href="qzc.html" class="card c-lang" data-mark="C">
+        <div>
+          <div class="card-header">
+            <h2 class="card-title">C Language</h2>
+            <span class="tag">50 Questions</span>
+          </div>
+          <p class="quiz-info">Test memory management, pointers, execution speed, and core C syntax fundamentals.</p>
+        </div>
+        <div class="start-btn">Start C Quiz &rarr;</div>
+      </a>
+ 
+      <a href="qzc++.html" class="card cpp" data-mark="C++">
+        <div>
+          <div class="card-header">
+            <h2 class="card-title">C++ Programming</h2>
+            <span class="tag">50 Questions</span>
+          </div>
+          <p class="quiz-info">Test smart pointers, high performance, multi-paradigm & system programming concepts.</p>
+        </div>
+        <div class="start-btn">Start C++ Quiz &rarr;</div>
+      </a>
+ 
+      <a href="qzcshap.html" class="card csharp" data-mark="C#">
+        <div>
+          <div class="card-header">
+            <h2 class="card-title">C# (.NET)</h2>
+            <span class="tag">50 Questions</span>
+          </div>
+          <p class="quiz-info">Test type-safe OOP, LINQ, async/await, Unity game dev & cross-platform .NET.</p>
+        </div>
+        <div class="start-btn">Start C# Quiz &rarr;</div>
+      </a>
+ 
+      <a href="qzjava.html" class="card java" data-mark="J">
+        <div>
+          <div class="card-header">
+            <h2 class="card-title">Java</h2>
+            <span class="tag">50 Questions</span>
+          </div>
+          <p class="quiz-info">Test JVM architecture, Spring Boot framework, garbage collection & enterprise dev.</p>
+        </div>
+        <div class="start-btn">Start Java Quiz &rarr;</div>
+      </a>
+ 
+      <a href="qzpython.html" class="card python" data-mark="Py">
+        <div>
+          <div class="card-header">
+            <h2 class="card-title">Python</h2>
+            <span class="tag">50 Questions</span>
+          </div>
+          <p class="quiz-info">Test syntax, data analytics, machine learning, automation & web backend services.</p>
+        </div>
+        <div class="start-btn">Start Python Quiz &rarr;</div>
+      </a>
+ 
+      <a href="qzdetabase.html" class="card sql" data-mark="DB">
+        <div>
+          <div class="card-header">
+            <h2 class="card-title">SQL & Databases</h2>
+            <span class="tag">50 Questions</span>
+          </div>
+          <p class="quiz-info">Test queries, joins, indexing, database design, MySQL, PostgreSQL & MongoDB concepts.</p>
+        </div>
+        <div class="start-btn">Start SQL Quiz &rarr;</div>
+      </a>
+ 
+    </div>
+ 
+    <div class="section-head">
+      <span class="tick"></span>
+      <h2>Web development</h2>
+    </div>
+    <div class="grid-container">
+ 
+      <a href="qzhtml.html" class="card html-lang" data-mark="H">
+        <div>
+          <div class="card-header">
+            <h2 class="card-title">HTML</h2>
+            <span class="tag">50 Questions</span>
+          </div>
+          <p class="quiz-info">Test document structure, semantic tags, forms, tables & accessibility fundamentals.</p>
+        </div>
+        <div class="start-btn">Start HTML Quiz &rarr;</div>
+      </a>
+ 
+      <a href="qzcss.html" class="card css-lang" data-mark="C">
+        <div>
+          <div class="card-header">
+            <h2 class="card-title">CSS</h2>
+            <span class="tag">50 Questions</span>
+          </div>
+          <p class="quiz-info">Test selectors, the box model, flexbox, grid, positioning & responsive design.</p>
+        </div>
+        <div class="start-btn">Start CSS Quiz &rarr;</div>
+      </a>
+ 
+      <a href="js.html" class="card js-lang" data-mark="JS">
+        <div>
+          <div class="card-header">
+            <h2 class="card-title">JavaScript</h2>
+            <span class="tag">50 Questions</span>
+          </div>
+          <p class="quiz-info">Test variables, functions, the DOM, events, async/await & modern ES6+ syntax.</p>
+        </div>
+        <div class="start-btn">Start JavaScript Quiz &rarr;</div>
+      </a>
+ 
+    </div>
+  </div>
+ 
+  <style>
+    #global-loader {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background-color: rgba(13, 14, 20, 0.96);
+      backdrop-filter: blur(6px);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 999999;
+    }
+    .custom-spinner {
+      width: 44px; height: 44px;
+      border: 3px solid #272b38;
+      border-top: 3px solid #c9a66b;
+      border-radius: 50%;
+      animation: loader-spin 0.8s linear infinite;
+      margin-bottom: 1rem;
+    }
+    .loader-txt {
+      color: #9aa1b4;
+      font-size: 0.95rem;
+      font-weight: 500;
+      font-family: 'Inter', sans-serif;
+    }
+    @keyframes loader-spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+ 
+  <div id="global-loader">
+    <div class="custom-spinner"></div>
+    <div class="loader-txt">Please wait, loading page...</div>
+  </div>
+ 
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const loader = document.getElementById("global-loader");
+      const DELAY_TIME = 1500;
+ 
+      document.addEventListener("click", function(e) {
+        const card = e.target.closest("a.card");
+ 
+        if (card) {
+          e.preventDefault();
+ 
+          const targetUrl = card.href;
+          const targetAttr = card.getAttribute("target");
+ 
+          loader.style.display = "flex";
+ 
+          setTimeout(function() {
+            if (targetAttr === "_blank") {
+              window.open(targetUrl, "_blank");
+              loader.style.display = "none";
+            } else {
+              window.location.href = targetUrl;
+            }
+          }, DELAY_TIME);
+        }
+      });
+    });
+  </script>
+ 
+</body>
+</html>
+ 
+
+
+
+

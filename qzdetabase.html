@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DBMS & SQL Basics to Advanced Quiz (50 Questions)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 700px;
+            padding: 30px;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #eef0f3;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #d9381e;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            height: 10px;
+            border-radius: 5px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #d9381e;
+            transition: width 0.3s ease;
+        }
+
+        .question-number {
+            font-size: 14px;
+            color: #5f6368;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            color: #202124;
+            margin-bottom: 20px;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background-color: #f8f9fa;
+            border: 2px solid #dadce0;
+            border-radius: 8px;
+            padding: 14px 18px;
+            font-size: 16px;
+            color: #3c4043;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .option-btn:hover {
+            background-color: #fbeae6;
+            border-color: #d9381e;
+        }
+
+        .option-btn.correct {
+            background-color: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+            font-weight: bold;
+        }
+
+        .option-btn.incorrect {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+            font-weight: bold;
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+        }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .result-box.correct-msg {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .result-box.incorrect-msg {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .next-btn {
+            margin-top: 25px;
+            background-color: #d9381e;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.2s;
+            display: none;
+        }
+
+        .next-btn:hover {
+            background-color: #b32a13;
+        }
+
+        .score-container {
+            text-align: center;
+            display: none;
+        }
+
+        .score-container h2 {
+            color: #202124;
+            margin-bottom: 15px;
+        }
+
+        .score-text {
+            font-size: 22px;
+            color: #d9381e;
+            margin-bottom: 25px;
+        }
+
+        .restart-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .restart-btn:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div class="header">
+        <h1>DBMS & SQL Basics to Advanced Quiz</h1>
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+    </div>
+
+    <div id="quiz-box">
+        <div class="question-number" id="question-number">Question 1 of 50</div>
+        <div class="question-text" id="question-text">Loading question...</div>
+        
+        <div class="options-container" id="options-container">
+            <!-- Options dynamically loaded -->
+        </div>
+
+        <div class="result-box" id="result-box"></div>
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question</button>
+    </div>
+
+    <div class="score-container" id="score-container">
+        <h2>Quiz Completed!</h2>
+        <div class="score-text" id="score-text">You scored 0 out of 50</div>
+        <button class="restart-btn" onclick="restartQuiz()">Restart Quiz</button>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        // --- DBMS FUNDAMENTALS & ARCHITECTURE ---
+        { question: "What does DBMS stand for?", options: ["Data Binding Management System", "Database Management System", "Data Building and Maintenance System", "Database Memory Software"], correct: 1 },
+        { question: "Who proposed the Relational Model for database management in 1970?", options: ["Charles Bachman", "E.F. Codd", "James Gray", "Larry Ellison"], correct: 1 },
+        { question: "Which architecture separates the user view from the physical database storing mechanism?", options: ["1-Tier Architecture", "2-Tier Architecture", "3-Schema ANSI-SPARC Architecture", "Client-Server Model"], correct: 2 },
+        { question: "What is a 'Schema' in a Database Management System?", options: ["The logical design/structure of the database", "The physical data stored at a specific moment", "The user interface", "A type of database query"], correct: 0 },
+        { question: "What is an 'Instance' in a Database?", options: ["The structural table definition", "The collection of information stored at a particular moment in time", "A compiled SQL query", "A database backup file"], correct: 1 },
+        { question: "What is Logical Data Independence?", options: ["Capacity to change the physical schema without changing logical schema", "Capacity to change the logical schema without altering external schemas/views", "Ability to isolate database from OS", "Creating backup files automatically"], correct: 1 },
+        { question: "What is Physical Data Independence?", options: ["Modifying physical storage without affecting logical schema", "Changing table names without affecting queries", "Running database on multiple servers", "Converting SQL to C++"], correct: 0 },
+        { question: "In ER Modeling, an Entity Set is represented visually by which geometric shape?", options: ["Ellipse", "Rectangle", "Diamond", "Line"], correct: 1 },
+        { question: "In ER Diagrams, Attributes are represented by which shape?", options: ["Rectangle", "Diamond", "Ellipse", "Triangle"], correct: 2 },
+        { question: "In ER Diagrams, Relationships between entities are represented by:", options: ["Rectangle", "Diamond", "Circle", "Dashed Line"], correct: 1 },
+
+        // --- KEYS & RELATIONAL MODEL ---
+        { question: "Which key uniquely identifies each record/row in a relational table and cannot contain NULL?", options: ["Candidate Key", "Foreign Key", "Primary Key", "Super Key"], correct: 2 },
+        { question: "What is a Candidate Key?", options: ["A minimal Super Key capable of uniquely identifying a record", "A key that links two tables", "Any key that contains NULL values", "A secondary index"], correct: 0 },
+        { question: "What is a Foreign Key?", options: ["A key that uniquely identifies a row in its own table", "A column in one table that references the Primary Key of another table", "A key composed of multiple columns", "An encrypted key"], correct: 1 },
+        { question: "Can a Primary Key column contain NULL values?", options: ["Yes", "No", "Only if specified", "Only in MySQL"], correct: 1 },
+        { question: "How many Primary Keys can a single database table have?", options: ["Unlimited", "Maximum 2", "Exactly 1", "Up to 5"], correct: 2 },
+        { question: "What is a Composite Key?", options: ["A key made of encryption tokens", "A primary key formed by combining two or more attributes/columns", "A foreign key referencing multiple databases", "A key used only in NoSQL"], correct: 1 },
+        { question: "What constraint ensures Referencing integrity between two related tables?", options: ["UNIQUE", "NOT NULL", "FOREIGN KEY", "CHECK"], correct: 2 },
+        { question: "What happens when Referential Integrity is breached during a DELETE operation?", options: ["Database auto-fixes data", "Cascading action / Foreign key constraint violation error", "Table is dropped", "Query converts to UPDATE"], correct: 1 },
+        { question: "What does a row in a Relational Database table represent technically?", options: ["Attribute", "Tuple", "Domain", "Relation"], correct: 1 },
+        { question: "What does a column in a Relational Database table represent technically?", options: ["Tuple", "Attribute", "Entity Set", "Degree"], correct: 1 },
+
+        // --- SQL COMMAND CATEGORIES & QUERIES ---
+        { question: "Which SQL command category includes CREATE, ALTER, DROP, and TRUNCATE?", options: ["DML (Data Manipulation Language)", "DDL (Data Definition Language)", "DCL (Data Control Language)", "TCL (Transaction Control Language)"], correct: 1 },
+        { question: "Which command category includes INSERT, UPDATE, and DELETE?", options: ["DDL", "DML", "DCL", "TCL"], correct: 1 },
+        { question: "Which category includes GRANT and REVOKE commands?", options: ["DDL", "DML", "DCL", "TCL"], correct: 2 },
+        { question: "Which category includes COMMIT, ROLLBACK, and SAVEPOINT?", options: ["DCL", "TCL", "DDL", "DML"], correct: 1 },
+        { question: "What is the key difference between DELETE and TRUNCATE in SQL?", options: ["DELETE is DDL; TRUNCATE is DML", "DELETE removes specific rows (can be rolled back); TRUNCATE removes all rows (faster DDL)", "TRUNCATE deletes the table structure entirely", "There is no difference"], correct: 1 },
+        { question: "Which SQL clause is used to filter records BEFORE grouping with GROUP BY?", options: ["HAVING", "WHERE", "ORDER BY", "LIMIT"], correct: 1 },
+        { question: "Which SQL clause is used to filter aggregate data AFTER applying GROUP BY?", options: ["WHERE", "HAVING", "ORDER BY", "FILTER"], correct: 1 },
+        { question: "Which SQL function counts the total number of non-NULL values in a column?", options: ["SUM()", "COUNT()", "AVG()", "TOTAL()"], correct: 1 },
+        { question: "Which operator is used to search for a specified pattern in a column using wildcards (% and _)?", options: ["IN", "BETWEEN", "LIKE", "EXISTS"], correct: 2 },
+        { question: "In SQL, what does the wildcard % represent in a LIKE query?", options: ["Zero, one, or multiple characters", "Exactly one single character", "Any numeric digit", "An exact word match"], correct: 0 },
+
+        // --- JOINS, NORMALIZATION & TRANSACTIONS ---
+        { question: "Which JOIN returns all records when there is a match in EITHER left or right table?", options: ["INNER JOIN", "LEFT JOIN", "RIGHT JOIN", "FULL OUTER JOIN"], correct: 3 },
+        { question: "Which JOIN returns only matching rows present in BOTH tables?", options: ["INNER JOIN", "LEFT JOIN", "CROSS JOIN", "FULL JOIN"], correct: 0 },
+        { question: "What is a CROSS JOIN?", options: ["Combines rows based on equality condition", "Cartesian product of two tables (m × n rows)", "Joins a table to itself", "Outer join with nulls"], correct: 1 },
+        { question: "What is Normalization in database design?", options: ["Encrypting stored data", "Organizing data to reduce redundancy and eliminate update anomalies", "Merging multiple tables into one big table", "Indexing for fast retrieval"], correct: 1 },
+        { question: "A table is in First Normal Form (1NF) if:", options: ["It has no composite key", "All attributes contain atomic (indivisible) values and no repeating groups exist", "All non-key attributes are fully functionally dependent on Primary Key", "It has no transitive dependencies"], correct: 1 },
+        { question: "Second Normal Form (2NF) eliminates which type of dependency?", options: ["Transitive Dependency", "Partial Dependency", "Multivalued Dependency", "Join Dependency"], correct: 1 },
+        { question: "Third Normal Form (3NF) eliminates which type of dependency?", options: ["Partial Dependency", "Transitive Dependency", "Atomic Dependency", "Cyclic Dependency"], correct: 1 },
+        { question: "Which normal form is stricter than 3NF and handles multiple candidate keys?", options: ["2NF", "3NF", "Boyce-Codd Normal Form (BCNF)", "4NF"], correct: 2 },
+        { question: "Fourth Normal Form (4NF) deals with eliminating which anomaly/dependency?", options: ["Partial Functional Dependency", "Transitive Dependency", "Multivalued Dependency", "Join Dependency"], correct: 2 },
+        { question: "What does ACID stand for in Database Transactions?", options: ["Atomicity, Consistency, Isolation, Durability", "Accuracy, Control, Integration, Data", "Automated, Concurrent, Indexed, Distributed", "Access, Concurrency, Isolation, Dependability"], correct: 0 },
+
+        // --- ACID PROPERTIES, CONCURRENCY & ADVANCED DBMS ---
+        { question: "Which ACID property guarantees that 'All operations in a transaction succeed or none occur'?", options: ["Consistency", "Atomicity", "Isolation", "Durability"], correct: 1 },
+        { question: "Which ACID property ensures committed data remains safe even in case of system failure?", options: ["Atomicity", "Durability", "Consistency", "Isolation"], correct: 1 },
+        { question: "What is a 'Dirty Read' in database concurrency?", options: ["Reading data that has been modified by an uncommitted transaction", "Reading duplicate rows", "Failing to read primary key", "Reading corrupted hard drive blocks"], correct: 0 },
+        { question: "What is a 'Phantom Read' phenomenon?", options: ["Reading NULL values", "A transaction re-executes a query and finds new rows inserted by another committed transaction", "System crash during read", "Reading data from cache"], correct: 1 },
+        { question: "Which transaction isolation level provides the highest degree of data safety against concurrency anomalies?", options: ["Read Uncommitted", "Read Committed", "Repeatable Read", "Serializable"], correct: 3 },
+        { question: "What is a Deadlock in Concurrency Control?", options: ["Database running out of disk space", "Two or more transactions waiting infinitely for locked resources held by each other", "A corrupted index file", "Query execution failure"], correct: 1 },
+        { question: "Which protocol ensures Serializability in database concurrency?", options: ["Two-Phase Locking (2PL)", "HTTP Protocol", "TCP Handshake", "Diffie-Hellman"], correct: 0 },
+        { question: "What is a Database Index used for?", options: ["To back up table data", "To speed up data retrieval operations on a table", "To enforce primary key uniqueness only", "To write SQL macros"], correct: 1 },
+        { question: "Which tree data structure is most commonly used for implementing Database Indexes?", options: ["Binary Search Tree", "B-Tree / B+ Tree", "AVL Tree", "Red-Black Tree"], correct: 1 },
+        { question: "What is a Database View?", options: ["A physical copy of table on disk", "A virtual table based on the result-set of an SQL statement", "A graphical report tool", "A database backup"], correct: 1 }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    const questionNumberEl = document.getElementById("question-number");
+    const questionTextEl = document.getElementById("question-text");
+    const optionsContainerEl = document.getElementById("options-container");
+    const resultBoxEl = document.getElementById("result-box");
+    const nextBtnEl = document.getElementById("next-btn");
+    const progressBarEl = document.getElementById("progress-bar");
+    const quizBoxEl = document.getElementById("quiz-box");
+    const scoreContainerEl = document.getElementById("score-container");
+    const scoreTextEl = document.getElementById("score-text");
+
+    function loadQuestion() {
+        const currentQuiz = quizData[currentQuestionIndex];
+        
+        questionNumberEl.innerText = `Question ${currentQuestionIndex + 1} of ${quizData.length}`;
+        questionTextEl.innerText = currentQuiz.question;
+        progressBarEl.style.width = `${((currentQuestionIndex + 1) / quizData.length) * 100}%`;
+
+        optionsContainerEl.innerHTML = "";
+        resultBoxEl.style.display = "none";
+        nextBtnEl.style.display = "none";
+
+        currentQuiz.options.forEach((option, index) => {
+            const button = document.createElement("button");
+            button.classList.add("option-btn");
+            button.innerText = option;
+            button.onclick = () => selectOption(index, button);
+            optionsContainerEl.appendChild(button);
+        });
+    }
+
+    function selectOption(selectedIndex, selectedBtn) {
+        const currentQuiz = quizData[currentQuestionIndex];
+        const allButtons = optionsContainerEl.querySelectorAll(".option-btn");
+
+        allButtons.forEach(btn => btn.disabled = true);
+
+        if (selectedIndex === currentQuiz.correct) {
+            selectedBtn.classList.add("correct");
+            resultBoxEl.className = "result-box correct-msg";
+            resultBoxEl.innerText = "YES! Correct Answer! 🎉";
+            score++;
+        } else {
+            selectedBtn.classList.add("incorrect");
+            allButtons[currentQuiz.correct].classList.add("correct");
+            resultBoxEl.className = "result-box incorrect-msg";
+            resultBoxEl.innerText = "NOT CORRECT! Wrong Answer. ❌";
+        }
+
+        resultBoxEl.style.display = "block";
+        nextBtnEl.style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < quizData.length) {
+            loadQuestion();
+        } else {
+            showScore();
+        }
+    }
+
+    function showScore() {
+        quizBoxEl.style.display = "none";
+        scoreContainerEl.style.display = "block";
+        scoreTextEl.innerText = `You scored ${score} out of ${quizData.length}!`;
+    }
+
+    function restartQuiz() {
+        currentQuestionIndex = 0;
+        score = 0;
+        quizBoxEl.style.display = "block";
+        scoreContainerEl.style.display = "none";
+        loadQuestion();
+    }
+
+    // Start Quiz
+    loadQuestion();
+</script>
+
+</body>
+</html>

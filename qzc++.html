@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C++ Programming Basics to Advanced Quiz (50 Questions)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 700px;
+            padding: 30px;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #eef0f3;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #00599c;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            height: 10px;
+            border-radius: 5px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #00599c;
+            transition: width 0.3s ease;
+        }
+
+        .question-number {
+            font-size: 14px;
+            color: #5f6368;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            color: #202124;
+            margin-bottom: 20px;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background-color: #f8f9fa;
+            border: 2px solid #dadce0;
+            border-radius: 8px;
+            padding: 14px 18px;
+            font-size: 16px;
+            color: #3c4043;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .option-btn:hover {
+            background-color: #e6f0fa;
+            border-color: #00599c;
+        }
+
+        .option-btn.correct {
+            background-color: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+            font-weight: bold;
+        }
+
+        .option-btn.incorrect {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+            font-weight: bold;
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+        }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .result-box.correct-msg {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .result-box.incorrect-msg {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .next-btn {
+            margin-top: 25px;
+            background-color: #00599c;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.2s;
+            display: none;
+        }
+
+        .next-btn:hover {
+            background-color: #004477;
+        }
+
+        .score-container {
+            text-align: center;
+            display: none;
+        }
+
+        .score-container h2 {
+            color: #202124;
+            margin-bottom: 15px;
+        }
+
+        .score-text {
+            font-size: 22px;
+            color: #00599c;
+            margin-bottom: 25px;
+        }
+
+        .restart-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .restart-btn:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div class="header">
+        <h1>C++ Basics to Advanced Quiz</h1>
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+    </div>
+
+    <div id="quiz-box">
+        <div class="question-number" id="question-number">Question 1 of 50</div>
+        <div class="question-text" id="question-text">Loading question...</div>
+        
+        <div class="options-container" id="options-container">
+            <!-- Options dynamically loaded -->
+        </div>
+
+        <div class="result-box" id="result-box"></div>
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question</button>
+    </div>
+
+    <div class="score-container" id="score-container">
+        <h2>Quiz Completed!</h2>
+        <div class="score-text" id="score-text">You scored 0 out of 50</div>
+        <button class="restart-btn" onclick="restartQuiz()">Restart Quiz</button>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        // --- BASICS & FUNDAMENTALS ---
+        { question: "Who developed the C++ programming language?", options: ["Dennis Ritchie", "Bjarne Stroustrup", "James Gosling", "Guido van Rossum"], correct: 1 },
+        { question: "What was the original name of C++ when it was developed in 1979?", options: ["C with Classes", "C++", "Super C", "Advanced C"], correct: 0 },
+        { question: "Which header file is required for basic input/output stream operations in C++?", options: ["<stdio.h>", "<iostream>", "<stdlib.h>", "<stream>"], correct: 1 },
+        { question: "Which stream object is used to print output to the standard console in C++?", options: ["cin", "cout", "cerr", "clog"], correct: 1 },
+        { question: "Which operator is used with std::cout for output stream insertion?", options: [">>", "<<", "::", "->"], correct: 1 },
+        { question: "Which operator is used with std::cin for input stream extraction?", options: [">>", "<<", "::", "&"], correct: 0 },
+        { question: "What is the Scope Resolution Operator in C++?", options: ["::", "->", ".", ":"], correct: 0 },
+        { question: "Which keyword allows automatic type deduction from the initializer in modern C++ (C++11 onwards)?", options: ["var", "auto", "decltype", "dynamic"], correct: 1 },
+        { question: "What is the correct way to output a new line and flush the stream buffer in C++?", options: ["std::endl", "\\n", "std::flush", "std::newline"], correct: 0 },
+        { question: "What is the default value of a global boolean variable in C++?", options: ["true", "false", "1", "undefined"], correct: 1 },
+
+        // --- CONTROL FLOW & MEMORY ALLOCATION ---
+        { question: "Which operator is used to allocate memory dynamically on the Heap in C++?", options: ["malloc()", "new", "alloc()", "create"], correct: 1 },
+        { question: "Which operator is used to deallocate dynamic memory allocated with 'new' in C++?", options: ["free()", "delete", "clear", "remove"], correct: 1 },
+        { question: "What happens if you allocate memory using 'new[]' and free it using 'delete' instead of 'delete[]'?", options: ["Compilation error", "Undefined behavior / partial memory leak", "Normal execution", "Runtime exception"], correct: 1 },
+        { question: "What is a reference variable in C++?", options: ["A pointer storing memory address", "An alias / another name for an existing variable", "A constant value", "A global variable"], correct: 1 },
+        { question: "Which symbol is used to declare a reference variable in C++?", options: ["*", "&", "->", "::"], correct: 1 },
+        { question: "Can a reference variable in C++ be reassigned to refer to another variable after initialization?", options: ["Yes", "No", "Only if declared static", "Only inside a loop"], correct: 1 },
+        { question: "What is the result of using nullptr in modern C++ (C++11)?", options: ["Integer value 0", "Type-safe null pointer literal of type std::nullptr_t", "String literal", "Macro for NULL"], correct: 1 },
+        { question: "Which loop is best suited when the exact number of iterations is known in advance?", options: ["while", "do-while", "for", "infinite loop"], correct: 2 },
+        { question: "What is a Range-based for loop syntax in C++11?", options: ["for (auto x : container)", "for (each x in container)", "foreach(x in container)", "for (x -> container)"], correct: 0 },
+        { question: "Which operator cannot be overloaded in C++?", options: ["+", "[]", "::", "()"], correct: 2 },
+
+        // --- CLASSES, OBJECTS & OOPS ---
+        { question: "What is the default access specifier for members of a class in C++?", options: ["public", "private", "protected", "internal"], correct: 1 },
+        { question: "What is the default access specifier for members of a struct in C++?", options: ["private", "public", "protected", "friend"], correct: 1 },
+        { question: "What is a constructor in C++?", options: ["A function that destroys objects", "A special member function invoked automatically when an object is created", "A static method", "A method with return type int"], correct: 1 },
+        { question: "How is a Destructor named in C++?", options: ["~ClassName()", "!ClassName()", "destroyClassName()", "delete ClassName()"], correct: 0 },
+        { question: "Can a destructor in C++ take arguments?", options: ["Yes", "No", "Only pointers", "Only int"], correct: 1 },
+        { question: "How many destructors can a class have in C++?", options: ["Multiple (Overloaded)", "Exactly one", "Up to two", "None"], correct: 1 },
+        { question: "Which constructor is invoked when an object is initialized using another object of the same class?", options: ["Default Constructor", "Parameterized Constructor", "Copy Constructor", "Move Constructor"], correct: 2 },
+        { question: "What is the signature parameter requirement for a Copy Constructor?", options: ["ClassName(ClassName obj)", "ClassName(const ClassName &obj)", "ClassName(ClassName *obj)", "ClassName(auto obj)"], correct: 1 },
+        { question: "What feature in C++11 allows transferring resources from a temporary object rather than copying?", options: ["Copy Semantics", "Move Semantics (Rvalue References)", "Lambda Functions", "Delegating Constructors"], correct: 1 },
+        { question: "Which symbol denotes an Rvalue Reference in modern C++?", options: ["&", "&&", "*", "**"], correct: 1 },
+
+        // --- INHERITANCE, POLYMORPHISM & ABSTRACTION ---
+        { question: "Which keyword is used to achieve runtime polymorphism in C++?", options: ["static", "inline", "virtual", "override"], correct: 2 },
+        { question: "What is a Pure Virtual Function in C++?", options: ["virtual void display() = 0;", "virtual void display();", "void display() = pure;", "virtual void display() {}"], correct: 0 },
+        { question: "A class containing at least one Pure Virtual Function is called an:", options: ["Concrete Class", "Abstract Class", "Interface Class", "Static Class"], correct: 1 },
+        { question: "Can you create an instance (object) of an Abstract Class directly in C++?", options: ["Yes", "No", "Only on stack", "Only using new"], correct: 1 },
+        { question: "Why should a base class destructor be declared 'virtual' when deleting via base pointer?", options: ["To prevent memory leaks by ensuring derived class destructor is called", "To make program run faster", "To allow constructor overloading", "It is mandatory by compiler"], correct: 0 },
+        { question: "What is a Virtual Table (vtable) in C++?", options: ["A compiler-generated mechanism to resolve dynamic virtual function calls at runtime", "A database table", "A vector of pointers", "A stack memory layout"], correct: 0 },
+        { question: "Which keyword explicitly indicates that a derived class method is intended to override a virtual method?", options: ["virtual", "override", "final", "overload"], correct: 1 },
+        { question: "Which keyword prevents a class from being inherited or a virtual function from being overridden?", options: ["sealed", "final", "static", "const"], correct: 1 },
+        { question: "Which function allows non-member functions access to private and protected members of a class?", options: ["Friend function", "Virtual function", "Inline function", "Static function"], correct: 0 },
+        { question: "Which keyword is used to qualify member variables shared across all instances of a class?", options: ["static", "const", "mutable", "extern"], correct: 0 },
+
+        // --- STL, TEMPLATES & ADVANCED CONCEPTS ---
+        { question: "What does STL stand for in C++?", options: ["Standard Type Library", "Standard Template Library", "System Tool Library", "Simple Template Language"], correct: 1 },
+        { question: "Which C++ STL container represents a dynamic contiguous array?", options: ["std::list", "std::vector", "std::deque", "std::set"], correct: 1 },
+        { question: "Which header file is required to use std::vector in C++?", options: ["<array>", "<vector>", "<list>", "<algorithm>"], correct: 1 },
+        { question: "Which STL container implements a doubly-linked list?", options: ["std::vector", "std::forward_list", "std::list", "std::queue"], correct: 2 },
+        { question: "Which STL container stores key-value pairs sorted automatically by key?", options: ["std::map", "std::unordered_map", "std::vector", "std::pair"], correct: 0 },
+        { question: "What is the average time complexity for searching an element in std::unordered_map?", options: ["O(1)", "O(log N)", "O(N)", "O(N log N)"], correct: 0 },
+        { question: "Which concept allows writing generic functions or classes in C++?", options: ["Inheritance", "Templates", "Polymorphism", "Namespaces"], correct: 1 },
+        { question: "How do you declare a function template parameter in C++?", options: ["template <typename T>", "template <class T>", "Both A and B are correct", "generic <T>"], correct: 2 },
+        { question: "Which Smart Pointer in C++11 provides exclusive ownership of a dynamically allocated object?", options: ["std::shared_ptr", "std::unique_ptr", "std::weak_ptr", "std::auto_ptr"], correct: 1 },
+        { question: "Which Smart Pointer helps break circular dependencies created by std::shared_ptr?", options: ["std::unique_ptr", "std::weak_ptr", "std::raw_ptr", "std::auto_ptr"], correct: 1 }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    const questionNumberEl = document.getElementById("question-number");
+    const questionTextEl = document.getElementById("question-text");
+    const optionsContainerEl = document.getElementById("options-container");
+    const resultBoxEl = document.getElementById("result-box");
+    const nextBtnEl = document.getElementById("next-btn");
+    const progressBarEl = document.getElementById("progress-bar");
+    const quizBoxEl = document.getElementById("quiz-box");
+    const scoreContainerEl = document.getElementById("score-container");
+    const scoreTextEl = document.getElementById("score-text");
+
+    function loadQuestion() {
+        const currentQuiz = quizData[currentQuestionIndex];
+        
+        questionNumberEl.innerText = `Question ${currentQuestionIndex + 1} of ${quizData.length}`;
+        questionTextEl.innerText = currentQuiz.question;
+        progressBarEl.style.width = `${((currentQuestionIndex + 1) / quizData.length) * 100}%`;
+
+        optionsContainerEl.innerHTML = "";
+        resultBoxEl.style.display = "none";
+        nextBtnEl.style.display = "none";
+
+        currentQuiz.options.forEach((option, index) => {
+            const button = document.createElement("button");
+            button.classList.add("option-btn");
+            button.innerText = option;
+            button.onclick = () => selectOption(index, button);
+            optionsContainerEl.appendChild(button);
+        });
+    }
+
+    function selectOption(selectedIndex, selectedBtn) {
+        const currentQuiz = quizData[currentQuestionIndex];
+        const allButtons = optionsContainerEl.querySelectorAll(".option-btn");
+
+        allButtons.forEach(btn => btn.disabled = true);
+
+        if (selectedIndex === currentQuiz.correct) {
+            selectedBtn.classList.add("correct");
+            resultBoxEl.className = "result-box correct-msg";
+            resultBoxEl.innerText = "YES! Correct Answer! 🎉";
+            score++;
+        } else {
+            selectedBtn.classList.add("incorrect");
+            allButtons[currentQuiz.correct].classList.add("correct");
+            resultBoxEl.className = "result-box incorrect-msg";
+            resultBoxEl.innerText = "NOT CORRECT! Wrong Answer. ❌";
+        }
+
+        resultBoxEl.style.display = "block";
+        nextBtnEl.style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < quizData.length) {
+            loadQuestion();
+        } else {
+            showScore();
+        }
+    }
+
+    function showScore() {
+        quizBoxEl.style.display = "none";
+        scoreContainerEl.style.display = "block";
+        scoreTextEl.innerText = `You scored ${score} out of ${quizData.length}!`;
+    }
+
+    function restartQuiz() {
+        currentQuestionIndex = 0;
+        score = 0;
+        quizBoxEl.style.display = "block";
+        scoreContainerEl.style.display = "none";
+        loadQuestion();
+    }
+
+    // Start Quiz
+    loadQuestion();
+</script>
+
+</body>
+</html>

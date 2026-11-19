@@ -1,0 +1,340 @@
+ 
+
+Index · HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VRA Learning - Online Compiler</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+ 
+    body {
+      background:
+        radial-gradient(circle at 15% 0%, rgba(99, 102, 241, 0.16), transparent 45%),
+        radial-gradient(circle at 85% 20%, rgba(56, 189, 248, 0.10), transparent 40%),
+        #05070f;
+      color: #ffffff;
+      min-height: 100vh;
+    }
+ 
+    /* Navbar */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.1rem 3rem;
+      background-color: rgba(5, 7, 15, 0.7);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+ 
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(120deg, #ffffff 0%, #a5b4fc 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+ 
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+ 
+    .plan-chip {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      color: #fef3c7;
+      background: linear-gradient(120deg, #78350f, #b45309);
+      border: 1px solid rgba(251, 191, 36, 0.4);
+      padding: 5px 12px;
+      border-radius: 999px;
+    }
+ 
+    /* Main Section */
+    .main-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3.5rem 1.5rem 4rem;
+      text-align: center;
+    }
+ 
+    .eyebrow {
+      display: inline-block;
+      font-size: 0.8rem;
+      color: #a5b4fc;
+      background: rgba(129, 140, 248, 0.12);
+      border: 1px solid rgba(129, 140, 248, 0.3);
+      padding: 5px 14px;
+      border-radius: 999px;
+      margin-bottom: 1.2rem;
+    }
+ 
+    .main-title {
+      font-size: 2.6rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.7rem;
+    }
+ 
+    .subtitle {
+      color: #94a3b8;
+      font-size: 1.08rem;
+      margin-bottom: 3.2rem;
+      max-width: 560px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+    }
+ 
+    /* Cards Grid Layout */
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.4rem;
+      text-align: left;
+    }
+ 
+    /* Entire Card as Link */
+    .card {
+      position: relative;
+      background: linear-gradient(160deg, rgba(255,255,255,0.045), rgba(255,255,255,0.01));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 1.8rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 210px;
+      text-decoration: none;
+      cursor: pointer;
+      overflow: hidden;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+ 
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      background: radial-gradient(circle at 30% 0%, var(--glow, rgba(99,102,241,0.25)), transparent 60%);
+      transition: opacity 0.25s ease;
+      pointer-events: none;
+    }
+ 
+    .card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(255, 255, 255, 0.18);
+      box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.55);
+    }
+ 
+    .card:hover::before {
+      opacity: 1;
+    }
+ 
+    /* Colored Top Borders */
+    .card.c-lang { border-top: 3px solid #64748b; --glow: rgba(148,163,184,0.28); }
+    .card.cpp { border-top: 3px solid #3b82f6; --glow: rgba(59,130,246,0.28); }
+    .card.csharp { border-top: 3px solid #a855f7; --glow: rgba(168,85,247,0.28); }
+    .card.java { border-top: 3px solid #ef4444; --glow: rgba(239,68,68,0.28); }
+    .card.python { border-top: 3px solid #06b6d4; --glow: rgba(6,182,212,0.28); }
+    .card.sql { border-top: 3px solid #f97316; --glow: rgba(249,115,22,0.28); }
+    .card.html { border-top: 3px solid #f43f5e; --glow: rgba(244,63,94,0.28); }
+ 
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+      gap: 10px;
+    }
+ 
+    .card-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: #ffffff;
+    }
+ 
+    .tag {
+      background-color: rgba(255, 255, 255, 0.06);
+      color: #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      white-space: nowrap;
+    }
+ 
+    .badge {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      color: #431407;
+      background: linear-gradient(120deg, #fbbf24, #f97316);
+      padding: 3px 9px;
+      border-radius: 999px;
+      box-shadow: 0 2px 10px rgba(249, 115, 22, 0.35);
+    }
+ 
+    .compiler-info {
+      color: #9ca3af;
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.55;
+    }
+ 
+    .run-btn {
+      color: #93c5fd;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: color 0.2s, gap 0.2s;
+    }
+ 
+    .card:hover .run-btn {
+      color: #dbeafe;
+      gap: 8px;
+    }
+ 
+    /* Responsive Design */
+    @media (max-width: 900px) {
+      .grid-container {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 600px) {
+      .grid-container {
+        grid-template-columns: 1fr;
+      }
+      header {
+        padding: 1rem 1.4rem;
+      }
+      .main-title {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+ 
+  <header>
+    <div class="logo">🚀 VRA Learning</div>
+    <div class="header-right">
+      <span class="plan-chip">✦ PREMIUM</span>
+    </div>
+  </header>
+ 
+  <div class="main-container">
+    <span class="eyebrow">7 languages, zero setup</span>
+    <h1 class="main-title">Welcome to VRA Online Compiler</h1>
+    <p class="subtitle">Write, compile, and execute code online in real-time with instant execution feedback.</p>
+ 
+    <div class="grid-container">
+ 
+      <a href="https://onecompiler.com/html" class="card html" target="_blank">
+        <span class="badge">POPULAR</span>
+        <div>
+          <div class="card-header">
+            <h2 class="card-title">HTML Playground</h2>
+            <span class="tag">HTML5 / CSS / JS</span>
+          </div>
+          <p class="compiler-info">Build and preview web pages live. Supports HTML5, CSS3, and embedded JavaScript with instant rendering.</p>
+        </div>
+        <div class="run-btn">Run HTML Code →</div>
+      </a>
+ 
+      <a href="https://onecompiler.com/c" class="card c-lang" target="_blank">
+        <div>
+          <div class="card-header">
+            <h2 class="card-title">C Compiler</h2>
+            <span class="tag">GCC 13.2</span>
+          </div>
+          <p class="compiler-info">Compile and execute C code online. Supports standard input/output, memory allocation, and pointers.</p>
+        </div>
+        <div class="run-btn">Run C Code →</div>
+      </a>
+ 
+      <a href="https://onecompiler.com/cpp" class="card cpp" target="_blank">
+        <div>
+          <div class="card-header">
+            <h2 class="card-title">C++ Compiler</h2>
+            <span class="tag">G++ 20</span>
+          </div>
+          <p class="compiler-info">Run C++ programs with full STL support, smart pointers, and modern C++20 features.</p>
+        </div>
+        <div class="run-btn">Run C++ Code →</div>
+      </a>
+ 
+      <a href="https://onecompiler.com/csharp" class="card csharp" target="_blank">
+        <div>
+          <div class="card-header">
+            <h2 class="card-title">C# Compiler</h2>
+            <span class="tag">.NET 8.0</span>
+          </div>
+          <p class="compiler-info">Execute C# scripts online. Supports LINQ, async/await, and object-oriented code snippets.</p>
+        </div>
+        <div class="run-btn">Run C# Code →</div>
+      </a>
+ 
+      <a href="https://onecompiler.com/java" class="card java" target="_blank">
+        <div>
+          <div class="card-header">
+            <h2 class="card-title">Java Compiler</h2>
+            <span class="tag">JDK 21</span>
+          </div>
+          <p class="compiler-info">Compile Java class files online with support for multi-threading, OOPs, and utility packages.</p>
+        </div>
+        <div class="run-btn">Run Java Code →</div>
+      </a>
+ 
+      <a href="https://onecompiler.com/python" class="card python" target="_blank">
+        <div>
+          <div class="card-header">
+            <h2 class="card-title">Python Environment</h2>
+            <span class="tag">Python 3.12</span>
+          </div>
+          <p class="compiler-info">Run Python code instantly. Supports algorithms, data structures, and script execution.</p>
+        </div>
+        <div class="run-btn">Run Python Code →</div>
+      </a>
+ 
+      <a href="https://onecompiler.com/sqlserver" class="card sql" target="_blank">
+        <div>
+          <div class="card-header">
+            <h2 class="card-title">SQL Playground</h2>
+            <span class="tag">SQLite / MySQL</span>
+          </div>
+          <p class="compiler-info">Write and test database queries, join tables, create schemas, and view real-time query results.</p>
+        </div>
+        <div class="run-btn">Run SQL Query →</div>
+      </a>
+ 
+    </div>
+  </div>
+ 
+</body>
+</html>
+ 

@@ -1,0 +1,1697 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DBMS &amp; SQL — The Complete Field Guide</title>
+<style>
+:root{
+  --db-blue:#00758F;
+  --db-blue-dark:#00596F;
+  --teal:#00A896;
+  --charcoal:#1E293B;
+  --bg:#F8FAFC;
+  --surface:#FFFFFF;
+  --border:#E2E8F0;
+  --text:#1E293B;
+  --text-soft:#54677D;
+  --code-bg:#0F1A24;
+  --code-border:#233649;
+  --radius-s:6px;
+  --radius-m:10px;
+  --font-sans: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: 'Fraunces', Georgia, serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+}
+[data-theme="dark"]{
+  --bg:#0B1420;
+  --surface:#121F2E;
+  --border:#243447;
+  --text:#E6EDF3;
+  --text-soft:#93A5BA;
+  --code-bg:#060C13;
+  --code-border:#1B2A3C;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  font-family:var(--font-sans);
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.65;
+  transition:background .25s ease, color .25s ease;
+}
+img,svg{max-width:100%;}
+a{color:var(--db-blue);}
+[data-theme="dark"] a{color:#5FD1E0;}
+ 
+/* ===== Layout shell ===== */
+.shell{
+  display:grid;
+  grid-template-columns:272px 1fr;
+  min-height:100vh;
+}
+@media (max-width: 960px){
+  .shell{grid-template-columns:1fr;}
+}
+ 
+/* ===== Sidebar ===== */
+.sidebar{
+  position:sticky;
+  top:0;
+  height:100vh;
+  overflow-y:auto;
+  background:var(--charcoal);
+  color:#CBD8E5;
+  padding:28px 20px 40px;
+  border-right:1px solid rgba(255,255,255,.06);
+  z-index:50;
+}
+.sidebar::-webkit-scrollbar{width:6px;}
+.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:4px;}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:26px;
+  padding-bottom:20px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.brand-mark{
+  width:34px;height:34px;border-radius:8px;
+  background:linear-gradient(135deg, var(--teal), var(--db-blue));
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-mono);font-weight:700;color:#fff;font-size:14px;
+  flex-shrink:0;
+}
+.brand-text{font-family:var(--font-serif);font-weight:600;font-size:1.05rem;color:#fff;line-height:1.2;}
+.brand-text span{display:block;font-family:var(--font-mono);font-size:.68rem;color:var(--teal);letter-spacing:.02em;margin-top:2px;}
+ 
+.search-box{
+  position:relative;
+  margin-bottom:22px;
+}
+.search-box input{
+  width:100%;
+  padding:10px 12px 10px 34px;
+  border-radius:var(--radius-s);
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  font-size:.85rem;
+  font-family:var(--font-sans);
+}
+.search-box input::placeholder{color:#7E8FA3;}
+.search-box input:focus{outline:2px solid var(--teal);outline-offset:1px;}
+.search-box svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;stroke:#7E8FA3;}
+.search-count{font-size:.72rem;color:#7E8FA3;margin:6px 2px 0;min-height:14px;}
+ 
+nav.toc{display:flex;flex-direction:column;gap:2px;}
+.toc-group{margin-bottom:14px;}
+.toc-group-title{
+  font-family:var(--font-mono);
+  font-size:.68rem;
+  letter-spacing:.04em;
+  color:#5A6C82;
+  padding:6px 10px 4px;
+}
+.toc a{
+  display:block;
+  padding:7px 10px;
+  border-radius:var(--radius-s);
+  color:#B7C4D4;
+  text-decoration:none;
+  font-size:.87rem;
+  border-left:2px solid transparent;
+  transition:background .15s ease, color .15s ease, border-color .15s ease;
+}
+.toc a:hover{background:rgba(255,255,255,.06);color:#fff;}
+.toc a.active{
+  background:rgba(0,168,150,.14);
+  color:#fff;
+  border-left-color:var(--teal);
+  font-weight:600;
+}
+.toc a[data-hidden="true"]{display:none;}
+ 
+/* ===== Mobile nav toggle ===== */
+.mobile-bar{
+  display:none;
+  position:sticky;
+  top:0;
+  z-index:60;
+  background:var(--charcoal);
+  color:#fff;
+  padding:14px 16px;
+  align-items:center;
+  justify-content:space-between;
+}
+.mobile-bar .brand{margin:0;padding:0;border:none;}
+.menu-btn{
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.15);
+  color:#fff;
+  width:38px;height:38px;
+  border-radius:var(--radius-s);
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+@media (max-width: 960px){
+  .mobile-bar{display:flex;}
+  .sidebar{
+    position:fixed;
+    left:0;top:0;bottom:0;
+    width:280px;
+    transform:translateX(-100%);
+    transition:transform .25s ease;
+    box-shadow:8px 0 30px rgba(0,0,0,.35);
+  }
+  .sidebar.open{transform:translateX(0);}
+  .backdrop{
+    display:none;
+    position:fixed;inset:0;
+    background:rgba(0,0,0,.4);
+    z-index:45;
+  }
+  .backdrop.show{display:block;}
+}
+ 
+/* ===== Main content ===== */
+main{padding:0;min-width:0;}
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:40;
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:14px;
+  padding:14px 40px;
+  background:color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--border);
+}
+@media (max-width:960px){ .topbar{padding:12px 20px;} }
+ 
+.theme-toggle{
+  display:flex;align-items:center;gap:8px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  padding:6px 12px;
+  border-radius:999px;
+  cursor:pointer;
+  font-size:.82rem;
+  color:var(--text);
+}
+.theme-toggle svg{width:15px;height:15px;}
+ 
+.content{
+  max-width:900px;
+  margin:0 auto;
+  padding:52px 40px 120px;
+}
+@media (max-width:960px){ .content{padding:32px 20px 100px;} }
+ 
+.hero{
+  padding-bottom:40px;
+  margin-bottom:50px;
+  border-bottom:1px solid var(--border);
+}
+.hero .kicker{
+  font-family:var(--font-mono);
+  color:var(--teal);
+  font-size:.85rem;
+  margin-bottom:10px;
+}
+.hero h1{
+  font-family:var(--font-serif);
+  font-size:clamp(2.1rem, 5vw, 3.1rem);
+  line-height:1.08;
+  margin:0 0 18px;
+  color:var(--text);
+}
+.hero h1 em{color:var(--db-blue);font-style:normal;}
+[data-theme="dark"] .hero h1 em{color:var(--teal);}
+.hero p.lede{
+  font-size:1.1rem;
+  color:var(--text-soft);
+  max-width:640px;
+  margin:0 0 22px;
+}
+.hero-stats{
+  display:flex;
+  gap:28px;
+  flex-wrap:wrap;
+}
+.hero-stat b{
+  display:block;
+  font-family:var(--font-serif);
+  font-size:1.5rem;
+  color:var(--db-blue);
+}
+[data-theme="dark"] .hero-stat b{color:var(--teal);}
+.hero-stat span{font-size:.78rem;color:var(--text-soft);}
+ 
+section.chapter{
+  margin-bottom:64px;
+  scroll-margin-top:90px;
+}
+section.chapter > .chapter-head{
+  display:flex;
+  align-items:baseline;
+  gap:14px;
+  margin-bottom:8px;
+}
+.chapter-num{
+  font-family:var(--font-mono);
+  color:var(--teal);
+  font-size:.95rem;
+  font-weight:600;
+}
+h2{
+  font-family:var(--font-serif);
+  font-size:1.9rem;
+  margin:0;
+  color:var(--text);
+}
+section.chapter > p.chapter-intro{
+  color:var(--text-soft);
+  max-width:680px;
+  margin:6px 0 28px;
+}
+ 
+h3{
+  font-family:var(--font-serif);
+  font-size:1.32rem;
+  margin:36px 0 12px;
+  color:var(--text);
+  scroll-margin-top:90px;
+}
+h4{
+  font-size:1.05rem;
+  margin:22px 0 8px;
+  color:var(--text);
+}
+p{color:var(--text);}
+.searchable p, .searchable li{color:var(--text);}
+ 
+/* ===== Search-hide ===== */
+.searchable[data-match="false"]{display:none !important;}
+ 
+/* ===== Code blocks ===== */
+.code-block{
+  position:relative;
+  margin:18px 0 26px;
+  border-radius:var(--radius-m);
+  overflow:hidden;
+  border:1px solid var(--code-border);
+  background:var(--code-bg);
+}
+.code-block .code-titlebar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:9px 14px;
+  background:linear-gradient(180deg, #16263A, #101C2B);
+  border-bottom:1px solid var(--code-border);
+}
+.code-dots{display:flex;gap:6px;}
+.code-dots span{width:9px;height:9px;border-radius:50%;display:inline-block;}
+.code-dots span:nth-child(1){background:#FF5F57;}
+.code-dots span:nth-child(2){background:#FEBC2E;}
+.code-dots span:nth-child(3){background:#28C840;}
+.code-label{
+  font-family:var(--font-mono);
+  font-size:.72rem;
+  color:#7E93AC;
+  letter-spacing:.03em;
+}
+.copy-btn{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(0,168,150,.12);
+  border:1px solid rgba(0,168,150,.35);
+  color:#7FE3D4;
+  font-family:var(--font-mono);
+  font-size:.72rem;
+  padding:5px 10px;
+  border-radius:5px;
+  cursor:pointer;
+  transition:background .15s ease;
+}
+.copy-btn:hover{background:rgba(0,168,150,.25);}
+.copy-btn svg{width:12px;height:12px;}
+.copy-btn.copied{background:var(--teal);color:#04231F;border-color:var(--teal);}
+ 
+pre.sql{
+  margin:0;
+  padding:18px 20px;
+  overflow-x:auto;
+  font-family:var(--font-mono);
+  font-size:.86rem;
+  line-height:1.65;
+  color:#DCE8F2;
+}
+pre.sql code{font-family:inherit;}
+.tok-kw{color:#5FD1E0;font-weight:600;}
+.tok-fn{color:#F2B94B;}
+.tok-str{color:#9CE87A;}
+.tok-num{color:#F2B94B;}
+.tok-com{color:#6D8299;font-style:italic;}
+.tok-type{color:#C792EA;}
+.tok-op{color:#F07178;}
+ 
+/* ===== Tables ===== */
+.table-wrap{overflow-x:auto;margin:18px 0 26px;border:1px solid var(--border);border-radius:var(--radius-m);}
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:.9rem;
+  background:var(--surface);
+}
+thead th{
+  background:var(--charcoal);
+  color:#fff;
+  text-align:left;
+  padding:11px 14px;
+  font-weight:600;
+  font-size:.82rem;
+}
+tbody td{
+  padding:10px 14px;
+  border-top:1px solid var(--border);
+  color:var(--text);
+}
+tbody tr:nth-child(even){background:color-mix(in srgb, var(--bg) 60%, var(--surface));}
+.result-caption{
+  font-family:var(--font-mono);
+  font-size:.72rem;
+  color:var(--text-soft);
+  margin:-14px 0 10px;
+}
+ 
+/* ===== Callouts ===== */
+.callout{
+  display:flex;
+  gap:12px;
+  padding:16px 18px;
+  border-radius:var(--radius-m);
+  border:1px solid var(--border);
+  margin:20px 0;
+  background:var(--surface);
+}
+.callout .ic{
+  flex-shrink:0;
+  width:22px;height:22px;
+  margin-top:1px;
+}
+.callout.info{border-left:4px solid var(--db-blue);}
+.callout.info .ic{color:var(--db-blue);}
+.callout.tip{border-left:4px solid var(--teal);}
+.callout.tip .ic{color:var(--teal);}
+.callout.warn{border-left:4px solid #D9822B;}
+.callout.warn .ic{color:#D9822B;}
+.callout p{margin:0;font-size:.92rem;color:var(--text-soft);}
+.callout strong{color:var(--text);}
+ 
+/* ===== Cards / grid ===== */
+.card-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(220px,1fr));
+  gap:16px;
+  margin:20px 0 28px;
+}
+.card{
+  border:1px solid var(--border);
+  background:var(--surface);
+  border-radius:var(--radius-m);
+  padding:18px;
+}
+.card h4{margin-top:0;color:var(--db-blue);}
+[data-theme="dark"] .card h4{color:var(--teal);}
+.card p{font-size:.88rem;color:var(--text-soft);margin:0;}
+ 
+/* ===== Tabs ===== */
+.tabs{
+  border:1px solid var(--border);
+  border-radius:var(--radius-m);
+  overflow:hidden;
+  margin:22px 0 30px;
+  background:var(--surface);
+}
+.tab-nav{
+  display:flex;
+  flex-wrap:wrap;
+  background:color-mix(in srgb, var(--charcoal) 6%, var(--surface));
+  border-bottom:1px solid var(--border);
+}
+[data-theme="dark"] .tab-nav{background:#0E1926;}
+.tab-nav button{
+  flex:1 1 auto;
+  min-width:110px;
+  padding:12px 14px;
+  background:none;
+  border:none;
+  border-bottom:2px solid transparent;
+  cursor:pointer;
+  font-family:var(--font-sans);
+  font-weight:600;
+  font-size:.85rem;
+  color:var(--text-soft);
+}
+.tab-nav button.active{
+  color:var(--db-blue);
+  border-bottom-color:var(--db-blue);
+  background:var(--surface);
+}
+[data-theme="dark"] .tab-nav button.active{color:var(--teal);border-bottom-color:var(--teal);}
+.tab-panels{padding:22px;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;animation:fadeIn .2s ease;}
+@keyframes fadeIn{from{opacity:0;} to{opacity:1;}}
+ 
+/* ===== Accordion ===== */
+.accordion{border:1px solid var(--border);border-radius:var(--radius-m);overflow:hidden;margin:22px 0 30px;}
+.acc-item{border-bottom:1px solid var(--border);}
+.acc-item:last-child{border-bottom:none;}
+.acc-head{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:16px 18px;
+  background:var(--surface);
+  border:none;
+  cursor:pointer;
+  text-align:left;
+  font-family:var(--font-sans);
+}
+.acc-head .acc-title{font-weight:700;color:var(--text);font-size:.98rem;}
+.acc-head .acc-sub{display:block;font-weight:400;font-size:.8rem;color:var(--text-soft);margin-top:2px;}
+.acc-head .chev{
+  width:18px;height:18px;flex-shrink:0;
+  transition:transform .2s ease;
+  color:var(--db-blue);
+}
+[data-theme="dark"] .acc-head .chev{color:var(--teal);}
+.acc-item.open .chev{transform:rotate(180deg);}
+.acc-body{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height .25s ease;
+  background:color-mix(in srgb, var(--bg) 55%, var(--surface));
+}
+.acc-item.open .acc-body{max-height:2400px;}
+.acc-body-inner{padding:4px 18px 20px;}
+.acc-body-inner p{font-size:.92rem;color:var(--text-soft);}
+ 
+/* ===== Join visualizer ===== */
+.join-visualizer{
+  display:grid;
+  grid-template-columns:220px 1fr;
+  gap:24px;
+  align-items:center;
+  margin:14px 0 6px;
+}
+@media (max-width:640px){ .join-visualizer{grid-template-columns:1fr;} }
+.venn{display:flex;align-items:center;justify-content:center;}
+.venn svg circle{transition:fill .2s ease, opacity .2s ease;}
+.join-desc p{margin:0 0 8px;font-size:.9rem;color:var(--text-soft);}
+ 
+/* ===== ACID cards ===== */
+.acid-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin:20px 0 10px;}
+.acid-card{
+  border:1px solid var(--border);
+  border-radius:var(--radius-m);
+  padding:20px;
+  background:var(--surface);
+  position:relative;
+  overflow:hidden;
+}
+.acid-card .letter{
+  font-family:var(--font-serif);
+  font-size:2.1rem;
+  color:var(--teal);
+  line-height:1;
+  margin-bottom:8px;
+  display:block;
+}
+.acid-card h4{margin:0 0 6px;}
+.acid-card p{font-size:.85rem;color:var(--text-soft);margin:0 0 10px;}
+.acid-card .example{
+  font-family:var(--font-mono);
+  font-size:.76rem;
+  background:var(--code-bg);
+  color:#9CE87A;
+  padding:8px 10px;
+  border-radius:6px;
+}
+ 
+/* ===== Key badges ===== */
+.badge{
+  display:inline-block;
+  font-family:var(--font-mono);
+  font-size:.7rem;
+  padding:2px 8px;
+  border-radius:999px;
+  background:color-mix(in srgb, var(--db-blue) 12%, transparent);
+  color:var(--db-blue);
+  border:1px solid color-mix(in srgb, var(--db-blue) 35%, transparent);
+  margin:2px 4px 2px 0;
+}
+[data-theme="dark"] .badge{color:#8FD8E6;border-color:#26505E;background:rgba(0,117,143,.25);}
+ 
+ul.clean{padding-left:20px;margin:10px 0;}
+ul.clean li{margin-bottom:6px;color:var(--text);}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media (max-width:700px){ .two-col{grid-template-columns:1fr;} }
+ 
+footer{
+  text-align:center;
+  padding:36px 20px 60px;
+  color:var(--text-soft);
+  font-size:.82rem;
+}
+ 
+/* No-results state */
+.no-results{
+  display:none;
+  text-align:center;
+  padding:60px 20px;
+  color:var(--text-soft);
+}
+.no-results.show{display:block;}
+</style>
+</head>
+<body>
+ 
+<div class="backdrop" id="backdrop"></div>
+ 
+<div class="shell">
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">DB</div>
+      <div class="brand-text">Field Guide<span>DBMS &amp; SQL</span></div>
+    </div>
+ 
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input type="text" id="siteSearch" placeholder="Search topics… e.g. 3NF, JOIN" autocomplete="off">
+    </div>
+    <div class="search-count" id="searchCount"></div>
+ 
+    <nav class="toc" id="toc">
+      <div class="toc-group">
+        <div class="toc-group-title">01 · FOUNDATIONS</div>
+        <a href="#intro" data-title="What is a DBMS, history, file system comparison">Intro to DBMS</a>
+        <a href="#db-types" data-title="Relational NoSQL object-oriented distributed databases">Types of Databases</a>
+        <a href="#architecture" data-title="Three schema architecture data independence">3-Schema Architecture</a>
+        <a href="#sql-vs-nosql" data-title="SQL vs NoSQL comparison ACID BASE">SQL vs NoSQL</a>
+      </div>
+      <div class="toc-group">
+        <div class="toc-group-title">02 · DESIGN</div>
+        <a href="#er-model" data-title="Entities attributes relationships keys">ER Modeling</a>
+        <a href="#cardinality" data-title="Cardinality modality one to many many to many">Cardinality &amp; Modality</a>
+        <a href="#er-to-relational" data-title="Mapping ER diagrams to relational tables">ER → Relational Mapping</a>
+      </div>
+      <div class="toc-group">
+        <div class="toc-group-title">03 · SQL BASICS</div>
+        <a href="#sql-commands" data-title="DDL DML DCL TCL create alter drop insert update delete grant commit">DDL / DML / DCL / TCL</a>
+        <a href="#constraints" data-title="Not null unique primary key foreign key check default data types">Data Types &amp; Constraints</a>
+        <a href="#basic-queries" data-title="Where order by group by having count sum avg">Filtering, Sorting, Aggregates</a>
+        <a href="#schema-script" data-title="Ecommerce schema users orders products create table">E-Commerce Schema Script</a>
+      </div>
+      <div class="toc-group">
+        <div class="toc-group-title">04 · JOINS &amp; NORMALIZATION</div>
+        <a href="#joins" data-title="Inner left right full outer cross self join">SQL Joins</a>
+        <a href="#subqueries" data-title="Nested correlated subqueries common table expressions with clause CTE">Subqueries &amp; CTEs</a>
+        <a href="#normalization" data-title="Need for normalization insertion deletion update anomalies">Why Normalize?</a>
+        <a href="#normal-forms" data-title="1NF 2NF 3NF BCNF normal forms">Normal Forms 1NF–BCNF</a>
+      </div>
+      <div class="toc-group">
+        <div class="toc-group-title">05 · ADVANCED</div>
+        <a href="#transactions" data-title="ACID atomicity consistency isolation durability bank transaction">Transactions &amp; ACID</a>
+        <a href="#indexing" data-title="B tree clustered non clustered index query optimization">Indexing &amp; Optimization</a>
+        <a href="#security" data-title="Views stored procedures triggers sql injection privileges grant">Views, Triggers &amp; Security</a>
+      </div>
+    </nav>
+  </aside>
+ 
+  <!-- ===== MAIN ===== -->
+  <main>
+    <div class="mobile-bar">
+      <div class="brand">
+        <div class="brand-mark">DB</div>
+        <div class="brand-text" style="color:#fff;">Field Guide</div>
+      </div>
+      <button class="menu-btn" id="menuBtn" aria-label="Toggle navigation">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="20" height="20"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+    </div>
+ 
+    <div class="topbar">
+      <button class="theme-toggle" id="themeToggle">
+        <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+        <span id="themeLabel">Light mode</span>
+      </button>
+    </div>
+ 
+    <div class="content" id="content">
+ 
+      <div class="hero">
+        <div class="kicker">// pgAdmin-styled reference · basics through advanced</div>
+        <h1>Database Management Systems &amp; <em>SQL</em>, end to end.</h1>
+        <p class="lede">A single-page reference covering DBMS theory, ER modeling, SQL syntax, joins, normalization, transactions, indexing and security — with runnable queries and sample output tables throughout.</p>
+        <div class="hero-stats">
+          <div class="hero-stat"><b>5</b><span>Chapters</span></div>
+          <div class="hero-stat"><b>40+</b><span>SQL examples</span></div>
+          <div class="hero-stat"><b>4</b><span>Normal forms covered</span></div>
+          <div class="hero-stat"><b>6</b><span>Join types visualized</span></div>
+        </div>
+      </div>
+ 
+      <!-- ================= CHAPTER 1 ================= -->
+      <section class="chapter" id="intro">
+        <div class="chapter-head"><span class="chapter-num">01</span><h2>What is a DBMS?</h2></div>
+        <p class="chapter-intro">Where data-driven software begins: what a DBMS actually does, and why it replaced flat file systems.</p>
+ 
+        <div class="searchable" data-title="What is a DBMS, history, importance">
+        <p>A <strong>Database Management System (DBMS)</strong> is software that creates, stores, manages, and retrieves data while enforcing rules about that data's structure, consistency, and access. Rather than an application talking directly to raw files, it talks to the DBMS, which handles storage layout, concurrent access, integrity checks, and recovery on its behalf.</p>
+        <p>Early data-driven applications in the 1960s–70s stored records directly in flat files (think: a folder of <code>.dat</code> files, each read and written by custom application code). As systems grew, this became unsustainable — leading to the rise of DBMS software such as IBM's IMS, then relational systems following Edgar Codd's 1970 paper on the relational model, which underpins SQL databases today.</p>
+        </div>
+ 
+        <h3 id="fs-vs-dbms">File System vs DBMS</h3>
+        <div class="searchable" data-title="File system vs DBMS comparison redundancy integrity">
+        <div class="table-wrap">
+        <table>
+          <thead><tr><th>Aspect</th><th>File System</th><th>DBMS</th></tr></thead>
+          <tbody>
+            <tr><td>Data redundancy</td><td>High — same data often duplicated across files</td><td>Minimized via normalization &amp; shared storage</td></tr>
+            <tr><td>Data integrity</td><td>Enforced manually in application code</td><td>Enforced by constraints (PK, FK, CHECK, etc.)</td></tr>
+            <tr><td>Concurrent access</td><td>Prone to conflicts, no built-in locking</td><td>Managed via locking / MVCC and isolation levels</td></tr>
+            <tr><td>Querying</td><td>Custom code per query</td><td>Declarative query language (SQL)</td></tr>
+            <tr><td>Security</td><td>OS-level file permissions only</td><td>Fine-grained user &amp; role-based privileges</td></tr>
+            <tr><td>Backup &amp; recovery</td><td>Manual, application-specific</td><td>Built-in transaction logs, point-in-time recovery</td></tr>
+          </tbody>
+        </table>
+        </div>
+        </div>
+ 
+        <div class="callout info searchable" data-title="importance of DBMS why it matters">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          <p><strong>Why it matters:</strong> A DBMS gives you data independence, controlled redundancy, integrity enforcement, backup/recovery, and multi-user concurrency — the foundation every serious application (banking, e-commerce, healthcare records) is built on.</p>
+        </div>
+      </section>
+ 
+      <!-- ================= DB TYPES ================= -->
+      <section class="chapter" id="db-types">
+        <div class="chapter-head"><span class="chapter-num">02</span><h2>Types of Databases</h2></div>
+        <p class="chapter-intro">Not every workload fits neatly into rows and columns — here's the landscape.</p>
+ 
+        <div class="card-grid">
+          <div class="card searchable" data-title="Relational RDBMS tables rows columns SQL">
+            <h4>Relational (RDBMS)</h4>
+            <p>Data stored in tables with predefined schemas, related via keys. Strong consistency guarantees (ACID). Examples: PostgreSQL, MySQL, Oracle, SQL Server.</p>
+          </div>
+          <div class="card searchable" data-title="NoSQL document key value column family graph databases">
+            <h4>NoSQL</h4>
+            <p>Schema-flexible stores optimized for scale and specific access patterns: document (MongoDB), key-value (Redis, DynamoDB), wide-column (Cassandra), and graph (Neo4j) databases.</p>
+          </div>
+          <div class="card searchable" data-title="Object oriented database OODBMS objects classes">
+            <h4>Object-Oriented (OODBMS)</h4>
+            <p>Stores data as objects, mirroring object-oriented programming — attributes and behaviors bundled together. Examples: db4o, ObjectDB. Useful when app objects map awkwardly to tables.</p>
+          </div>
+          <div class="card searchable" data-title="Distributed database sharding replication partitioning">
+            <h4>Distributed Databases</h4>
+            <p>Data is partitioned and/or replicated across multiple physical nodes for scalability and fault tolerance — e.g. CockroachDB, Google Spanner, Cassandra clusters.</p>
+          </div>
+        </div>
+      </section>
+ 
+      <!-- ================= ARCHITECTURE ================= -->
+      <section class="chapter" id="architecture">
+        <div class="chapter-head"><span class="chapter-num">03</span><h2>DBMS Architecture</h2></div>
+        <p class="chapter-intro">The 3-schema (ANSI/SPARC) architecture separates how data is stored from how it's used.</p>
+ 
+        <div class="searchable" data-title="Three schema architecture physical logical view level data independence">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Level</th><th>Also called</th><th>Concern</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Internal / Physical</strong></td><td>Storage level</td><td>How data is physically stored — file organization, indexing structures, compression.</td></tr>
+              <tr><td><strong>Conceptual / Logical</strong></td><td>Community level</td><td>What data is stored and the relationships among it, independent of physical storage — this is where the schema of tables lives.</td></tr>
+              <tr><td><strong>External / View</strong></td><td>User level</td><td>What a specific user or application sees — customized views hiding irrelevant parts of the schema.</td></tr>
+            </tbody>
+          </table>
+        </div>
+ 
+        <h4>Data Independence</h4>
+        <ul class="clean">
+          <li><strong>Logical data independence</strong> — you can change the conceptual schema (e.g. add a column) without rewriting external views/applications.</li>
+          <li><strong>Physical data independence</strong> — you can change physical storage (e.g. switch storage engine, add an index) without touching the conceptual schema.</li>
+        </ul>
+        </div>
+      </section>
+ 
+      <!-- ================= SQL VS NOSQL ================= -->
+      <section class="chapter" id="sql-vs-nosql">
+        <div class="chapter-head"><span class="chapter-num">04</span><h2>SQL vs NoSQL</h2></div>
+        <p class="chapter-intro">The core trade-off: strict structure and strong consistency vs flexible schema and horizontal scale.</p>
+ 
+        <div class="searchable" data-title="SQL relational vs NoSQL document key value ACID BASE scalability comparison">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Dimension</th><th>SQL (Relational)</th><th>NoSQL (Document / Key-Value)</th></tr></thead>
+            <tbody>
+              <tr><td>Structure</td><td>Fixed schema, tables with rows/columns</td><td>Flexible schema — JSON documents, key-value pairs</td></tr>
+              <tr><td>Relationships</td><td>Modeled via foreign keys &amp; joins</td><td>Often embedded or denormalized</td></tr>
+              <tr><td>Scalability</td><td>Primarily vertical (bigger server); horizontal via sharding is harder</td><td>Designed for horizontal scale across commodity nodes</td></tr>
+              <tr><td>Consistency model</td><td><strong>ACID</strong> — strong consistency</td><td><strong>BASE</strong> — Basically Available, Soft state, Eventually consistent</td></tr>
+              <tr><td>Query language</td><td>SQL — standardized, powerful joins</td><td>Varies by product; often API/query-DSL based</td></tr>
+              <tr><td>Best for</td><td>Financial systems, ERPs, anything needing strict integrity &amp; complex joins</td><td>High-velocity writes, catalogs, real-time analytics, flexible/evolving data</td></tr>
+            </tbody>
+          </table>
+        </div>
+        </div>
+      </section>
+ 
+      <!-- ================= CHAPTER 2: ER MODEL ================= -->
+      <section class="chapter" id="er-model">
+        <div class="chapter-head"><span class="chapter-num">05</span><h2>Entity-Relationship (ER) Modeling</h2></div>
+        <p class="chapter-intro">Before you write a single <code>CREATE TABLE</code>, you model the real world as entities and relationships.</p>
+ 
+        <div class="searchable" data-title="Entities attributes simple composite multivalued derived">
+        <h3>Entities &amp; Attributes</h3>
+        <p>An <strong>entity</strong> is a real-world object or concept with independent existence (a <code>Customer</code>, an <code>Order</code>). An <strong>attribute</strong> describes a property of an entity:</p>
+        <ul class="clean">
+          <li><strong>Simple</strong> — atomic, can't be divided (e.g. <code>age</code>)</li>
+          <li><strong>Composite</strong> — can be split into sub-parts (e.g. <code>name</code> → <code>first_name</code> + <code>last_name</code>)</li>
+          <li><strong>Multi-valued</strong> — can hold multiple values (e.g. a customer's <code>phone_numbers</code>)</li>
+          <li><strong>Derived</strong> — computed from other attributes (e.g. <code>age</code> derived from <code>date_of_birth</code>)</li>
+        </ul>
+        </div>
+ 
+        <div class="searchable" data-title="Keys primary foreign candidate super composite key">
+        <h3>Keys</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Key type</th><th>Definition</th></tr></thead>
+            <tbody>
+              <tr><td><span class="badge">Super Key</span></td><td>Any set of attributes that uniquely identifies a row (may contain extra, unnecessary attributes).</td></tr>
+              <tr><td><span class="badge">Candidate Key</span></td><td>A minimal super key — no attribute can be removed without losing uniqueness. A table can have several.</td></tr>
+              <tr><td><span class="badge">Primary Key</span></td><td>The candidate key chosen to uniquely identify rows in a table. Cannot be NULL.</td></tr>
+              <tr><td><span class="badge">Composite Key</span></td><td>A primary/candidate key made of two or more columns together (e.g. <code>order_id + product_id</code>).</td></tr>
+              <tr><td><span class="badge">Foreign Key</span></td><td>A column (or set) referencing the primary key of another table, enforcing referential integrity.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        </div>
+      </section>
+ 
+      <!-- ================= CARDINALITY ================= -->
+      <section class="chapter" id="cardinality">
+        <div class="chapter-head"><span class="chapter-num">06</span><h2>Cardinality &amp; Modality</h2></div>
+        <p class="chapter-intro">How many instances of one entity relate to instances of another.</p>
+ 
+        <div class="searchable" data-title="Cardinality one to one one to many many to many modality">
+        <div class="card-grid">
+          <div class="card">
+            <h4>1 : 1</h4>
+            <p>One <code>User</code> has exactly one <code>Passport</code>. Rare — usually merged into a single table unless there's a strong reason to split.</p>
+          </div>
+          <div class="card">
+            <h4>1 : N</h4>
+            <p>One <code>Customer</code> places many <code>Orders</code>. The "many" side holds the foreign key back to the "one" side. Most common relationship type.</p>
+          </div>
+          <div class="card">
+            <h4>N : M</h4>
+            <p>Many <code>Students</code> enroll in many <code>Courses</code>. Requires a junction/bridge table (e.g. <code>Enrollments</code>) holding both foreign keys.</p>
+          </div>
+        </div>
+        <p><strong>Modality</strong> describes whether a relationship is mandatory (minimum 1) or optional (minimum 0) — e.g. an <code>Order</code> must have a <code>Customer</code> (mandatory), but a <code>Customer</code> may have zero <code>Orders</code> (optional).</p>
+        </div>
+      </section>
+ 
+      <!-- ================= ER TO RELATIONAL ================= -->
+      <section class="chapter" id="er-to-relational">
+        <div class="chapter-head"><span class="chapter-num">07</span><h2>Mapping ER Diagrams to Relational Tables</h2></div>
+        <p class="chapter-intro">Turning boxes and diamonds into real <code>CREATE TABLE</code> statements.</p>
+ 
+        <div class="searchable" data-title="mapping ER diagram to relational tables rules">
+        <ul class="clean">
+          <li>Each <strong>strong entity</strong> becomes a table; its attributes become columns; its identifier becomes the primary key.</li>
+          <li>A <strong>1:N relationship</strong> is implemented by placing the "one" side's primary key as a foreign key on the "many" side.</li>
+          <li>An <strong>N:M relationship</strong> becomes its own junction table, whose primary key is typically the composite of both foreign keys.</li>
+          <li><strong>Multi-valued attributes</strong> become their own child table (you can't store a list in one relational column cleanly).</li>
+        </ul>
+        </div>
+ 
+        <div class="code-block searchable" data-title="mapping example customers orders SQL">
+          <div class="code-titlebar">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <div class="code-label">mapping_example.sql</div>
+            <button class="copy-btn" data-copy-target="code-map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copy</button>
+          </div>
+<pre class="sql" id="code-map"><code><span class="tok-com">-- 1:N mapping — Customer places many Orders</span>
+<span class="tok-kw">CREATE TABLE</span> customers (
+    customer_id   <span class="tok-type">INT</span> <span class="tok-kw">PRIMARY KEY</span>,
+    full_name     <span class="tok-type">VARCHAR</span>(100)
+);
+ 
+<span class="tok-kw">CREATE TABLE</span> orders (
+    order_id      <span class="tok-type">INT</span> <span class="tok-kw">PRIMARY KEY</span>,
+    customer_id   <span class="tok-type">INT</span>,
+    <span class="tok-kw">FOREIGN KEY</span> (customer_id) <span class="tok-kw">REFERENCES</span> customers(customer_id)
+);
+ 
+<span class="tok-com">-- N:M mapping — Students enroll in Courses (junction table)</span>
+<span class="tok-kw">CREATE TABLE</span> enrollments (
+    student_id    <span class="tok-type">INT</span>,
+    course_id     <span class="tok-type">INT</span>,
+    enrolled_on   <span class="tok-type">DATE</span>,
+    <span class="tok-kw">PRIMARY KEY</span> (student_id, course_id),
+    <span class="tok-kw">FOREIGN KEY</span> (student_id) <span class="tok-kw">REFERENCES</span> students(student_id),
+    <span class="tok-kw">FOREIGN KEY</span> (course_id) <span class="tok-kw">REFERENCES</span> courses(course_id)
+);</code></pre>
+        </div>
+      </section>
+ 
+      <!-- ================= CHAPTER 3: SQL COMMANDS ================= -->
+      <section class="chapter" id="sql-commands">
+        <div class="chapter-head"><span class="chapter-num">08</span><h2>SQL Command Classification</h2></div>
+        <p class="chapter-intro">Every SQL statement falls into one of four families.</p>
+ 
+        <div class="acid-grid searchable" data-title="DDL DML DCL TCL create alter drop truncate insert update delete grant revoke commit rollback savepoint">
+          <div class="acid-card">
+            <span class="letter">DDL</span>
+            <h4>Data Definition Language</h4>
+            <p>Defines/modifies structure.</p>
+            <div class="example">CREATE · ALTER · DROP · TRUNCATE</div>
+          </div>
+          <div class="acid-card">
+            <span class="letter">DML</span>
+            <h4>Data Manipulation Language</h4>
+            <p>Works with the data itself.</p>
+            <div class="example">SELECT · INSERT · UPDATE · DELETE</div>
+          </div>
+          <div class="acid-card">
+            <span class="letter">DCL</span>
+            <h4>Data Control Language</h4>
+            <p>Manages permissions.</p>
+            <div class="example">GRANT · REVOKE</div>
+          </div>
+          <div class="acid-card">
+            <span class="letter">TCL</span>
+            <h4>Transaction Control Language</h4>
+            <p>Manages transaction boundaries.</p>
+            <div class="example">COMMIT · ROLLBACK · SAVEPOINT</div>
+          </div>
+        </div>
+ 
+        <div class="code-block searchable" data-title="DDL DML examples create alter drop insert update delete">
+          <div class="code-titlebar">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <div class="code-label">command_families.sql</div>
+            <button class="copy-btn" data-copy-target="code-families"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copy</button>
+          </div>
+<pre class="sql" id="code-families"><code><span class="tok-com">-- DDL: define structure</span>
+<span class="tok-kw">ALTER TABLE</span> products <span class="tok-kw">ADD COLUMN</span> stock_qty <span class="tok-type">INT</span> <span class="tok-kw">DEFAULT</span> <span class="tok-num">0</span>;
+<span class="tok-kw">DROP TABLE</span> IF <span class="tok-kw">EXISTS</span> temp_logs;
+<span class="tok-kw">TRUNCATE TABLE</span> session_cache;
+ 
+<span class="tok-com">-- DML: manipulate data</span>
+<span class="tok-kw">INSERT INTO</span> products (name, price) <span class="tok-kw">VALUES</span> (<span class="tok-str">'Wireless Mouse'</span>, <span class="tok-num">19.99</span>);
+<span class="tok-kw">UPDATE</span> products <span class="tok-kw">SET</span> price <span class="tok-op">=</span> <span class="tok-num">17.99</span> <span class="tok-kw">WHERE</span> name <span class="tok-op">=</span> <span class="tok-str">'Wireless Mouse'</span>;
+<span class="tok-kw">DELETE FROM</span> products <span class="tok-kw">WHERE</span> stock_qty <span class="tok-op">=</span> <span class="tok-num">0</span>;
+ 
+<span class="tok-com">-- DCL: manage access</span>
+<span class="tok-kw">GRANT SELECT</span>, <span class="tok-kw">INSERT ON</span> products <span class="tok-kw">TO</span> app_user;
+<span class="tok-kw">REVOKE INSERT ON</span> products <span class="tok-kw">FROM</span> app_user;
+ 
+<span class="tok-com">-- TCL: manage transaction boundaries</span>
+<span class="tok-kw">BEGIN</span>;
+<span class="tok-kw">UPDATE</span> accounts <span class="tok-kw">SET</span> balance <span class="tok-op">=</span> balance <span class="tok-op">-</span> <span class="tok-num">100</span> <span class="tok-kw">WHERE</span> id <span class="tok-op">=</span> <span class="tok-num">1</span>;
+<span class="tok-kw">SAVEPOINT</span> before_credit;
+<span class="tok-kw">UPDATE</span> accounts <span class="tok-kw">SET</span> balance <span class="tok-op">=</span> balance <span class="tok-op">+</span> <span class="tok-num">100</span> <span class="tok-kw">WHERE</span> id <span class="tok-op">=</span> <span class="tok-num">2</span>;
+<span class="tok-kw">COMMIT</span>;</code></pre>
+        </div>
+      </section>
+ 
+      <!-- ================= CONSTRAINTS ================= -->
+      <section class="chapter" id="constraints">
+        <div class="chapter-head"><span class="chapter-num">09</span><h2>Data Types &amp; Constraints</h2></div>
+        <p class="chapter-intro">Constraints are how the database enforces business rules automatically, rather than relying on the application to always get it right.</p>
+ 
+        <div class="searchable" data-title="not null unique primary key foreign key check default constraints">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Constraint</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td><span class="badge">NOT NULL</span></td><td>Column must always have a value.</td></tr>
+              <tr><td><span class="badge">UNIQUE</span></td><td>No two rows may share the same value in this column.</td></tr>
+              <tr><td><span class="badge">PRIMARY KEY</span></td><td>Combines NOT NULL + UNIQUE; identifies each row.</td></tr>
+              <tr><td><span class="badge">FOREIGN KEY</span></td><td>Value must exist in the referenced table's key column.</td></tr>
+              <tr><td><span class="badge">CHECK</span></td><td>Value must satisfy a boolean expression, e.g. <code>CHECK (price &gt; 0)</code>.</td></tr>
+              <tr><td><span class="badge">DEFAULT</span></td><td>Value used automatically when none is supplied on INSERT.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        </div>
+ 
+        <div class="code-block searchable" data-title="data types integer varchar decimal date boolean example">
+          <div class="code-titlebar">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <div class="code-label">constraints_demo.sql</div>
+            <button class="copy-btn" data-copy-target="code-constraints"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copy</button>
+          </div>
+<pre class="sql" id="code-constraints"><code><span class="tok-kw">CREATE TABLE</span> products (
+    product_id   <span class="tok-type">SERIAL</span> <span class="tok-kw">PRIMARY KEY</span>,
+    sku          <span class="tok-type">VARCHAR</span>(20)  <span class="tok-kw">NOT NULL UNIQUE</span>,
+    name         <span class="tok-type">VARCHAR</span>(120) <span class="tok-kw">NOT NULL</span>,
+    price        <span class="tok-type">DECIMAL</span>(10,2) <span class="tok-kw">NOT NULL CHECK</span> (price <span class="tok-op">&gt;</span> <span class="tok-num">0</span>),
+    in_stock     <span class="tok-type">BOOLEAN</span> <span class="tok-kw">DEFAULT</span> <span class="tok-kw">TRUE</span>,
+    created_at   <span class="tok-type">TIMESTAMP</span> <span class="tok-kw">DEFAULT</span> <span class="tok-fn">CURRENT_TIMESTAMP</span>
+);</code></pre>
+        </div>
+      </section>
+ 
+      <!-- ================= BASIC QUERIES ================= -->
+      <section class="chapter" id="basic-queries">
+        <div class="chapter-head"><span class="chapter-num">10</span><h2>Filtering, Sorting &amp; Aggregation</h2></div>
+        <p class="chapter-intro">The workhorse clauses you'll write hundreds of times: <code>WHERE</code>, <code>ORDER BY</code>, <code>GROUP BY</code>, <code>HAVING</code>.</p>
+ 
+        <div class="code-block searchable" data-title="where order by group by having count sum avg min max aggregate functions">
+          <div class="code-titlebar">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <div class="code-label">basic_queries.sql</div>
+            <button class="copy-btn" data-copy-target="code-basic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copy</button>
+          </div>
+<pre class="sql" id="code-basic"><code><span class="tok-com">-- Filtering + sorting</span>
+<span class="tok-kw">SELECT</span> name, price
+<span class="tok-kw">FROM</span> products
+<span class="tok-kw">WHERE</span> price <span class="tok-op">&gt;</span> <span class="tok-num">15</span> <span class="tok-kw">AND</span> in_stock <span class="tok-op">=</span> <span class="tok-kw">TRUE</span>
+<span class="tok-kw">ORDER BY</span> price <span class="tok-kw">DESC</span>;
+ 
+<span class="tok-com">-- Aggregation: revenue per category</span>
+<span class="tok-kw">SELECT</span> category, <span class="tok-fn">COUNT</span>(*) <span class="tok-kw">AS</span> num_products,
+       <span class="tok-fn">AVG</span>(price) <span class="tok-kw">AS</span> avg_price,
+       <span class="tok-fn">SUM</span>(price) <span class="tok-kw">AS</span> total_value
+<span class="tok-kw">FROM</span> products
+<span class="tok-kw">GROUP BY</span> category
+<span class="tok-kw">HAVING</span> <span class="tok-fn">COUNT</span>(*) <span class="tok-op">&gt;</span> <span class="tok-num">2</span>
+<span class="tok-kw">ORDER BY</span> total_value <span class="tok-kw">DESC</span>;</code></pre>
+        </div>
+        <p class="result-caption">▸ sample result of the query above</p>
+        <div class="table-wrap searchable" data-title="grouping having example output">
+          <table>
+            <thead><tr><th>category</th><th>num_products</th><th>avg_price</th><th>total_value</th></tr></thead>
+            <tbody>
+              <tr><td>Electronics</td><td>5</td><td>84.20</td><td>421.00</td></tr>
+              <tr><td>Home &amp; Kitchen</td><td>3</td><td>29.99</td><td>89.97</td></tr>
+            </tbody>
+          </table>
+        </div>
+ 
+        <div class="callout tip searchable" data-title="having vs where difference">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.2 1 2.3v.5h6v-.5c0-1.1.4-1.8 1-2.3A7 7 0 0 0 12 2z"></path></svg>
+          <p><strong>WHERE vs HAVING:</strong> <code>WHERE</code> filters rows before grouping; <code>HAVING</code> filters groups after aggregation. You cannot use an aggregate function like <code>COUNT()</code> inside <code>WHERE</code>.</p>
+        </div>
+      </section>
+ 
+      <!-- ================= SCHEMA SCRIPT ================= -->
+      <section class="chapter" id="schema-script">
+        <div class="chapter-head"><span class="chapter-num">11</span><h2>Full Schema: E-Commerce Database</h2></div>
+        <p class="chapter-intro">A complete, runnable schema — Users, Products, Orders — used in later examples throughout this guide.</p>
+ 
+        <div class="code-block searchable" data-title="ecommerce schema users products orders order_items create table full script">
+          <div class="code-titlebar">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <div class="code-label">ecommerce_schema.sql</div>
+            <button class="copy-btn" data-copy-target="code-schema"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copy</button>
+          </div>
+<pre class="sql" id="code-schema"><code><span class="tok-kw">CREATE TABLE</span> users (
+    user_id      <span class="tok-type">SERIAL</span> <span class="tok-kw">PRIMARY KEY</span>,
+    full_name    <span class="tok-type">VARCHAR</span>(100) <span class="tok-kw">NOT NULL</span>,
+    email        <span class="tok-type">VARCHAR</span>(150) <span class="tok-kw">NOT NULL UNIQUE</span>,
+    signup_date  <span class="tok-type">DATE</span> <span class="tok-kw">DEFAULT</span> <span class="tok-fn">CURRENT_DATE</span>
+);
+ 
+<span class="tok-kw">CREATE TABLE</span> products (
+    product_id   <span class="tok-type">SERIAL</span> <span class="tok-kw">PRIMARY KEY</span>,
+    name         <span class="tok-type">VARCHAR</span>(120) <span class="tok-kw">NOT NULL</span>,
+    category     <span class="tok-type">VARCHAR</span>(60),
+    price        <span class="tok-type">DECIMAL</span>(10,2) <span class="tok-kw">NOT NULL CHECK</span> (price <span class="tok-op">&gt;</span> <span class="tok-num">0</span>),
+    stock_qty    <span class="tok-type">INT</span> <span class="tok-kw">NOT NULL DEFAULT</span> <span class="tok-num">0</span>
+);
+ 
+<span class="tok-kw">CREATE TABLE</span> orders (
+    order_id     <span class="tok-type">SERIAL</span> <span class="tok-kw">PRIMARY KEY</span>,
+    user_id      <span class="tok-type">INT</span> <span class="tok-kw">NOT NULL</span>,
+    order_date   <span class="tok-type">TIMESTAMP</span> <span class="tok-kw">DEFAULT</span> <span class="tok-fn">CURRENT_TIMESTAMP</span>,
+    status       <span class="tok-type">VARCHAR</span>(20) <span class="tok-kw">DEFAULT</span> <span class="tok-str">'pending'</span>,
+    <span class="tok-kw">FOREIGN KEY</span> (user_id) <span class="tok-kw">REFERENCES</span> users(user_id)
+);
+ 
+<span class="tok-com">-- Junction table: which products are in which order, and how many</span>
+<span class="tok-kw">CREATE TABLE</span> order_items (
+    order_id     <span class="tok-type">INT</span> <span class="tok-kw">NOT NULL</span>,
+    product_id   <span class="tok-type">INT</span> <span class="tok-kw">NOT NULL</span>,
+    quantity     <span class="tok-type">INT</span> <span class="tok-kw">NOT NULL CHECK</span> (quantity <span class="tok-op">&gt;</span> <span class="tok-num">0</span>),
+    unit_price   <span class="tok-type">DECIMAL</span>(10,2) <span class="tok-kw">NOT NULL</span>,
+    <span class="tok-kw">PRIMARY KEY</span> (order_id, product_id),
+    <span class="tok-kw">FOREIGN KEY</span> (order_id) <span class="tok-kw">REFERENCES</span> orders(order_id),
+    <span class="tok-kw">FOREIGN KEY</span> (product_id) <span class="tok-kw">REFERENCES</span> products(product_id)
+);</code></pre>
+        </div>
+      </section>
+ 
+      <!-- ================= CHAPTER 4: JOINS ================= -->
+      <section class="chapter" id="joins">
+        <div class="chapter-head"><span class="chapter-num">12</span><h2>SQL Joins</h2></div>
+        <p class="chapter-intro">Joins combine rows from two or more tables based on a related column. Click a join type below to see its syntax and Venn diagram.</p>
+ 
+        <div class="tabs searchable" data-title="inner left right full outer cross self join syntax examples" id="joinTabs">
+          <div class="tab-nav">
+            <button class="tab-btn active" data-tab="inner">INNER</button>
+            <button class="tab-btn" data-tab="left">LEFT</button>
+            <button class="tab-btn" data-tab="right">RIGHT</button>
+            <button class="tab-btn" data-tab="full">FULL OUTER</button>
+            <button class="tab-btn" data-tab="cross">CROSS</button>
+            <button class="tab-btn" data-tab="self">SELF</button>
+          </div>
+          <div class="tab-panels">
+ 
+            <div class="tab-panel active" data-panel="inner">
+              <div class="join-visualizer">
+                <div class="venn"><svg viewBox="0 0 200 120" width="180" height="110"><circle cx="80" cy="60" r="45" fill="#00758F" opacity=".55"/><circle cx="120" cy="60" r="45" fill="#00A896" opacity=".55"/></svg></div>
+                <div class="join-desc"><p>Returns only rows where the join condition matches in <em>both</em> tables — orders that do have a matching user.</p></div>
+              </div>
+              <div class="code-block">
+                <div class="code-titlebar"><div class="code-dots"><span></span><span></span><span></span></div><div class="code-label">inner_join.sql</div>
+                  <button class="copy-btn" data-copy-target="code-inner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copy</button>
+                </div>
+<pre class="sql" id="code-inner"><code><span class="tok-kw">SELECT</span> o.order_id, u.full_name, o.status
+<span class="tok-kw">FROM</span> orders o
+<span class="tok-kw">INNER JOIN</span> users u <span class="tok-kw">ON</span> o.user_id <span class="tok-op">=</span> u.user_id;</code></pre>
+              </div>
+            </div>
+ 
+            <div class="tab-panel" data-panel="left">
+              <div class="join-visualizer">
+                <div class="venn"><svg viewBox="0 0 200 120" width="180" height="110"><circle cx="80" cy="60" r="45" fill="#00758F" opacity=".9"/><circle cx="120" cy="60" r="45" fill="#00A896" opacity=".25"/></svg></div>
+                <div class="join-desc"><p>Returns <em>all</em> rows from the left table (users), plus matches from the right (orders) — NULL where no order exists.</p></div>
+              </div>
+              <div class="code-block">
+                <div class="code-titlebar"><div class="code-dots"><span></span><span></span><span></span></div><div class="code-label">left_join.sql</div>
+                  <button class="copy-btn" data-copy-target="code-left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copy</button>
+                </div>
+<pre class="sql" id="code-left"><code><span class="tok-kw">SELECT</span> u.full_name, o.order_id
+<span class="tok-kw">FROM</span> users u
+<span class="tok-kw">LEFT JOIN</span> orders o <span class="tok-kw">ON</span> u.user_id <span class="tok-op">=</span> o.user_id;
+<span class="tok-com">-- users with zero orders still appear, with order_id = NULL</span></code></pre>
+              </div>
+            </div>
+ 
+            <div class="tab-panel" data-panel="right">
+              <div class="join-visualizer">
+                <div class="venn"><svg viewBox="0 0 200 120" width="180" height="110"><circle cx="80" cy="60" r="45" fill="#00758F" opacity=".25"/><circle cx="120" cy="60" r="45" fill="#00A896" opacity=".9"/></svg></div>
+                <div class="join-desc"><p>Mirror of LEFT JOIN — <em>all</em> rows from the right table (orders), plus matches from the left (users).</p></div>
+              </div>
+              <div class="code-block">
+                <div class="code-titlebar"><div class="code-dots"><span></span><span></span><span></span></div><div class="code-label">right_join.sql</div>
+                  <button class="copy-btn" data-copy-target="code-right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copy</button>
+                </div>
+<pre class="sql" id="code-right"><code><span class="tok-kw">SELECT</span> o.order_id, u.full_name
+<span class="tok-kw">FROM</span> users u
+<span class="tok-kw">RIGHT JOIN</span> orders o <span class="tok-kw">ON</span> u.user_id <span class="tok-op">=</span> o.user_id;</code></pre>
+              </div>
+            </div>
+ 
+            <div class="tab-panel" data-panel="full">
+              <div class="join-visualizer">
+                <div class="venn"><svg viewBox="0 0 200 120" width="180" height="110"><circle cx="80" cy="60" r="45" fill="#00758F" opacity=".85"/><circle cx="120" cy="60" r="45" fill="#00A896" opacity=".85"/></svg></div>
+                <div class="join-desc"><p>Returns all rows from both tables, matched where possible, NULLs where not. Not supported natively in MySQL — emulate with <code>UNION</code>.</p></div>
+              </div>
+              <div class="code-block">
+                <div class="code-titlebar"><div class="code-dots"><span></span><span></span><span></span></div><div class="code-label">full_outer_join.sql</div>
+                  <button class="copy-btn" data-copy-target="code-full"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copy</button>
+                </div>
+<pre class="sql" id="code-full"><code><span class="tok-kw">SELECT</span> u.full_name, o.order_id
+<span class="tok-kw">FROM</span> users u
+<span class="tok-kw">FULL OUTER JOIN</span> orders o <span class="tok-kw">ON</span> u.user_id <span class="tok-op">=</span> o.user_id;</code></pre>
+              </div>
+            </div>
+ 
+            <div class="tab-panel" data-panel="cross">
+              <div class="join-visualizer">
+                <div class="venn"><svg viewBox="0 0 200 120" width="180" height="110"><circle cx="80" cy="60" r="45" fill="#00758F" opacity=".55"/><circle cx="120" cy="60" r="45" fill="#00A896" opacity=".55"/><rect x="20" y="10" width="160" height="100" fill="none" stroke="#F2B94B" stroke-width="2" stroke-dasharray="4 3"/></svg></div>
+                <div class="join-desc"><p>Returns the Cartesian product — every row of table A paired with every row of table B. No <code>ON</code> clause. Use deliberately (e.g. generating combinations).</p></div>
+              </div>
+              <div class="code-block">
+                <div class="code-titlebar"><div class="code-dots"><span></span><span></span><span></span></div><div class="code-label">cross_join.sql</div>
+                  <button class="copy-btn" data-copy-target="code-cross"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copy</button>
+                </div>
+<pre class="sql" id="code-cross"><code><span class="tok-kw">SELECT</span> s.size_label, c.color_name
+<span class="tok-kw">FROM</span> sizes s
+<span class="tok-kw">CROSS JOIN</span> colors c;
+<span class="tok-com">-- 4 sizes x 5 colors = 20 rows (every combination)</span></code></pre>
+              </div>
+            </div>
+ 
+            <div class="tab-panel" data-panel="self">
+              <div class="join-visualizer">
+                <div class="venn"><svg viewBox="0 0 200 120" width="180" height="110"><circle cx="100" cy="60" r="45" fill="#00758F" opacity=".55"/><circle cx="100" cy="60" r="30" fill="#00A896" opacity=".7"/></svg></div>
+                <div class="join-desc"><p>Joins a table to itself, using aliases to treat it as two logical tables — common for hierarchical data (an employee's manager).</p></div>
+              </div>
+              <div class="code-block">
+                <div class="code-titlebar"><div class="code-dots"><span></span><span></span><span></span></div><div class="code-label">self_join.sql</div>
+                  <button class="copy-btn" data-copy-target="code-self"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copy</button>
+                </div>
+<pre class="sql" id="code-self"><code><span class="tok-kw">SELECT</span> e.name <span class="tok-kw">AS</span> employee, m.name <span class="tok-kw">AS</span> manager
+<span class="tok-kw">FROM</span> employees e
+<span class="tok-kw">LEFT JOIN</span> employees m <span class="tok-kw">ON</span> e.manager_id <span class="tok-op">=</span> m.employee_id;</code></pre>
+              </div>
+            </div>
+ 
+          </div>
+        </div>
+      </section>
+ 
+      <!-- ================= SUBQUERIES ================= -->
+      <section class="chapter" id="subqueries">
+        <div class="chapter-head"><span class="chapter-num">13</span><h2>Subqueries &amp; CTEs</h2></div>
+        <p class="chapter-intro">Queries nested inside other queries — and their more readable cousin, the Common Table Expression.</p>
+ 
+        <div class="two-col">
+          <div class="code-block searchable" data-title="nested subquery example">
+            <div class="code-titlebar"><div class="code-dots"><span></span><span></span><span></span></div><div class="code-label">nested_subquery.sql</div>
+              <button class="copy-btn" data-copy-target="code-nested"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copy</button>
+            </div>
+<pre class="sql" id="code-nested"><code><span class="tok-com">-- Users who have never placed an order</span>
+<span class="tok-kw">SELECT</span> full_name
+<span class="tok-kw">FROM</span> users
+<span class="tok-kw">WHERE</span> user_id <span class="tok-kw">NOT IN</span> (
+    <span class="tok-kw">SELECT</span> user_id <span class="tok-kw">FROM</span> orders
+);</code></pre>
+          </div>
+          <div class="code-block searchable" data-title="correlated subquery example">
+            <div class="code-titlebar"><div class="code-dots"><span></span><span></span><span></span></div><div class="code-label">correlated_subquery.sql</div>
+              <button class="copy-btn" data-copy-target="code-correlated"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copy</button>
+            </div>
+<pre class="sql" id="code-correlated"><code><span class="tok-com">-- Products priced above their category's average</span>
+<span class="tok-kw">SELECT</span> p1.name, p1.price, p1.category
+<span class="tok-kw">FROM</span> products p1
+<span class="tok-kw">WHERE</span> p1.price <span class="tok-op">&gt;</span> (
+    <span class="tok-kw">SELECT</span> <span class="tok-fn">AVG</span>(p2.price)
+    <span class="tok-kw">FROM</span> products p2
+    <span class="tok-kw">WHERE</span> p2.category <span class="tok-op">=</span> p1.category
+);</code></pre>
+          </div>
+        </div>
+ 
+        <div class="code-block searchable" data-title="common table expression CTE with clause recursive">
+          <div class="code-titlebar"><div class="code-dots"><span></span><span></span><span></span></div><div class="code-label">cte_example.sql</div>
+            <button class="copy-btn" data-copy-target="code-cte"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copy</button>
+          </div>
+<pre class="sql" id="code-cte"><code><span class="tok-com">-- CTE: total spend per user, then filter on it — far more readable than nesting</span>
+<span class="tok-kw">WITH</span> user_totals <span class="tok-kw">AS</span> (
+    <span class="tok-kw">SELECT</span> o.user_id, <span class="tok-fn">SUM</span>(oi.quantity <span class="tok-op">*</span> oi.unit_price) <span class="tok-kw">AS</span> total_spent
+    <span class="tok-kw">FROM</span> orders o
+    <span class="tok-kw">JOIN</span> order_items oi <span class="tok-kw">ON</span> o.order_id <span class="tok-op">=</span> oi.order_id
+    <span class="tok-kw">GROUP BY</span> o.user_id
+)
+<span class="tok-kw">SELECT</span> u.full_name, ut.total_spent
+<span class="tok-kw">FROM</span> user_totals ut
+<span class="tok-kw">JOIN</span> users u <span class="tok-kw">ON</span> u.user_id <span class="tok-op">=</span> ut.user_id
+<span class="tok-kw">WHERE</span> ut.total_spent <span class="tok-op">&gt;</span> <span class="tok-num">500</span>
+<span class="tok-kw">ORDER BY</span> ut.total_spent <span class="tok-kw">DESC</span>;</code></pre>
+        </div>
+      </section>
+ 
+      <!-- ================= NORMALIZATION INTRO ================= -->
+      <section class="chapter" id="normalization">
+        <div class="chapter-head"><span class="chapter-num">14</span><h2>Why Normalize?</h2></div>
+        <p class="chapter-intro">Normalization organizes columns and tables to minimize redundancy and prevent three classic anomalies.</p>
+ 
+        <div class="card-grid searchable" data-title="insertion deletion update anomalies unnormalized data">
+          <div class="card">
+            <h4>Insertion Anomaly</h4>
+            <p>You can't add a new product until it has an order, because product info is only stored alongside order rows.</p>
+          </div>
+          <div class="card">
+            <h4>Deletion Anomaly</h4>
+            <p>Deleting the only order for a customer accidentally erases all record of that customer, since their data wasn't stored independently.</p>
+          </div>
+          <div class="card">
+            <h4>Update Anomaly</h4>
+            <p>A customer's address is duplicated across 20 order rows — updating it means editing all 20, or risking inconsistent data.</p>
+          </div>
+        </div>
+      </section>
+ 
+      <!-- ================= NORMAL FORMS ================= -->
+      <section class="chapter" id="normal-forms">
+        <div class="chapter-head"><span class="chapter-num">15</span><h2>Normal Forms: 1NF → BCNF</h2></div>
+        <p class="chapter-intro">Each normal form fixes a specific class of anomaly. Expand each step to see a concrete before/after transformation.</p>
+ 
+        <div class="accordion searchable" data-title="1NF 2NF 3NF BCNF normal forms before after transformation examples" id="nfAccordion">
+ 
+          <div class="acc-item open">
+            <button class="acc-head">
+              <span><span class="acc-title">1NF — First Normal Form</span><span class="acc-sub">Eliminate repeating groups; every cell holds one atomic value</span></span>
+              <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+            <div class="acc-body">
+              <div class="acc-body-inner">
+                <p><strong>Before (violates 1NF)</strong> — multiple phone numbers crammed into one cell:</p>
+                <div class="table-wrap"><table><thead><tr><th>customer_id</th><th>name</th><th>phone_numbers</th></tr></thead>
+                <tbody><tr><td>1</td><td>Asha Rao</td><td>9876543210, 9812345670</td></tr></tbody></table></div>
+                <p><strong>After (1NF)</strong> — one phone number per row, atomic values:</p>
+                <div class="table-wrap"><table><thead><tr><th>customer_id</th><th>name</th><th>phone_number</th></tr></thead>
+                <tbody><tr><td>1</td><td>Asha Rao</td><td>9876543210</td></tr><tr><td>1</td><td>Asha Rao</td><td>9812345670</td></tr></tbody></table></div>
+              </div>
+            </div>
+          </div>
+ 
+          <div class="acc-item">
+            <button class="acc-head">
+              <span><span class="acc-title">2NF — Second Normal Form</span><span class="acc-sub">1NF + no partial dependency on part of a composite key</span></span>
+              <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+            <div class="acc-body">
+              <div class="acc-body-inner">
+                <p><strong>Before</strong> — composite key <code>(order_id, product_id)</code>, but <code>product_name</code> depends only on <code>product_id</code>:</p>
+                <div class="table-wrap"><table><thead><tr><th>order_id</th><th>product_id</th><th>product_name</th><th>quantity</th></tr></thead>
+                <tbody><tr><td>101</td><td>P1</td><td>Notebook</td><td>3</td></tr><tr><td>101</td><td>P2</td><td>Pen</td><td>10</td></tr></tbody></table></div>
+                <p><strong>After (2NF)</strong> — split into two tables so product info doesn't depend on part of the key:</p>
+                <div class="table-wrap"><table><thead><tr><th>order_id</th><th>product_id</th><th>quantity</th></tr></thead>
+                <tbody><tr><td>101</td><td>P1</td><td>3</td></tr><tr><td>101</td><td>P2</td><td>10</td></tr></tbody></table></div>
+                <div class="table-wrap"><table><thead><tr><th>product_id</th><th>product_name</th></tr></thead>
+                <tbody><tr><td>P1</td><td>Notebook</td></tr><tr><td>P2</td><td>Pen</td></tr></tbody></table></div>
+              </div>
+            </div>
+          </div>
+ 
+          <div class="acc-item">
+            <button class="acc-head">
+              <span><span class="acc-title">3NF — Third Normal Form</span><span class="acc-sub">2NF + no transitive dependency on non-key attributes</span></span>
+              <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+            <div class="acc-body">
+              <div class="acc-body-inner">
+                <p><strong>Before</strong> — <code>city</code> determines <code>zip</code>, a transitive dependency through a non-key attribute:</p>
+                <div class="table-wrap"><table><thead><tr><th>employee_id</th><th>name</th><th>city</th><th>zip</th></tr></thead>
+                <tbody><tr><td>1</td><td>Rahul</td><td>Pune</td><td>411001</td></tr></tbody></table></div>
+                <p><strong>After (3NF)</strong> — move city/zip into their own table:</p>
+                <div class="table-wrap"><table><thead><tr><th>employee_id</th><th>name</th><th>city</th></tr></thead>
+                <tbody><tr><td>1</td><td>Rahul</td><td>Pune</td></tr></tbody></table></div>
+                <div class="table-wrap"><table><thead><tr><th>city</th><th>zip</th></tr></thead>
+                <tbody><tr><td>Pune</td><td>411001</td></tr></tbody></table></div>
+              </div>
+            </div>
+          </div>
+ 
+          <div class="acc-item">
+            <button class="acc-head">
+              <span><span class="acc-title">BCNF — Boyce-Codd Normal Form</span><span class="acc-sub">A stricter 3NF: every determinant must be a candidate key</span></span>
+              <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+            <div class="acc-body">
+              <div class="acc-body-inner">
+                <p><strong>Before</strong> — a student can have multiple subjects, each taught by exactly one instructor, but an instructor teaches only one subject. <code>instructor</code> determines <code>subject</code> even though <code>instructor</code> isn't a candidate key:</p>
+                <div class="table-wrap"><table><thead><tr><th>student_id</th><th>subject</th><th>instructor</th></tr></thead>
+                <tbody><tr><td>S1</td><td>Physics</td><td>Dr. Iyer</td></tr><tr><td>S1</td><td>Chemistry</td><td>Dr. Mehta</td></tr></tbody></table></div>
+                <p><strong>After (BCNF)</strong> — split so the instructor→subject rule lives in its own table:</p>
+                <div class="table-wrap"><table><thead><tr><th>student_id</th><th>instructor</th></tr></thead>
+                <tbody><tr><td>S1</td><td>Dr. Iyer</td></tr><tr><td>S1</td><td>Dr. Mehta</td></tr></tbody></table></div>
+                <div class="table-wrap"><table><thead><tr><th>instructor</th><th>subject</th></tr></thead>
+                <tbody><tr><td>Dr. Iyer</td><td>Physics</td></tr><tr><td>Dr. Mehta</td><td>Chemistry</td></tr></tbody></table></div>
+              </div>
+            </div>
+          </div>
+ 
+        </div>
+      </section>
+ 
+      <!-- ================= CHAPTER 5: TRANSACTIONS ================= -->
+      <section class="chapter" id="transactions">
+        <div class="chapter-head"><span class="chapter-num">16</span><h2>Transactions &amp; ACID Properties</h2></div>
+        <p class="chapter-intro">A transaction groups multiple statements into one all-or-nothing unit of work — the classic example is a bank transfer.</p>
+ 
+        <div class="acid-grid searchable" data-title="ACID atomicity consistency isolation durability bank transaction transfer">
+          <div class="acid-card">
+            <span class="letter">A</span>
+            <h4>Atomicity</h4>
+            <p>All statements in the transaction succeed, or none do.</p>
+            <div class="example">Debit $100 from A, credit $100 to B — if the credit fails, the debit rolls back too.</div>
+          </div>
+          <div class="acid-card">
+            <span class="letter">C</span>
+            <h4>Consistency</h4>
+            <p>A transaction moves the DB from one valid state to another, never violating constraints.</p>
+            <div class="example">Total money in the system before = total after the transfer.</div>
+          </div>
+          <div class="acid-card">
+            <span class="letter">I</span>
+            <h4>Isolation</h4>
+            <p>Concurrent transactions don't see each other's uncommitted changes.</p>
+            <div class="example">Two simultaneous transfers from account A don't both read the same stale balance.</div>
+          </div>
+          <div class="acid-card">
+            <span class="letter">D</span>
+            <h4>Durability</h4>
+            <p>Once committed, changes survive a crash — written to durable storage.</p>
+            <div class="example">Power fails right after COMMIT — the transfer is still there on restart.</div>
+          </div>
+        </div>
+ 
+        <div class="code-block searchable" data-title="transaction example bank transfer commit rollback">
+          <div class="code-titlebar"><div class="code-dots"><span></span><span></span><span></span></div><div class="code-label">bank_transfer.sql</div>
+            <button class="copy-btn" data-copy-target="code-transfer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copy</button>
+          </div>
+<pre class="sql" id="code-transfer"><code><span class="tok-kw">BEGIN</span>;
+ 
+<span class="tok-kw">UPDATE</span> accounts <span class="tok-kw">SET</span> balance <span class="tok-op">=</span> balance <span class="tok-op">-</span> <span class="tok-num">100</span> <span class="tok-kw">WHERE</span> account_id <span class="tok-op">=</span> <span class="tok-str">'A'</span>;
+<span class="tok-kw">UPDATE</span> accounts <span class="tok-kw">SET</span> balance <span class="tok-op">=</span> balance <span class="tok-op">+</span> <span class="tok-num">100</span> <span class="tok-kw">WHERE</span> account_id <span class="tok-op">=</span> <span class="tok-str">'B'</span>;
+ 
+<span class="tok-com">-- if either UPDATE fails or a constraint is violated:</span>
+<span class="tok-kw">ROLLBACK</span>;
+<span class="tok-com">-- otherwise:</span>
+<span class="tok-kw">COMMIT</span>;</code></pre>
+        </div>
+      </section>
+ 
+      <!-- ================= INDEXING ================= -->
+      <section class="chapter" id="indexing">
+        <div class="chapter-head"><span class="chapter-num">17</span><h2>Indexing &amp; Query Optimization</h2></div>
+        <p class="chapter-intro">An index trades extra storage and slower writes for dramatically faster reads.</p>
+ 
+        <div class="searchable" data-title="B tree index structure logarithmic lookup">
+        <h3>B-Tree Indexes</h3>
+        <p>Most relational databases index using a <strong>B-Tree</strong> (balanced tree): a sorted structure where lookups, inserts, and range scans all run in <code>O(log n)</code> time, instead of scanning every row (<code>O(n)</code>). A query like <code>WHERE email = 'x@y.com'</code> on an indexed column jumps straight to the matching leaf node rather than reading the whole table.</p>
+        </div>
+ 
+        <div class="two-col searchable" data-title="clustered vs non clustered index difference">
+        <div class="card">
+          <h4>Clustered Index</h4>
+          <p>Determines the physical storage order of table rows. There can be only one per table (often the primary key) — the table <em>is</em> the index.</p>
+        </div>
+        <div class="card">
+          <h4>Non-Clustered Index</h4>
+          <p>A separate structure holding indexed column values plus pointers back to the actual rows. A table can have many.</p>
+        </div>
+        </div>
+ 
+        <div class="code-block searchable" data-title="create index syntax">
+          <div class="code-titlebar"><div class="code-dots"><span></span><span></span><span></span></div><div class="code-label">indexing.sql</div>
+            <button class="copy-btn" data-copy-target="code-index"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copy</button>
+          </div>
+<pre class="sql" id="code-index"><code><span class="tok-com">-- Speeds up lookups & sorts by email</span>
+<span class="tok-kw">CREATE INDEX</span> idx_users_email <span class="tok-kw">ON</span> users(email);
+ 
+<span class="tok-com">-- Composite index — helps queries filtering on both columns together</span>
+<span class="tok-kw">CREATE INDEX</span> idx_orders_user_date <span class="tok-kw">ON</span> orders(user_id, order_date);
+ 
+<span class="tok-com">-- Inspect the query plan to see if an index is actually used</span>
+<span class="tok-kw">EXPLAIN</span> <span class="tok-kw">SELECT</span> * <span class="tok-kw">FROM</span> users <span class="tok-kw">WHERE</span> email <span class="tok-op">=</span> <span class="tok-str">'x@y.com'</span>;</code></pre>
+        </div>
+ 
+        <div class="callout warn searchable" data-title="index overhead tradeoffs when not to index">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          <p><strong>Index overhead:</strong> Every index speeds up reads but slows down <code>INSERT</code>/<code>UPDATE</code>/<code>DELETE</code> (the index itself must be updated) and consumes extra disk space. Index columns that are frequently filtered, joined, or sorted on — not every column.</p>
+        </div>
+      </section>
+ 
+      <!-- ================= SECURITY ================= -->
+      <section class="chapter" id="security">
+        <div class="chapter-head"><span class="chapter-num">18</span><h2>Views, Stored Procedures, Triggers &amp; Security</h2></div>
+        <p class="chapter-intro">Tools for encapsulating logic close to the data — and protecting that data from misuse.</p>
+ 
+        <div class="code-block searchable" data-title="create view example">
+          <div class="code-titlebar"><div class="code-dots"><span></span><span></span><span></span></div><div class="code-label">view_example.sql</div>
+            <button class="copy-btn" data-copy-target="code-view"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copy</button>
+          </div>
+<pre class="sql" id="code-view"><code><span class="tok-com">-- A view: a saved, reusable query that looks like a table</span>
+<span class="tok-kw">CREATE VIEW</span> high_value_orders <span class="tok-kw">AS</span>
+<span class="tok-kw">SELECT</span> o.order_id, u.full_name, <span class="tok-fn">SUM</span>(oi.quantity <span class="tok-op">*</span> oi.unit_price) <span class="tok-kw">AS</span> order_total
+<span class="tok-kw">FROM</span> orders o
+<span class="tok-kw">JOIN</span> users u <span class="tok-kw">ON</span> o.user_id <span class="tok-op">=</span> u.user_id
+<span class="tok-kw">JOIN</span> order_items oi <span class="tok-kw">ON</span> o.order_id <span class="tok-op">=</span> oi.order_id
+<span class="tok-kw">GROUP BY</span> o.order_id, u.full_name
+<span class="tok-kw">HAVING</span> <span class="tok-fn">SUM</span>(oi.quantity <span class="tok-op">*</span> oi.unit_price) <span class="tok-op">&gt;</span> <span class="tok-num">1000</span>;</code></pre>
+        </div>
+ 
+        <div class="code-block searchable" data-title="stored procedure trigger example">
+          <div class="code-titlebar"><div class="code-dots"><span></span><span></span><span></span></div><div class="code-label">procedure_and_trigger.sql</div>
+            <button class="copy-btn" data-copy-target="code-proc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copy</button>
+          </div>
+<pre class="sql" id="code-proc"><code><span class="tok-com">-- Stored procedure: reusable server-side logic</span>
+<span class="tok-kw">CREATE PROCEDURE</span> place_order(IN p_user_id <span class="tok-type">INT</span>, IN p_product_id <span class="tok-type">INT</span>, IN p_qty <span class="tok-type">INT</span>)
+<span class="tok-kw">BEGIN</span>
+    <span class="tok-kw">INSERT INTO</span> orders (user_id) <span class="tok-kw">VALUES</span> (p_user_id);
+    <span class="tok-kw">INSERT INTO</span> order_items (order_id, product_id, quantity, unit_price)
+    <span class="tok-kw">VALUES</span> (<span class="tok-fn">LAST_INSERT_ID</span>(), p_product_id, p_qty,
+            (<span class="tok-kw">SELECT</span> price <span class="tok-kw">FROM</span> products <span class="tok-kw">WHERE</span> product_id <span class="tok-op">=</span> p_product_id));
+<span class="tok-kw">END</span>;
+ 
+<span class="tok-com">-- Trigger: automatically decrement stock after an order item is inserted</span>
+<span class="tok-kw">CREATE TRIGGER</span> trg_reduce_stock
+<span class="tok-kw">AFTER INSERT ON</span> order_items
+<span class="tok-kw">FOR EACH ROW</span>
+<span class="tok-kw">BEGIN</span>
+    <span class="tok-kw">UPDATE</span> products
+    <span class="tok-kw">SET</span> stock_qty <span class="tok-op">=</span> stock_qty <span class="tok-op">-</span> NEW.quantity
+    <span class="tok-kw">WHERE</span> product_id <span class="tok-op">=</span> NEW.product_id;
+<span class="tok-kw">END</span>;</code></pre>
+        </div>
+ 
+        <div class="two-col">
+          <div class="searchable" data-title="SQL injection prevention parameterized queries">
+            <h3>SQL Injection Prevention</h3>
+            <p>Never concatenate user input directly into SQL strings. Use <strong>parameterized queries / prepared statements</strong>, so input is always treated as data, never executable code.</p>
+            <div class="code-block">
+              <div class="code-titlebar"><div class="code-dots"><span></span><span></span><span></span></div><div class="code-label">safe_vs_unsafe.sql</div>
+                <button class="copy-btn" data-copy-target="code-injection"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copy</button>
+              </div>
+<pre class="sql" id="code-injection"><code><span class="tok-com">-- UNSAFE: string concatenation lets input become SQL code</span>
+<span class="tok-com">-- e.g. input: ' OR '1'='1</span>
+<span class="tok-com">-- query = "SELECT * FROM users WHERE email = '" + input + "'"</span>
+ 
+<span class="tok-com">-- SAFE: parameterized query — input is always data, never code</span>
+<span class="tok-kw">SELECT</span> * <span class="tok-kw">FROM</span> users <span class="tok-kw">WHERE</span> email <span class="tok-op">=</span> <span class="tok-num">?</span>;</code></pre>
+            </div>
+          </div>
+          <div class="searchable" data-title="user privileges grant revoke role based access">
+            <h3>User Privileges</h3>
+            <p>Grant only the minimum access a role needs (<strong>principle of least privilege</strong>) — an application's read-only reporting user shouldn't hold <code>DELETE</code> rights.</p>
+            <div class="code-block">
+              <div class="code-titlebar"><div class="code-dots"><span></span><span></span><span></span></div><div class="code-label">privileges.sql</div>
+                <button class="copy-btn" data-copy-target="code-priv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copy</button>
+              </div>
+<pre class="sql" id="code-priv"><code><span class="tok-kw">CREATE ROLE</span> reporting_readonly;
+<span class="tok-kw">GRANT SELECT ON</span> orders, order_items, products
+  <span class="tok-kw">TO</span> reporting_readonly;
+<span class="tok-kw">GRANT</span> reporting_readonly <span class="tok-kw">TO</span> analytics_user;</code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+ 
+      <div class="no-results" id="noResults">No topics matched your search. Try a different keyword.</div>
+ 
+      <footer>Field Guide to DBMS &amp; SQL — built for study &amp; quick reference. All example schemas and data are illustrative.</footer>
+    </div>
+  </main>
+</div>
+ 
+<script>
+(function(){
+  "use strict";
+ 
+  /* ===== Theme toggle ===== */
+  var root = document.documentElement;
+  var themeToggle = document.getElementById('themeToggle');
+  var themeIcon = document.getElementById('themeIcon');
+  var themeLabel = document.getElementById('themeLabel');
+  var moonPath = '<circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>';
+  var sunPath = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+ 
+  function applyTheme(t){
+    root.setAttribute('data-theme', t);
+    if(t === 'dark'){
+      themeIcon.innerHTML = sunPath;
+      themeLabel.textContent = 'Dark mode';
+    } else {
+      themeIcon.innerHTML = moonPath;
+      themeLabel.textContent = 'Light mode';
+    }
+  }
+ 
+  var savedTheme = 'light';
+  try{
+    var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    savedTheme = prefersDark ? 'dark' : 'light';
+  }catch(e){}
+  applyTheme(savedTheme);
+ 
+  themeToggle.addEventListener('click', function(){
+    var current = root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    applyTheme(current === 'dark' ? 'light' : 'dark');
+  });
+ 
+  /* ===== Mobile nav ===== */
+  var sidebar = document.getElementById('sidebar');
+  var backdrop = document.getElementById('backdrop');
+  var menuBtn = document.getElementById('menuBtn');
+  function closeMenu(){ sidebar.classList.remove('open'); backdrop.classList.remove('show'); }
+  menuBtn.addEventListener('click', function(){
+    sidebar.classList.toggle('open');
+    backdrop.classList.toggle('show');
+  });
+  backdrop.addEventListener('click', closeMenu);
+  document.querySelectorAll('.toc a').forEach(function(a){
+    a.addEventListener('click', closeMenu);
+  });
+ 
+  /* ===== Copy code buttons ===== */
+  document.querySelectorAll('.copy-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var targetId = btn.getAttribute('data-copy-target');
+      var codeEl = document.getElementById(targetId);
+      if(!codeEl) return;
+      var text = codeEl.innerText;
+      var finish = function(){
+        var original = btn.innerHTML;
+        btn.classList.add('copied');
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>Copied';
+        setTimeout(function(){
+          btn.classList.remove('copied');
+          btn.innerHTML = original;
+        }, 1600);
+      };
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(finish).catch(function(){ fallbackCopy(text, finish); });
+      } else {
+        fallbackCopy(text, finish);
+      }
+    });
+  });
+  function fallbackCopy(text, cb){
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try{ document.execCommand('copy'); }catch(e){}
+    document.body.removeChild(ta);
+    cb();
+  }
+ 
+  /* ===== Tabs ===== */
+  document.querySelectorAll('.tabs').forEach(function(tabGroup){
+    var buttons = tabGroup.querySelectorAll('.tab-btn');
+    var panels = tabGroup.querySelectorAll('.tab-panel');
+    buttons.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var target = btn.getAttribute('data-tab');
+        buttons.forEach(function(b){ b.classList.remove('active'); });
+        panels.forEach(function(p){ p.classList.remove('active'); });
+        btn.classList.add('active');
+        tabGroup.querySelector('.tab-panel[data-panel="' + target + '"]').classList.add('active');
+      });
+    });
+  });
+ 
+  /* ===== Accordion ===== */
+  document.querySelectorAll('.acc-head').forEach(function(head){
+    head.addEventListener('click', function(){
+      var item = head.closest('.acc-item');
+      item.classList.toggle('open');
+    });
+  });
+ 
+  /* ===== Scroll spy ===== */
+  var tocLinks = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+  var sections = tocLinks.map(function(a){ return document.querySelector(a.getAttribute('href')); }).filter(Boolean);
+ 
+  function onScroll(){
+    var scrollPos = window.scrollY + 120;
+    var currentId = null;
+    sections.forEach(function(sec){
+      if(sec.offsetTop <= scrollPos){ currentId = sec.id; }
+    });
+    tocLinks.forEach(function(a){
+      a.classList.toggle('active', a.getAttribute('href') === '#' + currentId);
+    });
+  }
+  window.addEventListener('scroll', onScroll, { passive:true });
+  onScroll();
+ 
+  /* ===== Search / filter ===== */
+  var searchInput = document.getElementById('siteSearch');
+  var searchCount = document.getElementById('searchCount');
+  var noResults = document.getElementById('noResults');
+  var searchableEls = Array.prototype.slice.call(document.querySelectorAll('.searchable'));
+  var chapters = Array.prototype.slice.call(document.querySelectorAll('section.chapter'));
+ 
+  function normalize(str){ return (str || '').toLowerCase(); }
+ 
+  function runSearch(){
+    var q = normalize(searchInput.value).trim();
+ 
+    if(q === ''){
+      searchableEls.forEach(function(el){ el.removeAttribute('data-match'); });
+      chapters.forEach(function(ch){ ch.style.display = ''; });
+      tocLinks.forEach(function(a){ a.removeAttribute('data-hidden'); });
+      searchCount.textContent = '';
+      noResults.classList.remove('show');
+      return;
+    }
+ 
+    var visibleChapterIds = {};
+ 
+    searchableEls.forEach(function(el){
+      var haystack = normalize(el.getAttribute('data-title')) + ' ' + normalize(el.textContent);
+      var match = haystack.indexOf(q) !== -1;
+      el.setAttribute('data-match', match ? 'true' : 'false');
+      if(match){
+        var chapter = el.closest('section.chapter');
+        if(chapter) visibleChapterIds[chapter.id] = true;
+      }
+    });
+ 
+    var anyVisible = false;
+    chapters.forEach(function(ch){
+      var show = !!visibleChapterIds[ch.id];
+      ch.style.display = show ? '' : 'none';
+      if(show) anyVisible = true;
+    });
+ 
+    tocLinks.forEach(function(a){
+      var id = a.getAttribute('href').slice(1);
+      var titleMatch = normalize(a.getAttribute('data-title')).indexOf(q) !== -1 || normalize(a.textContent).indexOf(q) !== -1;
+      var hide = !visibleChapterIds[id] && !titleMatch;
+      if(visibleChapterIds[id] || titleMatch){
+        a.removeAttribute('data-hidden');
+      } else {
+        a.setAttribute('data-hidden', 'true');
+      }
+    });
+ 
+    var count = Object.keys(visibleChapterIds).length;
+    searchCount.textContent = anyVisible ? (count + ' section' + (count === 1 ? '' : 's') + ' match') : '';
+    noResults.classList.toggle('show', !anyVisible);
+  }
+ 
+  searchInput.addEventListener('input', runSearch);
+ 
+})();
+</script>
+ 
+</body>
+</html>
+ 

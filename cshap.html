@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C#, From Syntax to the CLR — A Complete Guide</title>
+<style>
+  :root{
+    --purple-deep:#2B1863;
+    --purple:#512BD4;
+    --violet:#7047EB;
+    --slate:#2D2D2D;
+    --paper:#F8F9FA;
+    --panel:#FFFFFF;
+    --ink:#1B1B22;
+    --ink-soft:#565A66;
+    --line:#E2E1EA;
+    --code-bg:#0F0F17;
+    --code-ink:#DCDCE6;
+    --radius:12px;
+    --maxw:800px;
+    --sidebar-w:270px;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter','Segoe UI',Arial,sans-serif;
+    line-height:1.68;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  code,pre,.mono,.nav-brand .logo-text{font-family:'Cascadia Code','JetBrains Mono',Consolas,monospace;}
+
+  /* ---------- Layout shell ---------- */
+  .shell{ display:grid; grid-template-columns:var(--sidebar-w) 1fr; min-height:100vh; }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    background:var(--purple-deep);
+    color:#D9D3F0;
+    position:sticky; top:0; height:100vh; overflow-y:auto;
+    padding:26px 20px 40px;
+    border-right:1px solid rgba(255,255,255,0.06);
+  }
+  .nav-brand{ display:flex; align-items:center; gap:10px; color:#fff; text-decoration:none; margin-bottom:6px; }
+  .nav-brand .cs-mark{
+    width:30px;height:30px;border-radius:8px;
+    background:var(--violet); color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800; font-size:0.85rem; flex-shrink:0;
+  }
+  .nav-brand .logo-text{font-size:1.02rem;letter-spacing:0.01em;}
+  .nav-brand .logo-text b{color:#B9A3FF;}
+  .sidebar .subtitle{ font-size:0.79rem; color:#9C8FC7; margin:0 0 18px; }
+
+  /* search box */
+  .search-wrap{ margin-bottom:20px; position:relative; }
+  .search-wrap input{
+    width:100%;
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.14);
+    border-radius:8px;
+    padding:9px 12px 9px 30px;
+    color:#fff;
+    font-family:'Cascadia Code',monospace;
+    font-size:0.8rem;
+    outline:none;
+  }
+  .search-wrap input::placeholder{ color:#8C81AF; }
+  .search-wrap input:focus{ border-color:var(--violet); }
+  .search-wrap .icon{
+    position:absolute; left:10px; top:50%; transform:translateY(-50%);
+    font-size:0.8rem; color:#8C81AF; pointer-events:none;
+  }
+  .search-empty{
+    font-size:0.76rem; color:#8C81AF; padding:8px 4px; display:none;
+  }
+
+  .navgroup{margin-bottom:20px;}
+  .navgroup-label{
+    font-family:'Cascadia Code',monospace;
+    font-size:0.65rem; color:#8C7FBF; letter-spacing:0.09em;
+    text-transform:uppercase; margin-bottom:8px; padding-left:2px;
+  }
+  .sidenav a{
+    display:block; color:#C8C0E8; text-decoration:none;
+    font-size:0.86rem; padding:7px 10px; border-radius:7px; margin-bottom:2px;
+    border-left:2px solid transparent;
+    transition:background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .sidenav a:hover{ background:rgba(255,255,255,0.07); color:#fff; }
+  .sidenav a.active{ color:#fff; border-left-color:var(--violet); background:rgba(112,71,235,0.18); }
+  .sidenav a.filtered-hide{ display:none; }
+  .navgroup.filtered-hide{ display:none; }
+
+  .theme-toggle{
+    margin-top:22px; display:flex; align-items:center; justify-content:space-between;
+    background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12);
+    border-radius:9px; padding:9px 12px; cursor:pointer;
+  }
+  .theme-toggle span{font-size:0.78rem;color:#C8C0E8;}
+  .toggle-track{ width:36px;height:19px;border-radius:20px; background:#1F1240; position:relative; border:1px solid rgba(255,255,255,0.16); }
+  .toggle-thumb{ position:absolute; top:1px; left:1px; width:15px;height:15px;border-radius:50%; background:var(--violet); transition:transform 0.2s ease; }
+  body.dark .toggle-thumb{ transform:translateX(17px); }
+
+  .mobile-bar{display:none;}
+
+  /* ---------- Main content ---------- */
+  main{ padding:64px 50px 130px; max-width:calc(var(--maxw) + 100px); }
+  .content-inner{max-width:var(--maxw); margin:0 auto;}
+
+  .hero{ margin-bottom:58px; padding-bottom:36px; border-bottom:1px solid var(--line); }
+  .hero .kicker{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:'Cascadia Code',monospace; font-size:0.75rem; color:var(--purple);
+    background:rgba(81,43,212,0.08); padding:5px 11px; border-radius:20px; margin-bottom:18px;
+  }
+  .hero h1{ font-size:clamp(2rem,4vw,2.85rem); line-height:1.12; margin:0 0 16px; color:var(--purple-deep); font-weight:800; letter-spacing:-0.01em; }
+  .hero h1 .accent{color:var(--violet);}
+  .hero p.lede{ font-size:1.08rem; color:var(--ink-soft); max-width:60ch; margin:0 0 24px; }
+  .hero-meta{ display:flex; gap:18px; flex-wrap:wrap; font-family:'Cascadia Code',monospace; font-size:0.73rem; color:var(--purple); }
+  .hero-meta span b{color:var(--purple-deep);}
+
+  section.block{ margin-bottom:72px; scroll-margin-top:28px; }
+  section.block.filtered-hide{ display:none; }
+  section.block > h2{ font-size:1.58rem; color:var(--purple-deep); margin:0 0 8px; display:flex; align-items:baseline; gap:12px; font-weight:800; }
+  section.block > h2 .idx{ color:var(--violet); font-family:'Cascadia Code',monospace; font-size:0.92rem; }
+  section.block > p.intro{ color:var(--ink-soft); margin:0 0 26px; max-width:62ch; }
+
+  h3{ font-size:1.14rem; color:var(--purple-deep); margin:30px 0 10px; padding-left:12px; border-left:3px solid var(--violet); font-weight:700; }
+  h4{ font-size:0.97rem; color:var(--purple); margin:18px 0 8px; font-weight:700; }
+  p{margin:0 0 14px;}
+  ul,ol{margin:0 0 16px;padding-left:22px;}
+  li{margin-bottom:6px;}
+  a{color:var(--purple);}
+  a:hover{color:var(--violet);}
+  strong{color:var(--purple-deep);}
+
+  /* ---------- Code blocks ---------- */
+  .code-card{ background:var(--code-bg); border-radius:var(--radius); margin:16px 0 22px; overflow:hidden; box-shadow:0 10px 28px rgba(30,15,60,0.2); }
+  .code-card .code-head{ display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:#0A0A11; border-bottom:1px solid rgba(255,255,255,0.06); }
+  .code-head .dots{display:flex;gap:6px;}
+  .code-head .dots i{ width:9px;height:9px;border-radius:50%;display:inline-block; background:#2A2A38; }
+  .code-head .filename{ font-family:'Cascadia Code',monospace; font-size:0.71rem; color:#807FA0; }
+  .copy-btn{
+    font-family:'Cascadia Code',monospace; font-size:0.7rem; color:#A79FC7;
+    background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12);
+    border-radius:6px; padding:4px 10px; cursor:pointer;
+    transition:background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .copy-btn:hover{ background:rgba(112,71,235,0.18); color:#C4B5FF; border-color:rgba(112,71,235,0.4); }
+  .copy-btn.copied{ background:rgba(112,71,235,0.28); color:#D9CCFF; border-color:var(--violet); }
+  .code-card pre{ margin:0; padding:18px 20px; overflow-x:auto; font-family:'Cascadia Code',monospace; font-size:0.82rem; line-height:1.68; color:var(--code-ink); }
+  .code-card code{font-family:inherit;}
+
+  .tok-kw{color:#C586C0;}
+  .tok-type{color:#4EC9B0;}
+  .tok-str{color:#CE9178;}
+  .tok-com{color:#6A9955;font-style:italic;}
+  .tok-num{color:#B5CEA8;}
+  .tok-fn{color:#DCDCAA;}
+  .tok-dec{color:#9CDCFE;}
+  .tok-prop{color:#9CDCFE;}
+
+  code.inline{ background:#EAE6F7; color:#3E1F8F; padding:1.5px 6px; border-radius:5px; font-size:0.87em; font-family:'Cascadia Code',monospace; }
+
+  /* ---------- Tables ---------- */
+  .tbl-wrap{overflow-x:auto;margin:16px 0 26px;border-radius:var(--radius);border:1px solid var(--line);}
+  table{ border-collapse:collapse; width:100%; font-family:'Cascadia Code',monospace; font-size:0.79rem; background:var(--panel); }
+  th,td{ text-align:left; padding:12px 14px; border-bottom:1px solid var(--line); vertical-align:top; }
+  thead th{ background:var(--purple-deep); color:#fff; font-weight:600; }
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:nth-child(odd){background:#FBFAFD;}
+
+  /* ---------- Cards / grids ---------- */
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0 26px;}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0 26px;}
+  .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0 26px;}
+
+  .feat-card{ background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:16px 16px 14px; }
+  .feat-card .fc-title{ font-family:'Cascadia Code',monospace; font-size:0.79rem; color:var(--purple); font-weight:700; margin-bottom:6px; display:flex;align-items:center;gap:6px; }
+  .feat-card .fc-title .dot{width:7px;height:7px;border-radius:50%;background:var(--violet);display:inline-block;}
+  .feat-card p{font-size:0.88rem;color:var(--ink-soft);margin:0;}
+
+  .compare-card{ background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:20px; }
+  .compare-card h4{margin-top:0;color:var(--purple-deep);}
+  .compare-card.vs-a{border-top:3px solid var(--purple);}
+  .compare-card.vs-b{border-top:3px solid var(--violet);}
+
+  .note{ border-left:3px solid var(--purple); background:#EFEBFA; padding:12px 16px; border-radius:0 8px 8px 0; font-size:0.9rem; color:var(--purple-deep); margin:18px 0; }
+  .note.warn{ border-left-color:#C0392B; background:#FCEEEC; color:#7A2416; }
+
+  /* ---------- Accordion ---------- */
+  .accordion{border-top:1px solid var(--line);}
+  .acc-item{border-bottom:1px solid var(--line);}
+  .acc-q{
+    width:100%; text-align:left; background:none; border:none; padding:16px 4px;
+    font-family:'Cascadia Code',monospace; font-size:0.89rem; color:var(--purple-deep); font-weight:600;
+    display:flex; justify-content:space-between; align-items:center; cursor:pointer;
+  }
+  .acc-q .plus{color:var(--violet);font-size:1.15rem;transition:transform 0.2s ease;}
+  .acc-item.open .plus{transform:rotate(45deg);}
+  .acc-a{max-height:0;overflow:hidden;transition:max-height 0.25s ease;color:var(--ink-soft);font-size:0.92rem;}
+  .acc-a-inner{padding:0 4px 18px;}
+
+  /* ---------- Tabs ---------- */
+  .tabs{margin:18px 0 26px;}
+  .tab-bar{display:flex;gap:4px;border-bottom:1px solid var(--line);flex-wrap:wrap;}
+  .tab-btn{
+    font-family:'Cascadia Code',monospace; font-size:0.78rem; background:none; border:none;
+    padding:10px 16px; color:var(--ink-soft); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px;
+  }
+  .tab-btn.active{color:var(--purple-deep);border-bottom-color:var(--violet);font-weight:700;}
+  .tab-panel{display:none;padding-top:16px;}
+  .tab-panel.active{display:block;}
+
+  footer{ padding:40px 50px 90px; max-width:calc(var(--maxw) + 100px); margin:0 auto; color:var(--ink-soft); font-size:0.85rem; border-top:1px solid var(--line); }
+
+  /* ---------- Dark mode ---------- */
+  body.dark{
+    --paper:#0F0D18; --panel:#181523; --ink:#E6E3F0; --ink-soft:#9C96B5; --line:#2B2740; --code-bg:#0A0912;
+  }
+  body.dark table thead th{background:#241D45;}
+  body.dark tbody tr:nth-child(odd){background:#15111F;}
+  body.dark code.inline{background:#241D45;color:#C4B5FF;}
+  body.dark .note{background:#1D1733;}
+  body.dark .note.warn{background:#331A16;color:#FFB4A3;}
+  body.dark .hero .kicker{background:rgba(112,71,235,0.16);}
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:920px){
+    .shell{grid-template-columns:1fr;}
+    .sidebar{
+      position:fixed; z-index:40; left:0; top:0; width:82%; max-width:310px;
+      transform:translateX(-100%); transition:transform 0.25s ease; box-shadow:20px 0 40px rgba(0,0,0,0.3);
+    }
+    .sidebar.open{transform:translateX(0);}
+    .mobile-bar{
+      display:flex; align-items:center; justify-content:space-between;
+      background:var(--purple-deep); color:#fff; padding:14px 18px; position:sticky; top:0; z-index:30;
+    }
+    .mobile-bar .nav-brand{margin:0;}
+    .burger{
+      width:34px;height:34px;border-radius:8px; background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.15); color:#fff; font-size:1.1rem; cursor:pointer;
+    }
+    .scrim{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:35;}
+    .scrim.show{display:block;}
+    main{padding:34px 20px 90px;}
+    .hero h1{font-size:1.85rem;}
+    .grid-3,.grid-2,.grid-4{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div class="mobile-bar">
+  <a href="#top" class="nav-brand"><span class="cs-mark">C#</span><span class="logo-text">csharp<b>.</b>guide</span></a>
+  <button class="burger" id="burgerBtn" aria-label="Open navigation">☰</button>
+</div>
+<div class="scrim" id="scrim"></div>
+
+<div class="shell">
+
+  <aside class="sidebar" id="sidebar">
+    <a href="#top" class="nav-brand"><span class="cs-mark">C#</span><span class="logo-text">csharp<b>.</b>guide</span></a>
+    <p class="subtitle">syntax to the CLR</p>
+
+    <div class="search-wrap">
+      <span class="icon">⌕</span>
+      <input type="text" id="searchBox" placeholder="Search topics…" autocomplete="off">
+    </div>
+    <div class="search-empty" id="searchEmpty">No matching topics.</div>
+
+    <div class="navgroup" data-group>
+      <div class="navgroup-label">Orientation</div>
+      <nav class="sidenav">
+        <a href="#intro" data-nav data-terms="what is csharp dotnet net ecosystem history evolution">What is C# &amp; .NET</a>
+        <a href="#execution" data-nav data-terms="execution process cil intermediate language jit compilation native code runtime">Execution Process</a>
+        <a href="#comparison" data-nav data-terms="csharp vs java c++ comparison paradigm runtime memory platform">C# vs Java vs C++</a>
+      </nav>
+    </div>
+
+    <div class="navgroup" data-group>
+      <div class="navgroup-label">Basics &amp; Syntax</div>
+      <nav class="sidenav">
+        <a href="#anatomy" data-nav data-terms="anatomy program using statement namespace class main method top-level statements">Anatomy of a Program</a>
+        <a href="#datatypes" data-nav data-terms="data types value reference nullable">Data Types</a>
+        <a href="#variables" data-nav data-terms="variables constants const readonly scope">Variables &amp; Constants</a>
+        <a href="#io" data-nav data-terms="console writeline readline string interpolation input output">Input / Output</a>
+        <a href="#control" data-nav data-terms="operators control flow if else switch expression pattern matching loops for foreach while jump statements">Operators &amp; Control Flow</a>
+        <a href="#hello-grade" data-nav data-terms="hello world grade calculator cli example">Hello World &amp; Grade Calculator</a>
+      </nav>
+    </div>
+
+    <div class="navgroup" data-group>
+      <div class="navgroup-label">Object&#8211;Oriented C#</div>
+      <nav class="sidenav">
+        <a href="#classes" data-nav data-terms="classes objects constructor destructor object initializer">Classes &amp; Objects</a>
+        <a href="#modifiers" data-nav data-terms="access modifiers public private protected internal">Access Modifiers</a>
+        <a href="#properties" data-nav data-terms="properties auto-implemented get set accessor init only setter">Properties</a>
+        <a href="#pillars" data-nav data-terms="four pillars abstraction encapsulation inheritance base polymorphism virtual override new">Four Pillars of OOP</a>
+        <a href="#interfaces" data-nav data-terms="interfaces vs abstract classes comparison">Interfaces vs Abstract Classes</a>
+      </nav>
+    </div>
+
+    <div class="navgroup" data-group>
+      <div class="navgroup-label">Advanced &amp; Collections</div>
+      <nav class="sidenav">
+        <a href="#collections" data-nav data-terms="collections list dictionary hashset ienumerable">Collections</a>
+        <a href="#linq" data-nav data-terms="linq query method syntax where select orderby groupby">LINQ</a>
+        <a href="#delegates" data-nav data-terms="delegates events lambda expressions">Delegates, Events &amp; Lambdas</a>
+        <a href="#generics" data-nav data-terms="generics generic class method constraints where t class">Generics</a>
+        <a href="#memory" data-nav data-terms="memory management heap stack garbage collection gc idisposable using statement">Memory Management</a>
+      </nav>
+    </div>
+
+    <div class="navgroup" data-group>
+      <div class="navgroup-label">Modern C#</div>
+      <nav class="sidenav">
+        <a href="#async" data-nav data-terms="async await task deadlock file operations asynchronous">Async / Await</a>
+        <a href="#exceptions" data-nav data-terms="exception handling try catch finally custom exceptions">Exception Handling</a>
+        <a href="#modern" data-nav data-terms="pattern matching records tuples null coalescing operators">Modern Innovations</a>
+        <a href="#fileio" data-nav data-terms="file io reading writing async system.io.file">File I/O</a>
+        <a href="#faq" data-nav data-terms="faq common questions">FAQ</a>
+      </nav>
+    </div>
+
+    <div class="theme-toggle" id="themeToggle">
+      <span id="themeLabel">Light mode</span>
+      <div class="toggle-track"><div class="toggle-thumb"></div></div>
+    </div>
+  </aside>
+
+  <main id="top">
+    <div class="content-inner">
+
+      <div class="hero">
+        <div class="kicker">using guide; // basics through advanced</div>
+        <h1>C#, from syntax to the <span class="accent">CLR</span>.</h1>
+        <p class="lede">C# pairs the safety and structure of a statically typed, garbage-collected language with syntax that keeps evolving to stay expressive — pattern matching, records, and top-level statements all trimmed away boilerplate that used to be mandatory. This guide moves in the order you'll actually use it: syntax, objects, then the runtime and modern features once the fundamentals are second nature.</p>
+        <div class="hero-meta">
+          <span><b>Level</b> Beginner → Intermediate</span>
+          <span><b>Reading time</b> ~45 min</span>
+          <span><b>Target</b> .NET 8 / C# 12 examples</span>
+        </div>
+      </div>
+
+      <!-- 1. INTRO -->
+      <section class="block" id="intro">
+        <h2><span class="idx">01</span> What is C# &amp; .NET?</h2>
+        <p class="intro">A modern, object-oriented language built by Microsoft specifically to run on a managed runtime — and the runtime, not just the language, is a huge part of the story.</p>
+
+        <p>C# was released in 2000, led by Anders Hejlsberg, as the flagship language for Microsoft's new .NET platform. Early .NET was Windows-only and closed-source; that changed dramatically in 2016 with <strong>.NET Core</strong>, an open-source, cross-platform rewrite that eventually became simply <strong>.NET</strong> (5, 6, 7, 8...). Today C# runs natively on Windows, macOS, and Linux, and powers everything from ASP.NET web APIs to Unity games to mobile apps via .NET MAUI.</p>
+
+        <h3>Core features</h3>
+        <div class="grid-3">
+          <div class="feat-card"><div class="fc-title"><span class="dot"></span>Object-Oriented</div><p>Built around classes, interfaces, and inheritance, with first-class support for modern functional patterns too.</p></div>
+          <div class="feat-card"><div class="fc-title"><span class="dot"></span>Type-Safe</div><p>The compiler catches type mismatches before your code ever runs, sharply reducing a whole class of runtime bugs.</p></div>
+          <div class="feat-card"><div class="fc-title"><span class="dot"></span>Cross-Platform</div><p>Modern .NET runs the same C# code on Windows, macOS, and Linux without modification.</p></div>
+          <div class="feat-card"><div class="fc-title"><span class="dot"></span>Garbage Collected</div><p>The CLR reclaims memory for objects you no longer reference — no manual free() calls required.</p></div>
+          <div class="feat-card"><div class="fc-title"><span class="dot"></span>Strongly Typed</div><p>Every variable has a fixed type, whether declared explicitly or inferred with <code class="inline">var</code>.</p></div>
+          <div class="feat-card"><div class="fc-title"><span class="dot"></span>Constantly Evolving</div><p>Nearly every yearly C# release adds syntax that removes boilerplate — records and top-level statements are recent examples.</p></div>
+        </div>
+      </section>
+
+      <section class="block" id="execution">
+        <h2><span class="idx">02</span> How C# Code Actually Runs</h2>
+        <p class="intro">C# doesn't compile straight to machine code — it goes through an intermediate step that's the whole reason .NET can be cross-platform.</p>
+
+        <div class="grid-4">
+          <div class="feat-card"><div class="fc-title"><span class="dot"></span>1. Source (.cs)</div><p>The C# code you write.</p></div>
+          <div class="feat-card"><div class="fc-title"><span class="dot"></span>2. CIL</div><p>The C# compiler (Roslyn) produces Common Intermediate Language — a platform-independent bytecode, packaged in a .dll/.exe.</p></div>
+          <div class="feat-card"><div class="fc-title"><span class="dot"></span>3. JIT Compilation</div><p>At runtime, the CLR's Just-In-Time compiler translates CIL into native machine code for the current CPU.</p></div>
+          <div class="feat-card"><div class="fc-title"><span class="dot"></span>4. Native Execution</div><p>The OS runs that native code directly, at full hardware speed.</p></div>
+        </div>
+        <div class="note">This is conceptually close to Java's bytecode + JVM model — the difference is the CLR JIT-compiles per method as it's first called, rather than interpreting every instruction, which is why .NET performance is often close to natively compiled languages.</div>
+      </section>
+
+      <section class="block" id="comparison">
+        <h2><span class="idx">03</span> C# vs Java vs C++</h2>
+        <p class="intro">Three statically typed, curly-brace languages that make very different runtime tradeoffs.</p>
+
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th></th><th>C#</th><th>Java</th><th>C++</th></tr></thead>
+            <tbody>
+              <tr><td>Paradigm</td><td>OOP + functional features</td><td>Purely OOP</td><td>Procedural + OOP</td></tr>
+              <tr><td>Runtime</td><td>CLR (.NET)</td><td>JVM</td><td>None — native binary</td></tr>
+              <tr><td>Memory management</td><td>Garbage collected</td><td>Garbage collected</td><td>Manual (or RAII/smart pointers)</td></tr>
+              <tr><td>Platform support</td><td>Windows, macOS, Linux (via .NET)</td><td>Anywhere a JVM exists</td><td>Source-level — recompile per platform</td></tr>
+              <tr><td>Compilation target</td><td>CIL → JIT to native</td><td>Bytecode → JVM interpretation/JIT</td><td>Directly to native machine code</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 2. BASICS -->
+      <section class="block" id="anatomy">
+        <h2><span class="idx">04</span> Anatomy of a C# Program</h2>
+        <p class="intro">Modern C# lets you skip almost all the ceremony older versions required.</p>
+
+        <div class="tabs">
+          <div class="tab-bar">
+            <button class="tab-btn active" data-tab="a-classic">Classic form</button>
+            <button class="tab-btn" data-tab="a-toplevel">Top-level statements (C# 9+)</button>
+          </div>
+          <div class="tab-panel active" id="a-classic">
+            <div class="code-card">
+              <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">Program.cs</span><button class="copy-btn" data-copy>Copy</button></div>
+              <pre><code><span class="tok-kw">using</span> System;                     <span class="tok-com">// brings in the System namespace</span>
+
+<span class="tok-kw">namespace</span> MyApp
+{
+    <span class="tok-kw">class</span> <span class="tok-type">Program</span>
+    {
+        <span class="tok-kw">static</span> <span class="tok-kw">void</span> <span class="tok-fn">Main</span>(<span class="tok-type">string</span>[] args)   <span class="tok-com">// entry point</span>
+        {
+            <span class="tok-type">Console</span>.WriteLine(<span class="tok-str">"Program starts here."</span>);
+        }
+    }
+}</code></pre>
+            </div>
+          </div>
+          <div class="tab-panel" id="a-toplevel">
+            <div class="code-card">
+              <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">Program.cs</span><button class="copy-btn" data-copy>Copy</button></div>
+              <pre><code><span class="tok-kw">using</span> System;
+
+<span class="tok-type">Console</span>.WriteLine(<span class="tok-str">"Program starts here."</span>);   <span class="tok-com">// no class or Main needed -- the compiler generates them for you</span></code></pre>
+            </div>
+          </div>
+        </div>
+        <p>Both compile to the exact same thing. Top-level statements are ideal for small programs, scripts, and learning; larger projects still tend to use the classic <code class="inline">namespace</code> / <code class="inline">class</code> structure to organize code across files.</p>
+      </section>
+
+      <section class="block" id="datatypes">
+        <h2><span class="idx">05</span> Data Types</h2>
+        <p class="intro">The single most important distinction in C#'s type system: where a value actually lives in memory.</p>
+
+        <div class="grid-2">
+          <div class="feat-card">
+            <div class="fc-title"><span class="dot"></span>Value types</div>
+            <p>Stored directly on the stack (or inline in the containing object). Assigning one copies the value. Includes <code class="inline">int</code>, <code class="inline">double</code>, <code class="inline">bool</code>, <code class="inline">struct</code>, <code class="inline">enum</code>.</p>
+          </div>
+          <div class="feat-card">
+            <div class="fc-title"><span class="dot"></span>Reference types</div>
+            <p>Stored on the heap; the variable holds a reference (pointer) to it. Assigning one copies the reference, not the data. Includes <code class="inline">class</code>, <code class="inline">string</code>, <code class="inline">array</code>, <code class="inline">interface</code>.</p>
+          </div>
+        </div>
+
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">types.cs</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-type">int</span> a = <span class="tok-num">10</span>;
+<span class="tok-type">int</span> b = a;      <span class="tok-com">// b gets a COPY of 10 -- changing a won't affect b</span>
+
+<span class="tok-type">int</span>? maybeAge = <span class="tok-kw">null</span>;      <span class="tok-com">// nullable value type -- the ? allows null for a normally non-nullable type</span>
+<span class="tok-kw">if</span> (maybeAge.HasValue)
+{
+    <span class="tok-type">Console</span>.WriteLine(maybeAge.Value);
+}
+
+<span class="tok-type">int</span> safeAge = maybeAge ?? <span class="tok-num">0</span>;   <span class="tok-com">// null-coalescing -- falls back to 0 if null</span></code></pre>
+        </div>
+      </section>
+
+      <section class="block" id="variables">
+        <h2><span class="idx">06</span> Variables, Constants &amp; Scope</h2>
+        <p class="intro">C# gives you two flavors of "unchangeable" — and they mean different things.</p>
+
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">const_vs_readonly.cs</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-kw">class</span> <span class="tok-type">Circle</span>
+{
+    <span class="tok-kw">public</span> <span class="tok-kw">const</span> <span class="tok-type">double</span> Pi = <span class="tok-num">3.14159</span>;      <span class="tok-com">// fixed at compile time, shared across all instances</span>
+    <span class="tok-kw">public</span> <span class="tok-kw">readonly</span> <span class="tok-type">double</span> Radius;         <span class="tok-com">// set once, at construction -- can differ per instance</span>
+
+    <span class="tok-kw">public</span> <span class="tok-fn">Circle</span>(<span class="tok-type">double</span> radius)
+    {
+        Radius = radius;              <span class="tok-com">// legal here, inside the constructor</span>
+    }
+}</code></pre>
+        </div>
+        <div class="note"><code class="inline">const</code> must be known at compile time and is implicitly static. <code class="inline">readonly</code> can be assigned at runtime — but only inside the constructor — which makes it useful when the value depends on a constructor argument.</div>
+      </section>
+
+      <section class="block" id="io">
+        <h2><span class="idx">07</span> Input / Output</h2>
+        <p class="intro">String interpolation replaced most of the old string-formatting boilerplate with something far more readable.</p>
+
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">io.cs</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-type">Console</span>.Write(<span class="tok-str">"Enter your name: "</span>);
+<span class="tok-type">string</span>? name = <span class="tok-type">Console</span>.ReadLine();     <span class="tok-com">// ReadLine() can return null</span>
+
+<span class="tok-type">Console</span>.Write(<span class="tok-str">"Enter your age: "</span>);
+<span class="tok-type">int</span> age = <span class="tok-type">int</span>.Parse(<span class="tok-type">Console</span>.ReadLine()!);
+
+<span class="tok-type">Console</span>.WriteLine(<span class="tok-kw">$</span><span class="tok-str">"Hi {name}, in 5 years you'll be {age + 5}."</span>);   <span class="tok-com">// string interpolation</span></code></pre>
+        </div>
+        <p>The <code class="inline">$</code> before a string turns it into an interpolated string — anything inside <code class="inline">{}</code> is evaluated and inserted directly, replacing older patterns like <code class="inline">string.Format()</code>.</p>
+      </section>
+
+      <section class="block" id="control">
+        <h2><span class="idx">08</span> Operators &amp; Control Flow</h2>
+        <p class="intro">C# switch expressions bring real pattern matching, going far beyond a simple value comparison.</p>
+
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">control_flow.cs</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-type">int</span> score = <span class="tok-num">76</span>;
+
+<span class="tok-kw">if</span> (score >= <span class="tok-num">90</span>) <span class="tok-type">Console</span>.WriteLine(<span class="tok-str">"Grade: A"</span>);
+<span class="tok-kw">else</span> <span class="tok-kw">if</span> (score >= <span class="tok-num">75</span>) <span class="tok-type">Console</span>.WriteLine(<span class="tok-str">"Grade: B"</span>);
+<span class="tok-kw">else</span> <span class="tok-type">Console</span>.WriteLine(<span class="tok-str">"Grade: C or below"</span>);
+
+<span class="tok-com">// modern switch EXPRESSION -- evaluates to a value, no break needed</span>
+<span class="tok-type">string</span> grade = score <span class="tok-kw">switch</span>
+{
+    >= <span class="tok-num">90</span> => <span class="tok-str">"A"</span>,
+    >= <span class="tok-num">75</span> => <span class="tok-str">"B"</span>,
+    >= <span class="tok-num">60</span> => <span class="tok-str">"C"</span>,
+    _   => <span class="tok-str">"F"</span>          <span class="tok-com">// _ is the discard pattern -- matches anything else</span>
+};
+
+<span class="tok-kw">foreach</span> (<span class="tok-type">var</span> n <span class="tok-kw">in</span> <span class="tok-kw">new</span>[] { <span class="tok-num">1</span>, <span class="tok-num">2</span>, <span class="tok-num">3</span> })
+{
+    <span class="tok-kw">if</span> (n == <span class="tok-num">2</span>) <span class="tok-kw">continue</span>;
+    <span class="tok-type">Console</span>.WriteLine(n);
+}</code></pre>
+        </div>
+      </section>
+
+      <section class="block" id="hello-grade">
+        <h2><span class="idx">09</span> Two Complete Programs</h2>
+        <p class="intro">The smallest possible C# program, and an interactive grade calculator that ties I/O, loops, and switch expressions together.</p>
+
+        <h3>Hello, World</h3>
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">HelloWorld.cs</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-type">Console</span>.WriteLine(<span class="tok-str">"Hello, World!"</span>);</code></pre>
+        </div>
+
+        <h3>Student Grade Calculator</h3>
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">GradeCalculator.cs</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-kw">using</span> System;
+<span class="tok-kw">using</span> System.Collections.Generic;
+
+<span class="tok-type">var</span> scores = <span class="tok-kw">new</span> <span class="tok-type">List</span>&lt;<span class="tok-type">int</span>&gt;();
+<span class="tok-type">Console</span>.WriteLine(<span class="tok-str">"Enter scores one at a time. Type 'done' to finish."</span>);
+
+<span class="tok-kw">while</span> (<span class="tok-kw">true</span>)
+{
+    <span class="tok-type">Console</span>.Write(<span class="tok-str">"Score: "</span>);
+    <span class="tok-type">string</span>? input = <span class="tok-type">Console</span>.ReadLine();
+
+    <span class="tok-kw">if</span> (input?.ToLower() == <span class="tok-str">"done"</span>) <span class="tok-kw">break</span>;
+
+    <span class="tok-kw">if</span> (<span class="tok-type">int</span>.TryParse(input, <span class="tok-kw">out</span> <span class="tok-type">int</span> score))
+    {
+        scores.Add(score);
+    }
+    <span class="tok-kw">else</span>
+    {
+        <span class="tok-type">Console</span>.WriteLine(<span class="tok-str">"Not a valid number, try again."</span>);
+    }
+}
+
+<span class="tok-kw">if</span> (scores.Count == <span class="tok-num">0</span>)
+{
+    <span class="tok-type">Console</span>.WriteLine(<span class="tok-str">"No scores entered."</span>);
+    <span class="tok-kw">return</span>;
+}
+
+<span class="tok-type">double</span> average = <span class="tok-num">0</span>;
+<span class="tok-kw">foreach</span> (<span class="tok-type">var</span> s <span class="tok-kw">in</span> scores) average += s;
+average /= scores.Count;
+
+<span class="tok-type">string</span> letter = average <span class="tok-kw">switch</span>
+{
+    >= <span class="tok-num">90</span> => <span class="tok-str">"A"</span>,
+    >= <span class="tok-num">75</span> => <span class="tok-str">"B"</span>,
+    >= <span class="tok-num">60</span> => <span class="tok-str">"C"</span>,
+    _   => <span class="tok-str">"F"</span>
+};
+
+<span class="tok-type">Console</span>.WriteLine(<span class="tok-kw">$</span><span class="tok-str">"Average: {average:F2}  |  Grade: {letter}"</span>);</code></pre>
+        </div>
+      </section>
+
+      <!-- 3. OOP -->
+      <section class="block" id="classes">
+        <h2><span class="idx">10</span> Classes &amp; Objects</h2>
+        <p class="intro">Constructors set up an object's initial state; object initializers offer a shorter alternative for simple cases.</p>
+
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">Car.cs</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-kw">public</span> <span class="tok-kw">class</span> <span class="tok-type">Car</span>
+{
+    <span class="tok-kw">public</span> <span class="tok-type">string</span> Color { <span class="tok-kw">get</span>; <span class="tok-kw">set</span>; }
+    <span class="tok-kw">public</span> <span class="tok-type">int</span> Speed { <span class="tok-kw">get</span>; <span class="tok-kw">private</span> <span class="tok-kw">set</span>; }
+
+    <span class="tok-kw">public</span> <span class="tok-fn">Car</span>(<span class="tok-type">string</span> color)         <span class="tok-com">// constructor</span>
+    {
+        Color = color;
+        Speed = <span class="tok-num">0</span>;
+    }
+
+    <span class="tok-kw">public</span> <span class="tok-kw">void</span> <span class="tok-fn">Accelerate</span>(<span class="tok-type">int</span> amount)
+    {
+        Speed += amount;
+        <span class="tok-type">Console</span>.WriteLine(<span class="tok-kw">$</span><span class="tok-str">"{Color} car now going {Speed} km/h"</span>);
+    }
+
+    ~<span class="tok-type">Car</span>()                          <span class="tok-com">// destructor / finalizer -- rarely needed, GC handles cleanup</span>
+    {
+        <span class="tok-com">// runs before the GC reclaims this object's memory</span>
+    }
+}
+
+<span class="tok-type">var</span> mine = <span class="tok-kw">new</span> <span class="tok-type">Car</span>(<span class="tok-str">"Red"</span>);
+mine.Accelerate(<span class="tok-num">40</span>);
+
+<span class="tok-com">// object initializer -- sets public properties inline, no constructor args needed</span>
+<span class="tok-type">var</span> yours = <span class="tok-kw">new</span> <span class="tok-type">Car</span>(<span class="tok-str">"Blue"</span>) { Speed = <span class="tok-num">10</span> };</code></pre>
+        </div>
+        <div class="note">A destructor (finalizer) in C# is not deterministic — you don't control exactly when it runs. For deterministic cleanup (closing files, releasing handles), implement <code class="inline">IDisposable</code> instead — covered in the Memory Management section.</div>
+      </section>
+
+      <section class="block" id="modifiers">
+        <h2><span class="idx">11</span> Access Modifiers</h2>
+        <p class="intro">Five levels of visibility, controlling exactly which code is allowed to see a member.</p>
+
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Modifier</th><th>Visible from</th></tr></thead>
+            <tbody>
+              <tr><td>public</td><td>Anywhere</td></tr>
+              <tr><td>private</td><td>Only within the same class</td></tr>
+              <tr><td>protected</td><td>The same class and any derived (subclass) code</td></tr>
+              <tr><td>internal</td><td>Anywhere within the same assembly (project/DLL)</td></tr>
+              <tr><td>protected internal</td><td>Same assembly, OR any derived class in another assembly</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="block" id="properties">
+        <h2><span class="idx">12</span> Properties</h2>
+        <p class="intro">Properties look like fields from the outside but run code — a getter and setter — under the hood.</p>
+
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">properties.cs</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-kw">public</span> <span class="tok-kw">class</span> <span class="tok-type">Product</span>
+{
+    <span class="tok-kw">public</span> <span class="tok-type">string</span> Name { <span class="tok-kw">get</span>; <span class="tok-kw">set</span>; } = <span class="tok-str">""</span>;   <span class="tok-com">// auto-implemented -- compiler generates the backing field</span>
+
+    <span class="tok-kw">private</span> <span class="tok-type">decimal</span> _price;
+    <span class="tok-kw">public</span> <span class="tok-type">decimal</span> Price               <span class="tok-com">// full get/set accessor -- with validation logic</span>
+    {
+        <span class="tok-kw">get</span> => _price;
+        <span class="tok-kw">set</span>
+        {
+            <span class="tok-kw">if</span> (value &lt; <span class="tok-num">0</span>) <span class="tok-kw">throw</span> <span class="tok-kw">new</span> <span class="tok-type">ArgumentException</span>(<span class="tok-str">"Price can't be negative"</span>);
+            _price = value;
+        }
+    }
+
+    <span class="tok-kw">public</span> <span class="tok-type">string</span> Sku { <span class="tok-kw">get</span>; <span class="tok-kw">init</span>; } = <span class="tok-str">""</span>;    <span class="tok-com">// init-only -- settable only during object creation</span>
+}
+
+<span class="tok-type">var</span> item = <span class="tok-kw">new</span> <span class="tok-type">Product</span> { Name = <span class="tok-str">"Widget"</span>, Price = <span class="tok-num">9.99m</span>, Sku = <span class="tok-str">"W-100"</span> };
+<span class="tok-com">// item.Sku = "W-200";   -> compile error: init-only, can't be changed after creation</span></code></pre>
+        </div>
+      </section>
+
+      <section class="block" id="pillars">
+        <h2><span class="idx">13</span> The Four Pillars of OOP</h2>
+        <p class="intro">Abstraction, encapsulation, inheritance, and polymorphism — the vocabulary every OOP language builds on.</p>
+
+        <div class="grid-2">
+          <div class="feat-card"><div class="fc-title"><span class="dot"></span>Abstraction</div><p>Exposing only what's necessary to use something, hiding implementation details behind interfaces or abstract classes.</p></div>
+          <div class="feat-card"><div class="fc-title"><span class="dot"></span>Encapsulation</div><p>Bundling data with the methods that operate on it, restricting direct access via access modifiers and properties.</p></div>
+        </div>
+
+        <h3>Inheritance</h3>
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">inheritance.cs</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-kw">public</span> <span class="tok-kw">class</span> <span class="tok-type">Animal</span>
+{
+    <span class="tok-kw">public</span> <span class="tok-type">string</span> Name { <span class="tok-kw">get</span>; }
+    <span class="tok-kw">public</span> <span class="tok-fn">Animal</span>(<span class="tok-type">string</span> name) => Name = name;
+
+    <span class="tok-kw">public</span> <span class="tok-kw">virtual</span> <span class="tok-kw">void</span> <span class="tok-fn">Speak</span>() => <span class="tok-type">Console</span>.WriteLine(<span class="tok-str">"Some generic animal sound"</span>);
+}
+
+<span class="tok-kw">public</span> <span class="tok-kw">class</span> <span class="tok-type">Dog</span> : <span class="tok-type">Animal</span>
+{
+    <span class="tok-kw">public</span> <span class="tok-fn">Dog</span>(<span class="tok-type">string</span> name) : <span class="tok-kw">base</span>(name) { }     <span class="tok-com">// base() calls the parent constructor</span>
+
+    <span class="tok-kw">public</span> <span class="tok-kw">override</span> <span class="tok-kw">void</span> <span class="tok-fn">Speak</span>()          <span class="tok-com">// override -- replaces the virtual method</span>
+    {
+        <span class="tok-type">Console</span>.WriteLine(<span class="tok-kw">$</span><span class="tok-str">"{Name} says Woof!"</span>);
+    }
+}</code></pre>
+        </div>
+
+        <h3>Polymorphism: override vs new</h3>
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">override_vs_new.cs</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-type">Animal</span> a = <span class="tok-kw">new</span> <span class="tok-type">Dog</span>(<span class="tok-str">"Rex"</span>);
+a.Speak();          <span class="tok-com">// "Rex says Woof!" -- override respects the ACTUAL runtime type</span>
+
+<span class="tok-com">// if Dog used "new void Speak()" instead of "override" it would HIDE the parent
+// method rather than replace it -- calling a.Speak() through an Animal reference
+// would then print the parent's generic sound, since 'new' is resolved by the
+// declared (compile-time) type, not the actual object.</span></code></pre>
+        </div>
+      </section>
+
+      <section class="block" id="interfaces">
+        <h2><span class="idx">14</span> Interfaces vs Abstract Classes</h2>
+        <p class="intro">Both define a contract a class must fulfill, but they solve different problems.</p>
+
+        <div class="grid-2">
+          <div class="compare-card vs-a">
+            <h4>Abstract class</h4>
+            <p style="font-size:0.89rem;color:var(--ink-soft);">Can hold state (fields), constructors, and fully implemented methods alongside abstract ones. A class can inherit from only one.</p>
+          </div>
+          <div class="compare-card vs-b">
+            <h4>Interface</h4>
+            <p style="font-size:0.89rem;color:var(--ink-soft);">Defines a contract — method signatures (plus optional default implementations in modern C#). A class can implement many interfaces at once.</p>
+          </div>
+        </div>
+
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th></th><th>Abstract class</th><th>Interface</th></tr></thead>
+            <tbody>
+              <tr><td>Multiple inheritance</td><td>No — only one base class</td><td>Yes — a class can implement many</td></tr>
+              <tr><td>Fields / state</td><td>Allowed</td><td>Not allowed (properties only, no backing fields)</td></tr>
+              <tr><td>Constructors</td><td>Allowed</td><td>Not allowed</td></tr>
+              <tr><td>Use when</td><td>Related classes share common state or partial behavior</td><td>Unrelated classes need to share a capability/contract</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">interfaces.cs</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-kw">public</span> <span class="tok-kw">interface</span> <span class="tok-type">IDrivable</span>
+{
+    <span class="tok-kw">void</span> <span class="tok-fn">Drive</span>();
+}
+
+<span class="tok-kw">public</span> <span class="tok-kw">abstract</span> <span class="tok-kw">class</span> <span class="tok-type">Shape</span>
+{
+    <span class="tok-kw">public</span> <span class="tok-kw">abstract</span> <span class="tok-type">double</span> <span class="tok-fn">Area</span>();      <span class="tok-com">// no body -- subclasses must implement it</span>
+
+    <span class="tok-kw">public</span> <span class="tok-kw">void</span> <span class="tok-fn">Describe</span>()             <span class="tok-com">// shared, fully implemented</span>
+        => <span class="tok-type">Console</span>.WriteLine(<span class="tok-kw">$</span><span class="tok-str">"Area is {Area()}"</span>);
+}
+
+<span class="tok-kw">public</span> <span class="tok-kw">class</span> <span class="tok-type">Circle</span> : <span class="tok-type">Shape</span>, <span class="tok-type">IDrivable</span>      <span class="tok-com">// one base class, plus interfaces, separated by commas</span>
+{
+    <span class="tok-kw">public</span> <span class="tok-type">double</span> Radius { <span class="tok-kw">get</span>; <span class="tok-kw">set</span>; }
+    <span class="tok-kw">public</span> <span class="tok-kw">override</span> <span class="tok-type">double</span> <span class="tok-fn">Area</span>() => Math.PI * Radius * Radius;
+    <span class="tok-kw">public</span> <span class="tok-kw">void</span> <span class="tok-fn">Drive</span>() => <span class="tok-type">Console</span>.WriteLine(<span class="tok-str">"Rolling along!"</span>);
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- 4. ADVANCED -->
+      <section class="block" id="collections">
+        <h2><span class="idx">15</span> Collections</h2>
+        <p class="intro">The generic collection types that replace nearly every use case for a raw array.</p>
+
+        <div class="grid-2">
+          <div class="ds-card feat-card"><div class="fc-title"><span class="dot"></span>List&lt;T&gt;</div><p>Ordered, resizable, allows duplicates. The default choice for most sequences.</p></div>
+          <div class="ds-card feat-card"><div class="fc-title"><span class="dot"></span>Dictionary&lt;TKey, TValue&gt;</div><p>Key-value pairs with unique keys and fast lookup by key.</p></div>
+          <div class="ds-card feat-card"><div class="fc-title"><span class="dot"></span>HashSet&lt;T&gt;</div><p>Unique, unordered items — great for de-duplication and fast membership checks.</p></div>
+          <div class="ds-card feat-card"><div class="fc-title"><span class="dot"></span>IEnumerable&lt;T&gt;</div><p>The base interface nearly every collection implements — anything you can <code class="inline">foreach</code> over.</p></div>
+        </div>
+
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">collections.cs</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-type">var</span> names = <span class="tok-kw">new</span> <span class="tok-type">List</span>&lt;<span class="tok-type">string</span>&gt; { <span class="tok-str">"Ada"</span>, <span class="tok-str">"Grace"</span> };
+names.Add(<span class="tok-str">"Linus"</span>);
+
+<span class="tok-type">var</span> ages = <span class="tok-kw">new</span> <span class="tok-type">Dictionary</span>&lt;<span class="tok-type">string</span>, <span class="tok-type">int</span>&gt; { [<span class="tok-str">"Ada"</span>] = <span class="tok-num">36</span> };
+<span class="tok-type">Console</span>.WriteLine(ages[<span class="tok-str">"Ada"</span>]);       <span class="tok-com">// 36</span>
+
+<span class="tok-type">var</span> uniqueIds = <span class="tok-kw">new</span> <span class="tok-type">HashSet</span>&lt;<span class="tok-type">int</span>&gt; { <span class="tok-num">1</span>, <span class="tok-num">1</span>, <span class="tok-num">2</span> };  <span class="tok-com">// { 1, 2 } -- duplicate silently dropped</span></code></pre>
+        </div>
+      </section>
+
+      <section class="block" id="linq">
+        <h2><span class="idx">16</span> LINQ</h2>
+        <p class="intro">Language Integrated Query lets you filter, transform, and aggregate collections declaratively, in two equivalent syntaxes.</p>
+
+        <div class="tabs">
+          <div class="tab-bar">
+            <button class="tab-btn active" data-tab="l-method">Method syntax</button>
+            <button class="tab-btn" data-tab="l-query">Query syntax</button>
+          </div>
+          <div class="tab-panel active" id="l-method">
+            <div class="code-card">
+              <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">linq_method.cs</span><button class="copy-btn" data-copy>Copy</button></div>
+              <pre><code><span class="tok-kw">using</span> System.Linq;
+
+<span class="tok-type">var</span> numbers = <span class="tok-kw">new</span>[] { <span class="tok-num">4</span>, <span class="tok-num">8</span>, <span class="tok-num">15</span>, <span class="tok-num">16</span>, <span class="tok-num">23</span>, <span class="tok-num">42</span> };
+
+<span class="tok-type">var</span> result = numbers
+    .Where(n => n > <span class="tok-num">10</span>)              <span class="tok-com">// filter</span>
+    .Select(n => n * <span class="tok-num">2</span>)              <span class="tok-com">// transform</span>
+    .OrderByDescending(n => n)     <span class="tok-com">// sort</span>
+    .ToList();
+<span class="tok-com">// [84, 46, 32, 30]</span>
+
+<span class="tok-type">var</span> grouped = numbers.GroupBy(n => n % <span class="tok-num">2</span> == <span class="tok-num">0</span> ? <span class="tok-str">"even"</span> : <span class="tok-str">"odd"</span>);
+<span class="tok-kw">foreach</span> (<span class="tok-type">var</span> g <span class="tok-kw">in</span> grouped)
+    <span class="tok-type">Console</span>.WriteLine(<span class="tok-kw">$</span><span class="tok-str">"{g.Key}: {string.Join(",", g)}"</span>);</code></pre>
+            </div>
+          </div>
+          <div class="tab-panel" id="l-query">
+            <div class="code-card">
+              <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">linq_query.cs</span><button class="copy-btn" data-copy>Copy</button></div>
+              <pre><code><span class="tok-kw">using</span> System.Linq;
+
+<span class="tok-type">var</span> numbers = <span class="tok-kw">new</span>[] { <span class="tok-num">4</span>, <span class="tok-num">8</span>, <span class="tok-num">15</span>, <span class="tok-num">16</span>, <span class="tok-num">23</span>, <span class="tok-num">42</span> };
+
+<span class="tok-type">var</span> result =
+    <span class="tok-kw">from</span> n <span class="tok-kw">in</span> numbers
+    <span class="tok-kw">where</span> n > <span class="tok-num">10</span>
+    <span class="tok-kw">orderby</span> n descending
+    <span class="tok-kw">select</span> n * <span class="tok-num">2</span>;
+<span class="tok-com">// same result as the method-syntax version, SQL-like reading order</span></code></pre>
+            </div>
+          </div>
+        </div>
+        <p>Both compile to the same underlying calls — method syntax is more common in real-world code because it composes more easily and covers operators query syntax doesn't have direct keywords for.</p>
+      </section>
+
+      <section class="block" id="delegates">
+        <h2><span class="idx">17</span> Delegates, Events &amp; Lambda Expressions</h2>
+        <p class="intro">A delegate is a type-safe reference to a method — the foundation events and LINQ are both built on.</p>
+
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">delegates_events.cs</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-kw">public</span> <span class="tok-kw">delegate</span> <span class="tok-kw">void</span> Notify(<span class="tok-type">string</span> message);   <span class="tok-com">// defines a method "shape"</span>
+
+<span class="tok-kw">public</span> <span class="tok-kw">class</span> <span class="tok-type">Alarm</span>
+{
+    <span class="tok-kw">public</span> <span class="tok-kw">event</span> Notify? OnTrigger;      <span class="tok-com">// an event -- a controlled, publish/subscribe delegate</span>
+
+    <span class="tok-kw">public</span> <span class="tok-kw">void</span> <span class="tok-fn">Trigger</span>()
+    {
+        OnTrigger?.Invoke(<span class="tok-str">"Alarm triggered!"</span>);   <span class="tok-com">// ?. -- only invoke if someone subscribed</span>
+    }
+}
+
+<span class="tok-type">var</span> alarm = <span class="tok-kw">new</span> <span class="tok-type">Alarm</span>();
+alarm.OnTrigger += msg => <span class="tok-type">Console</span>.WriteLine(<span class="tok-kw">$</span><span class="tok-str">"Received: {msg}"</span>);  <span class="tok-com">// lambda subscribed as handler</span>
+alarm.Trigger();
+
+<span class="tok-com">// standalone lambda expressions, without an event:</span>
+Func&lt;<span class="tok-type">int</span>, <span class="tok-type">int</span>&gt; square = x => x * x;
+<span class="tok-type">Console</span>.WriteLine(square(<span class="tok-num">5</span>));         <span class="tok-com">// 25</span></code></pre>
+        </div>
+      </section>
+
+      <section class="block" id="generics">
+        <h2><span class="idx">18</span> Generics</h2>
+        <p class="intro">Write a class or method once, and let it work with any type — safely, with full compile-time type checking.</p>
+
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">generics.cs</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-kw">public</span> <span class="tok-kw">class</span> <span class="tok-type">Box</span>&lt;T&gt; <span class="tok-kw">where</span> T : <span class="tok-kw">class</span>       <span class="tok-com">// constraint -- T must be a reference type</span>
+{
+    <span class="tok-kw">private</span> T? _item;
+    <span class="tok-kw">public</span> <span class="tok-kw">void</span> <span class="tok-fn">Store</span>(T item) => _item = item;
+    <span class="tok-kw">public</span> T? <span class="tok-fn">Retrieve</span>() => _item;
+}
+
+<span class="tok-kw">public</span> <span class="tok-kw">static</span> T <span class="tok-fn">Max</span>&lt;T&gt;(T a, T b) <span class="tok-kw">where</span> T : IComparable&lt;T&gt;   <span class="tok-com">// generic method with an interface constraint</span>
+{
+    <span class="tok-kw">return</span> a.CompareTo(b) > <span class="tok-num">0</span> ? a : b;
+}
+
+<span class="tok-type">var</span> box = <span class="tok-kw">new</span> <span class="tok-type">Box</span>&lt;<span class="tok-type">string</span>&gt;();
+box.Store(<span class="tok-str">"hello"</span>);
+
+<span class="tok-type">Console</span>.WriteLine(Max(<span class="tok-num">10</span>, <span class="tok-num">25</span>));       <span class="tok-com">// 25</span></code></pre>
+        </div>
+        <div class="note">Common constraints: <code class="inline">where T : class</code> (reference type), <code class="inline">where T : struct</code> (value type), <code class="inline">where T : new()</code> (must have a parameterless constructor), <code class="inline">where T : SomeInterface</code>.</div>
+      </section>
+
+      <section class="block" id="memory">
+        <h2><span class="idx">19</span> Memory Management</h2>
+        <p class="intro">The CLR handles memory for you — but understanding how gives you real control over performance.</p>
+
+        <div class="tabs">
+          <div class="tab-bar">
+            <button class="tab-btn active" data-tab="m-stack">Stack vs Heap</button>
+            <button class="tab-btn" data-tab="m-gc">GC Phases</button>
+            <button class="tab-btn" data-tab="m-dispose">IDisposable &amp; using</button>
+          </div>
+
+          <div class="tab-panel active" id="m-stack">
+            <p>Value types (<code class="inline">int</code>, <code class="inline">struct</code>, local variables) live on the fast, automatically-managed <strong>stack</strong>. Reference types (<code class="inline">class</code> instances) live on the <strong>heap</strong>, and the variable on the stack just holds a pointer to that heap memory.</p>
+            <div class="code-card">
+              <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">stack_vs_heap.cs</span><button class="copy-btn" data-copy>Copy</button></div>
+              <pre><code><span class="tok-type">int</span> x = <span class="tok-num">5</span>;                    <span class="tok-com">// x lives directly on the stack</span>
+<span class="tok-type">var</span> obj = <span class="tok-kw">new</span> <span class="tok-type">object</span>();       <span class="tok-com">// obj (stack) holds a pointer to data on the heap</span></code></pre>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="m-gc">
+            <p>The .NET Garbage Collector uses a <strong>generational</strong> model, on the assumption that most objects die young:</p>
+            <ul>
+              <li><strong>Gen 0</strong> — newly created objects. Collected frequently and fast.</li>
+              <li><strong>Gen 1</strong> — objects that survived one Gen 0 collection. A buffer between short and long-lived.</li>
+              <li><strong>Gen 2</strong> — long-lived objects. Collected rarely, since scanning it is expensive.</li>
+            </ul>
+            <p>An object gets "promoted" a generation each time it survives a collection, which is why long-lived caches and static collections put more pressure on the GC than short-lived local variables.</p>
+          </div>
+
+          <div class="tab-panel" id="m-dispose">
+            <p>Some resources — file handles, database connections, network sockets — aren't managed memory and need explicit, deterministic cleanup. That's what <code class="inline">IDisposable</code> and <code class="inline">using</code> are for.</p>
+            <div class="code-card">
+              <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">idisposable.cs</span><button class="copy-btn" data-copy>Copy</button></div>
+              <pre><code><span class="tok-kw">public</span> <span class="tok-kw">class</span> <span class="tok-type">FileLogger</span> : IDisposable
+{
+    <span class="tok-kw">private</span> <span class="tok-type">StreamWriter</span> _writer = <span class="tok-kw">new</span>(<span class="tok-str">"log.txt"</span>);
+
+    <span class="tok-kw">public</span> <span class="tok-kw">void</span> <span class="tok-fn">Log</span>(<span class="tok-type">string</span> msg) => _writer.WriteLine(msg);
+
+    <span class="tok-kw">public</span> <span class="tok-kw">void</span> <span class="tok-fn">Dispose</span>()          <span class="tok-com">// releases the unmanaged file handle</span>
+    {
+        _writer.Dispose();
+    }
+}
+
+<span class="tok-kw">using</span> (<span class="tok-type">var</span> logger = <span class="tok-kw">new</span> <span class="tok-type">FileLogger</span>())   <span class="tok-com">// Dispose() called automatically at the end of this block</span>
+{
+    logger.Log(<span class="tok-str">"Started"</span>);
+}   <span class="tok-com">// -- even if an exception was thrown inside the block</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. MODERN C# -->
+      <section class="block" id="async">
+        <h2><span class="idx">20</span> Async / Await</h2>
+        <p class="intro">Asynchronous code lets a thread stay free to do other work while waiting on something slow — I/O, a network call, a file read.</p>
+
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">async_await.cs</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-kw">using</span> System.Net.Http;
+
+<span class="tok-kw">public</span> <span class="tok-kw">static</span> <span class="tok-kw">async</span> Task&lt;<span class="tok-type">string</span>&gt; <span class="tok-fn">FetchDataAsync</span>(<span class="tok-type">string</span> url)
+{
+    <span class="tok-kw">using</span> <span class="tok-type">var</span> client = <span class="tok-kw">new</span> <span class="tok-type">HttpClient</span>();
+    <span class="tok-type">string</span> result = <span class="tok-kw">await</span> client.GetStringAsync(url);   <span class="tok-com">// frees the thread while waiting on the network</span>
+    <span class="tok-kw">return</span> result;
+}
+
+<span class="tok-kw">public</span> <span class="tok-kw">static</span> <span class="tok-kw">async</span> Task <span class="tok-fn">Main</span>()
+{
+    <span class="tok-type">string</span> data = <span class="tok-kw">await</span> FetchDataAsync(<span class="tok-str">"https://example.com"</span>);
+    <span class="tok-type">Console</span>.WriteLine(<span class="tok-kw">$</span><span class="tok-str">"Got {data.Length} characters"</span>);
+}</code></pre>
+        </div>
+        <div class="note warn"><strong>Avoiding deadlocks:</strong> never call <code class="inline">.Result</code> or <code class="inline">.Wait()</code> on a Task from synchronous code that also owns the same synchronization context (like a UI thread) — it can block forever waiting on itself. Use <code class="inline">await</code> all the way up the call chain instead.</div>
+        <p><code class="inline">Task</code> represents an async operation with no return value; <code class="inline">Task&lt;T&gt;</code> represents one that eventually produces a <code class="inline">T</code>. Marking a method <code class="inline">async</code> lets you use <code class="inline">await</code> inside it, and the compiler rewrites it into a state machine behind the scenes.</p>
+      </section>
+
+      <section class="block" id="exceptions">
+        <h2><span class="idx">21</span> Exception Handling</h2>
+        <p class="intro">Structured error handling, plus the ability to define your own exception types for domain-specific failures.</p>
+
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">exceptions.cs</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-kw">public</span> <span class="tok-kw">class</span> <span class="tok-type">InsufficientFundsException</span> : Exception
+{
+    <span class="tok-kw">public</span> <span class="tok-fn">InsufficientFundsException</span>(<span class="tok-type">string</span> message) : <span class="tok-kw">base</span>(message) { }
+}
+
+<span class="tok-kw">public</span> <span class="tok-kw">static</span> <span class="tok-kw">void</span> <span class="tok-fn">Withdraw</span>(<span class="tok-type">decimal</span> balance, <span class="tok-type">decimal</span> amount)
+{
+    <span class="tok-kw">if</span> (amount > balance)
+        <span class="tok-kw">throw</span> <span class="tok-kw">new</span> <span class="tok-type">InsufficientFundsException</span>(<span class="tok-str">"Not enough balance."</span>);
+}
+
+<span class="tok-kw">try</span>
+{
+    Withdraw(<span class="tok-num">100</span>, <span class="tok-num">150</span>);
+}
+<span class="tok-kw">catch</span> (<span class="tok-type">InsufficientFundsException</span> ex)
+{
+    <span class="tok-type">Console</span>.WriteLine(<span class="tok-kw">$</span><span class="tok-str">"Caught: {ex.Message}"</span>);
+}
+<span class="tok-kw">catch</span> (Exception ex)
+{
+    <span class="tok-type">Console</span>.WriteLine(<span class="tok-kw">$</span><span class="tok-str">"Unexpected: {ex.Message}"</span>);
+}
+<span class="tok-kw">finally</span>
+{
+    <span class="tok-type">Console</span>.WriteLine(<span class="tok-str">"Withdrawal attempt finished."</span>);   <span class="tok-com">// always runs</span>
+}</code></pre>
+        </div>
+      </section>
+
+      <section class="block" id="modern">
+        <h2><span class="idx">22</span> Modern C# Innovations</h2>
+        <p class="intro">A handful of recent features that meaningfully changed how everyday C# code looks.</p>
+
+        <h3>Records &amp; Tuples</h3>
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">records_tuples.cs</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-kw">public</span> <span class="tok-kw">record</span> <span class="tok-type">Point</span>(<span class="tok-type">int</span> X, <span class="tok-type">int</span> Y);      <span class="tok-com">// immutable by default, value-based equality auto-generated</span>
+
+<span class="tok-type">var</span> p1 = <span class="tok-kw">new</span> <span class="tok-type">Point</span>(<span class="tok-num">1</span>, <span class="tok-num">2</span>);
+<span class="tok-type">var</span> p2 = <span class="tok-kw">new</span> <span class="tok-type">Point</span>(<span class="tok-num">1</span>, <span class="tok-num">2</span>);
+<span class="tok-type">Console</span>.WriteLine(p1 == p2);      <span class="tok-com">// True -- records compare by VALUE, not by reference</span>
+
+<span class="tok-type">var</span> p3 = p1 <span class="tok-kw">with</span> { Y = <span class="tok-num">10</span> };     <span class="tok-com">// "with" -- creates a copy with one property changed</span>
+
+(<span class="tok-type">string</span> Name, <span class="tok-type">int</span> Age) person = (<span class="tok-str">"Ada"</span>, <span class="tok-num">36</span>);   <span class="tok-com">// tuple with named elements</span>
+<span class="tok-type">Console</span>.WriteLine(<span class="tok-kw">$</span><span class="tok-str">"{person.Name} is {person.Age}"</span>);</code></pre>
+        </div>
+
+        <h3>Pattern Matching &amp; Null-Coalescing</h3>
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">patterns_nullcoalescing.cs</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-type">object</span> shape = <span class="tok-num">5</span>;
+
+<span class="tok-kw">if</span> (shape <span class="tok-kw">is</span> <span class="tok-type">int</span> n <span class="tok-kw">and</span> > <span class="tok-num">0</span>)          <span class="tok-com">// pattern matching -- type check + binding + condition</span>
+{
+    <span class="tok-type">Console</span>.WriteLine(<span class="tok-kw">$</span><span class="tok-str">"Positive int: {n}"</span>);
+}
+
+<span class="tok-type">string</span>? username = <span class="tok-kw">null</span>;
+<span class="tok-type">string</span> display = username ?? <span class="tok-str">"Guest"</span>;   <span class="tok-com">// ?? -- use "Guest" only if username is null</span>
+username ??= <span class="tok-str">"anonymous"</span>;               <span class="tok-com">// ??= -- assign only if currently null</span></code></pre>
+        </div>
+      </section>
+
+      <section class="block" id="fileio">
+        <h2><span class="idx">23</span> File I/O</h2>
+        <p class="intro">The <code class="inline">System.IO.File</code> class exposes async versions of nearly every operation, keeping the calling thread free while disk I/O happens.</p>
+
+        <div class="code-card">
+          <div class="code-head"><div class="dots"><i></i><i></i><i></i></div><span class="filename">file_io_async.cs</span><button class="copy-btn" data-copy>Copy</button></div>
+          <pre><code><span class="tok-kw">using</span> System.IO;
+
+<span class="tok-kw">public</span> <span class="tok-kw">static</span> <span class="tok-kw">async</span> Task <span class="tok-fn">RunAsync</span>()
+{
+    <span class="tok-kw">await</span> File.WriteAllTextAsync(<span class="tok-str">"notes.txt"</span>, <span class="tok-str">"C# makes async I/O simple.\n"</span>);
+
+    <span class="tok-type">string</span> contents = <span class="tok-kw">await</span> File.ReadAllTextAsync(<span class="tok-str">"notes.txt"</span>);
+    <span class="tok-type">Console</span>.WriteLine(contents);
+
+    <span class="tok-kw">await</span> File.AppendAllTextAsync(<span class="tok-str">"notes.txt"</span>, <span class="tok-str">"Another line.\n"</span>);
+}</code></pre>
+        </div>
+        <div class="note">These static helpers cover most needs; for large files or streaming, use <code class="inline">FileStream</code> with <code class="inline">await using</code> so the stream is disposed asynchronously too.</div>
+      </section>
+
+      <!-- FAQ -->
+      <section class="block" id="faq">
+        <h2><span class="idx">24</span> Common Questions</h2>
+        <p class="intro">A few things almost everyone asks in their first weeks with C#.</p>
+
+        <div class="accordion" id="accordion">
+          <div class="acc-item open">
+            <button class="acc-q"><span>Is C# the same as .NET?</span><span class="plus">+</span></button>
+            <div class="acc-a"><div class="acc-a-inner">No — C# is the language; .NET is the platform and runtime it runs on. .NET also supports other languages (F#, VB.NET), and C# code compiles to the same CIL regardless of which .NET flavor (or OS) it eventually runs on.</div></div>
+          </div>
+          <div class="acc-item">
+            <button class="acc-q"><span>When should I use a struct instead of a class?</span><span class="plus">+</span></button>
+            <div class="acc-a"><div class="acc-a-inner">Reach for a struct when a type is small, immutable, and represents a single value (like a coordinate or a color) — avoiding heap allocation and garbage collection pressure. Default to class for anything with identity, larger state, or inheritance needs.</div></div>
+          </div>
+          <div class="acc-item">
+            <button class="acc-q"><span>What's the difference between IEnumerable and List?</span><span class="plus">+</span></button>
+            <div class="acc-a"><div class="acc-a-inner">IEnumerable is an interface describing "something you can iterate over" — it doesn't guarantee a count, indexing, or that the data even exists in memory yet (LINQ queries are often lazy). List is a concrete, fully materialized, indexable collection that also happens to implement IEnumerable.</div></div>
+          </div>
+          <div class="acc-item">
+            <button class="acc-q"><span>Do I always need async all the way up?</span><span class="plus">+</span></button>
+            <div class="acc-a"><div class="acc-a-inner">Generally yes — mixing sync and async code (especially blocking on a Task) is the most common source of subtle deadlocks and thread-pool starvation. If one layer is async, let it propagate rather than forcing it synchronous partway up.</div></div>
+          </div>
+          <div class="acc-item">
+            <button class="acc-q"><span>What should I learn after this?</span><span class="plus">+</span></button>
+            <div class="acc-a"><div class="acc-a-inner">Dependency injection and the built-in DI container, ASP.NET Core for web APIs, Entity Framework Core for databases, and unit testing with xUnit or NUnit. After that, pick a direction — web APIs, desktop with .NET MAUI, or game development with Unity.</div></div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<footer>
+  Built as a single self-contained HTML file — no external dependencies, works offline. Every snippet on this page targets C# 12 / .NET 8 syntax.
+</footer>
+
+<script>
+  // ---------- Mobile sidebar ----------
+  const sidebar = document.getElementById('sidebar');
+  const burgerBtn = document.getElementById('burgerBtn');
+  const scrim = document.getElementById('scrim');
+
+  function openSidebar(){ sidebar.classList.add('open'); scrim.classList.add('show'); }
+  function closeSidebar(){ sidebar.classList.remove('open'); scrim.classList.remove('show'); }
+
+  if (burgerBtn) burgerBtn.addEventListener('click', () => {
+    sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+  });
+  scrim.addEventListener('click', closeSidebar);
+  document.querySelectorAll('.sidenav a').forEach(a => a.addEventListener('click', closeSidebar));
+
+  // ---------- Scrollspy ----------
+  const sections = document.querySelectorAll('section.block[id]');
+  const navLinks = document.querySelectorAll('.sidenav a[data-nav]');
+
+  const spy = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const id = entry.target.getAttribute('id');
+      const link = document.querySelector(`.sidenav a[href="#${id}"]`);
+      if (!link) return;
+      if (entry.isIntersecting) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
+
+  sections.forEach(s => spy.observe(s));
+
+  // ---------- Dark / light mode toggle ----------
+  const themeToggle = document.getElementById('themeToggle');
+  const themeLabel = document.getElementById('themeLabel');
+  themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark');
+    const isDark = document.body.classList.contains('dark');
+    themeLabel.textContent = isDark ? 'Dark mode' : 'Light mode';
+  });
+
+  // ---------- Accordion (FAQ) ----------
+  document.querySelectorAll('.acc-item').forEach(item => {
+    const q = item.querySelector('.acc-q');
+    const a = item.querySelector('.acc-a');
+    if (item.classList.contains('open')) {
+      a.style.maxHeight = a.scrollHeight + 'px';
+    }
+    q.addEventListener('click', () => {
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.acc-item').forEach(other => {
+        other.classList.remove('open');
+        other.querySelector('.acc-a').style.maxHeight = null;
+      });
+      if (!isOpen) {
+        item.classList.add('open');
+        a.style.maxHeight = a.scrollHeight + 'px';
+      }
+    });
+  });
+
+  // ---------- Tabs ----------
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.getAttribute('data-tab');
+      const tabGroup = btn.closest('.tabs');
+      tabGroup.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      tabGroup.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      tabGroup.querySelector('#' + target).classList.add('active');
+    });
+  });
+
+  // ---------- Copy code buttons ----------
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const codeEl = btn.closest('.code-card').querySelector('pre code');
+      const text = codeEl.innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const original = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = original;
+          btn.classList.remove('copied');
+        }, 1800);
+      }).catch(() => {
+        btn.textContent = 'Failed';
+        setTimeout(() => { btn.textContent = 'Copy'; }, 1800);
+      });
+    });
+  });
+
+  // ---------- Search / filter ----------
+  const searchBox = document.getElementById('searchBox');
+  const searchEmpty = document.getElementById('searchEmpty');
+  const navGroups = document.querySelectorAll('.navgroup[data-group]');
+
+  searchBox.addEventListener('input', () => {
+    const query = searchBox.value.trim().toLowerCase();
+    let anyVisible = false;
+
+    navGroups.forEach(group => {
+      const links = group.querySelectorAll('a[data-nav]');
+      let groupHasMatch = false;
+
+      links.forEach(link => {
+        const terms = (link.getAttribute('data-terms') || '') + ' ' + link.textContent.toLowerCase();
+        const matches = query === '' || terms.toLowerCase().includes(query);
+        link.classList.toggle('filtered-hide', !matches);
+        if (matches) groupHasMatch = true;
+      });
+
+      group.classList.toggle('filtered-hide', !groupHasMatch);
+      if (groupHasMatch) anyVisible = true;
+    });
+
+    // also filter the main content sections to match
+    sections.forEach(section => {
+      const id = section.getAttribute('id');
+      const link = document.querySelector(`.sidenav a[href="#${id}"]`);
+      if (!link) return;
+      const hide = link.classList.contains('filtered-hide') && query !== '';
+      section.classList.toggle('filtered-hide', hide);
+    });
+
+    searchEmpty.style.display = (query !== '' && !anyVisible) ? 'block' : 'none';
+  });
+</script>
+
+</body>
+</html>

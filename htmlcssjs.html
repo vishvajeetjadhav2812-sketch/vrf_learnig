@@ -1,0 +1,693 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>web.guide — HTML, CSS & JavaScript, basics to advanced</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sidebar-a:#2e1065;
+    --sidebar-b:#1e1b4b;
+    --sidebar-text:#c9c3ec;
+    --sidebar-text-dim:#8b85b8;
+    --sidebar-active:rgba(255,255,255,0.08);
+    --accent:#7c3aed;
+    --accent-strong:#8b5cf6;
+    --accent-soft:#ede9fe;
+    --content-bg:#fafafa;
+    --text-primary:#18181b;
+    --text-secondary:#52525b;
+    --border-color:#e4e4e7;
+    --code-bg:#18122b;
+    --code-border:#2d2350;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Inter',-apple-system,sans-serif;
+    background:var(--content-bg);
+    color:var(--text-primary);
+    display:flex;
+    min-height:100vh;
+  }
+  /* Sidebar */
+  .sidebar{
+    width:290px;
+    flex-shrink:0;
+    background:linear-gradient(180deg,var(--sidebar-a),var(--sidebar-b));
+    color:var(--sidebar-text);
+    padding:1.6rem 1.2rem;
+    position:sticky;
+    top:0;
+    height:100vh;
+    overflow-y:auto;
+  }
+  .sidebar::-webkit-scrollbar{width:6px;}
+  .sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:3px;}
+  .brand{display:flex;align-items:center;gap:10px;margin-bottom:0.35rem;}
+  .brand-mark{
+    background:var(--accent);
+    color:#fff;
+    font-family:'JetBrains Mono',monospace;
+    font-weight:700;
+    font-size:0.8rem;
+    padding:5px 8px;
+    border-radius:6px;
+  }
+  .brand-name{color:#fff;font-weight:700;font-size:1.05rem;}
+  .tagline{color:var(--sidebar-text-dim);font-size:0.82rem;margin-bottom:1.3rem;}
+  .search-box{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:8px;
+    padding:9px 12px;
+    margin-bottom:1.6rem;
+  }
+  .search-box input{
+    background:transparent;
+    border:none;
+    outline:none;
+    color:#fff;
+    font-size:0.85rem;
+    font-family:'Inter',sans-serif;
+    width:100%;
+  }
+  .search-box input::placeholder{color:var(--sidebar-text-dim);}
+  .search-box svg{flex-shrink:0;opacity:0.6;}
+  .nav-group{margin-bottom:1.4rem;}
+  .nav-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.68rem;
+    letter-spacing:0.06em;
+    color:var(--sidebar-text-dim);
+    margin-bottom:0.5rem;
+    padding-left:0.6rem;
+  }
+  .nav-link{
+    display:block;
+    padding:7px 10px;
+    border-radius:6px;
+    color:var(--sidebar-text);
+    text-decoration:none;
+    font-size:0.88rem;
+    margin-bottom:1px;
+    transition:background-color 0.15s ease, color 0.15s ease;
+  }
+  .nav-link:hover{background:var(--sidebar-active);color:#fff;}
+  .nav-link.active{background:var(--sidebar-active);color:#fff;font-weight:600;box-shadow:inset 2px 0 0 var(--accent-strong);}
+ 
+  /* Main */
+  main{flex:1;min-width:0;padding:3.4rem 3rem 6rem;max-width:800px;}
+  .kicker-chip{
+    display:inline-block;
+    background:var(--accent-soft);
+    color:var(--accent);
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.8rem;
+    padding:6px 14px;
+    border-radius:20px;
+    margin-bottom:1.4rem;
+  }
+  h1.page-title{
+    font-size:2.7rem;
+    font-weight:800;
+    line-height:1.15;
+    letter-spacing:-0.01em;
+    margin-bottom:1.2rem;
+  }
+  h1.page-title .hl{color:var(--accent);}
+  .lede{
+    color:var(--text-secondary);
+    font-size:1.08rem;
+    line-height:1.7;
+    max-width:66ch;
+    margin-bottom:1.6rem;
+  }
+  .meta-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:2.2rem;
+    font-size:0.88rem;
+    color:var(--text-primary);
+    margin-bottom:1.8rem;
+  }
+  .meta-row b{font-weight:700;margin-right:6px;}
+  .meta-row span.val{color:var(--accent);font-weight:600;}
+  hr.divider{border:none;border-top:1px solid var(--border-color);margin-bottom:2.6rem;}
+ 
+  .doc-section{margin-bottom:3rem;scroll-margin-top:2rem;}
+  .sec-head{display:flex;align-items:baseline;gap:0.9rem;margin-bottom:0.9rem;}
+  .sec-num{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.85rem;
+    color:var(--accent);
+    font-weight:600;
+  }
+  .sec-head h2{font-size:1.45rem;font-weight:700;}
+  .doc-section p{color:var(--text-secondary);font-size:1rem;line-height:1.75;margin-bottom:1rem;max-width:70ch;}
+  .doc-section ul{margin:0 0 1rem 1.3rem;color:var(--text-secondary);line-height:1.8;}
+  .doc-section code.inline{
+    background:var(--accent-soft);
+    color:var(--accent);
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.86em;
+    padding:1px 6px;
+    border-radius:4px;
+  }
+ 
+  .code-panel{
+    background:var(--code-bg);
+    border:1px solid var(--code-border);
+    border-radius:8px;
+    overflow:hidden;
+    margin:1rem 0 1.4rem;
+  }
+  .code-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.72rem;
+    color:#9d94c9;
+    padding:0.55rem 1rem;
+    border-bottom:1px solid var(--code-border);
+    letter-spacing:0.03em;
+  }
+  .code-panel pre{
+    padding:1.1rem 1.3rem;
+    overflow-x:auto;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.84rem;
+    line-height:1.7;
+    color:#d8d4f0;
+  }
+  .tag{color:#a78bfa;}
+  .attr{color:#f0abfc;}
+  .str{color:#86efac;}
+  .kw{color:#f472b6;}
+  .fn{color:#7dd3fc;}
+  .num{color:#fbbf24;}
+  .cm{color:#6b6390;font-style:italic;}
+  .prop{color:#7dd3fc;}
+  .val{color:#86efac;}
+ 
+  footer{
+    max-width:800px;
+    padding:2rem 3rem 3rem;
+    color:var(--text-secondary);
+    font-size:0.85rem;
+    border-top:1px solid var(--border-color);
+  }
+ 
+  @media (max-width: 900px){
+    .sidebar{display:none;}
+    main{padding:2.4rem 1.4rem 4rem;}
+  }
+</style>
+</head>
+<body>
+ 
+<aside class="sidebar">
+  <div class="brand">
+    <span class="brand-mark">&lt;/&gt;</span>
+    <span class="brand-name">web.guide</span>
+  </div>
+  <div class="tagline">tags to interactivity</div>
+ 
+  <div class="search-box">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="navSearch" placeholder="Search topics...">
+  </div>
+ 
+  <div class="nav-group">
+    <div class="nav-label">ORIENTATION</div>
+    <a class="nav-link" href="#orientation-web">How the Web Works</a>
+    <a class="nav-link" href="#orientation-tools">Tools You'll Need</a>
+  </div>
+ 
+  <div class="nav-group">
+    <div class="nav-label">HTML — BASICS</div>
+    <a class="nav-link" href="#html-structure">Document Structure</a>
+    <a class="nav-link" href="#html-elements">Elements & Attributes</a>
+    <a class="nav-link" href="#html-text">Text, Headings & Lists</a>
+    <a class="nav-link" href="#html-links-media">Links, Images & Media</a>
+    <a class="nav-link" href="#html-tables">Tables</a>
+    <a class="nav-link" href="#html-forms">Forms & Inputs</a>
+    <a class="nav-link" href="#html-semantic">Semantic HTML & A11y</a>
+  </div>
+ 
+  <div class="nav-group">
+    <div class="nav-label">CSS — BASICS</div>
+    <a class="nav-link" href="#css-syntax">Selectors & Specificity</a>
+    <a class="nav-link" href="#css-box-model">The Box Model</a>
+    <a class="nav-link" href="#css-typography">Colors, Units & Type</a>
+    <a class="nav-link" href="#css-flexbox">Flexbox</a>
+    <a class="nav-link" href="#css-grid">CSS Grid</a>
+    <a class="nav-link" href="#css-positioning">Positioning & Display</a>
+    <a class="nav-link" href="#css-responsive">Responsive Design</a>
+    <a class="nav-link" href="#css-animation">Transitions & Animations</a>
+  </div>
+ 
+  <div class="nav-group">
+    <div class="nav-label">JAVASCRIPT — BASICS</div>
+    <a class="nav-link" href="#js-basics">Variables & Data Types</a>
+    <a class="nav-link" href="#js-operators">Operators & Control Flow</a>
+    <a class="nav-link" href="#js-functions">Functions & Scope</a>
+    <a class="nav-link" href="#js-arrays-objects">Arrays & Objects</a>
+    <a class="nav-link" href="#js-dom">DOM Manipulation</a>
+    <a class="nav-link" href="#js-events">Events</a>
+  </div>
+ 
+  <div class="nav-group">
+    <div class="nav-label">JAVASCRIPT — ADVANCED</div>
+    <a class="nav-link" href="#js-es6">Modern JS (ES6+)</a>
+    <a class="nav-link" href="#js-async">Promises & Async/Await</a>
+    <a class="nav-link" href="#js-classes">Classes & OOP</a>
+    <a class="nav-link" href="#js-storage">Storage & Error Handling</a>
+  </div>
+</aside>
+ 
+<main>
+  <span class="kicker-chip">using web; // basics through advanced</span>
+  <h1 class="page-title">HTML, CSS & JavaScript, from tags to <span class="hl">interactivity</span>.</h1>
+  <p class="lede">The three languages that build everything you see in a browser. HTML gives a page its structure, CSS gives it appearance, and JavaScript gives it behavior. This guide moves in that order — structure, then style, then behavior — the same order a browser actually processes a page in.</p>
+ 
+  <div class="meta-row">
+    <div><b>Level</b><span class="val">Beginner → Advanced</span></div>
+    <div><b>Reading time</b><span class="val">~70 min</span></div>
+    <div><b>Target</b><span class="val">Modern Browsers</span></div>
+  </div>
+  <hr class="divider">
+ 
+  <!-- ORIENTATION -->
+  <section class="doc-section" id="orientation-web">
+    <div class="sec-head"><span class="sec-num">01</span><h2>How the Web Works</h2></div>
+    <p>When you open a website, your browser requests a file from a server, receives back an HTML document, and reads it top to bottom to build a structure called the DOM (Document Object Model). CSS files attach styling rules to that structure, and JavaScript files attach behavior — they respond to clicks, fetch new data, and change what's on screen without reloading the page.</p>
+    <p>All three languages sit in the same file or are linked together: HTML is the skeleton, CSS is the skin, JavaScript is the nervous system. None of them "run" without the other two present in some form.</p>
+  </section>
+ 
+  <section class="doc-section" id="orientation-tools">
+    <div class="sec-head"><span class="sec-num">02</span><h2>Tools You'll Need</h2></div>
+    <p>You need three things to start: a text editor (VS Code is the standard choice), a modern browser (Chrome, Firefox, or Edge — each has built-in developer tools), and nothing else. No installation, no compiler, no server required to begin. Open your browser's DevTools with <code class="inline">F12</code> or <code class="inline">Ctrl+Shift+I</code> to inspect any page's HTML, CSS, and console output live.</p>
+    <ul>
+      <li>Save any file with a <code class="inline">.html</code> extension and double-click it to open it in a browser.</li>
+      <li>The <b>Elements</b> tab in DevTools shows live HTML and CSS.</li>
+      <li>The <b>Console</b> tab runs JavaScript and shows errors.</li>
+    </ul>
+  </section>
+ 
+  <!-- HTML -->
+  <section class="doc-section" id="html-structure">
+    <div class="sec-head"><span class="sec-num">03</span><h2>Document Structure</h2></div>
+    <p>Every HTML page starts with the same skeleton. The <code class="inline">&lt;!DOCTYPE html&gt;</code> declaration tells the browser to use modern standards. Everything visible lives inside <code class="inline">&lt;body&gt;</code>; metadata, the page title, and linked files live inside <code class="inline">&lt;head&gt;</code>.</p>
+    <div class="code-panel">
+      <div class="code-label">html</div>
+      <pre><code>&lt;<span class="tag">!DOCTYPE html</span>&gt;
+&lt;<span class="tag">html</span> <span class="attr">lang</span>=<span class="str">"en"</span>&gt;
+  &lt;<span class="tag">head</span>&gt;
+    &lt;<span class="tag">meta</span> <span class="attr">charset</span>=<span class="str">"UTF-8"</span>&gt;
+    &lt;<span class="tag">title</span>&gt;My Page&lt;/<span class="tag">title</span>&gt;
+    &lt;<span class="tag">link</span> <span class="attr">rel</span>=<span class="str">"stylesheet"</span> <span class="attr">href</span>=<span class="str">"style.css"</span>&gt;
+  &lt;/<span class="tag">head</span>&gt;
+  &lt;<span class="tag">body</span>&gt;
+    &lt;<span class="tag">h1</span>&gt;Hello, World!&lt;/<span class="tag">h1</span>&gt;
+    &lt;<span class="tag">script</span> <span class="attr">src</span>=<span class="str">"script.js"</span>&gt;&lt;/<span class="tag">script</span>&gt;
+  &lt;/<span class="tag">body</span>&gt;
+&lt;/<span class="tag">html</span>&gt;</code></pre>
+    </div>
+    <p>The <code class="inline">&lt;script&gt;</code> tag is usually placed just before <code class="inline">&lt;/body&gt;</code> so the page's content loads before JavaScript tries to touch it.</p>
+  </section>
+ 
+  <section class="doc-section" id="html-elements">
+    <div class="sec-head"><span class="sec-num">04</span><h2>Elements & Attributes</h2></div>
+    <p>An element is an opening tag, its content, and a closing tag: <code class="inline">&lt;p&gt;text&lt;/p&gt;</code>. Some elements are "void" and never wrap content, like <code class="inline">&lt;img&gt;</code> or <code class="inline">&lt;br&gt;</code>. Attributes go inside the opening tag and configure the element — <code class="inline">id</code>, <code class="inline">class</code>, and <code class="inline">style</code> work on almost anything.</p>
+    <div class="code-panel">
+      <div class="code-label">html</div>
+      <pre><code>&lt;<span class="tag">p</span> <span class="attr">id</span>=<span class="str">"intro"</span> <span class="attr">class</span>=<span class="str">"muted large"</span>&gt;
+  Attributes configure an element.
+&lt;/<span class="tag">p</span>&gt;
+&lt;<span class="tag">img</span> <span class="attr">src</span>=<span class="str">"cat.jpg"</span> <span class="attr">alt</span>=<span class="str">"A sleeping cat"</span>&gt;</code></pre>
+    </div>
+    <p><code class="inline">id</code> must be unique on the page; <code class="inline">class</code> can be reused across many elements and is how CSS and JavaScript usually target groups of elements.</p>
+  </section>
+ 
+  <section class="doc-section" id="html-text">
+    <div class="sec-head"><span class="sec-num">05</span><h2>Text, Headings & Lists</h2></div>
+    <p>Headings run from <code class="inline">&lt;h1&gt;</code> (most important) to <code class="inline">&lt;h6&gt;</code>, and should be used in order — one <code class="inline">h1</code> per page, not chosen for font size. Lists come in two flavors: ordered (<code class="inline">&lt;ol&gt;</code>) and unordered (<code class="inline">&lt;ul&gt;</code>), both containing <code class="inline">&lt;li&gt;</code> items.</p>
+    <div class="code-panel">
+      <div class="code-label">html</div>
+      <pre><code>&lt;<span class="tag">h1</span>&gt;Main Title&lt;/<span class="tag">h1</span>&gt;
+&lt;<span class="tag">h2</span>&gt;Section Title&lt;/<span class="tag">h2</span>&gt;
+&lt;<span class="tag">ul</span>&gt;
+  &lt;<span class="tag">li</span>&gt;First item&lt;/<span class="tag">li</span>&gt;
+  &lt;<span class="tag">li</span>&gt;Second item&lt;/<span class="tag">li</span>&gt;
+&lt;/<span class="tag">ul</span>&gt;</code></pre>
+    </div>
+  </section>
+ 
+  <section class="doc-section" id="html-links-media">
+    <div class="sec-head"><span class="sec-num">06</span><h2>Links, Images & Media</h2></div>
+    <p>The anchor tag <code class="inline">&lt;a&gt;</code> creates links via its <code class="inline">href</code> attribute. Images use <code class="inline">&lt;img&gt;</code> with a required <code class="inline">alt</code> attribute for accessibility and for when the image fails to load. Video and audio have their own native tags with built-in controls.</p>
+    <div class="code-panel">
+      <div class="code-label">html</div>
+      <pre><code>&lt;<span class="tag">a</span> <span class="attr">href</span>=<span class="str">"https://example.com"</span> <span class="attr">target</span>=<span class="str">"_blank"</span>&gt;Visit site&lt;/<span class="tag">a</span>&gt;
+&lt;<span class="tag">video</span> <span class="attr">src</span>=<span class="str">"clip.mp4"</span> <span class="attr">controls</span>&gt;&lt;/<span class="tag">video</span>&gt;</code></pre>
+    </div>
+  </section>
+ 
+  <section class="doc-section" id="html-tables">
+    <div class="sec-head"><span class="sec-num">07</span><h2>Tables</h2></div>
+    <p>Tables are for tabular data only, never for page layout. <code class="inline">&lt;table&gt;</code> wraps rows (<code class="inline">&lt;tr&gt;</code>), which contain header cells (<code class="inline">&lt;th&gt;</code>) or data cells (<code class="inline">&lt;td&gt;</code>).</p>
+    <div class="code-panel">
+      <div class="code-label">html</div>
+      <pre><code>&lt;<span class="tag">table</span>&gt;
+  &lt;<span class="tag">tr</span>&gt;&lt;<span class="tag">th</span>&gt;Name&lt;/<span class="tag">th</span>&gt;&lt;<span class="tag">th</span>&gt;Score&lt;/<span class="tag">th</span>&gt;&lt;/<span class="tag">tr</span>&gt;
+  &lt;<span class="tag">tr</span>&gt;&lt;<span class="tag">td</span>&gt;Asha&lt;/<span class="tag">td</span>&gt;&lt;<span class="tag">td</span>&gt;92&lt;/<span class="tag">td</span>&gt;&lt;/<span class="tag">tr</span>&gt;
+&lt;/<span class="tag">table</span>&gt;</code></pre>
+    </div>
+  </section>
+ 
+  <section class="doc-section" id="html-forms">
+    <div class="sec-head"><span class="sec-num">08</span><h2>Forms & Input Fields</h2></div>
+    <p>Forms collect user input. Every field needs a <code class="inline">name</code> attribute so its value is identifiable when submitted, and should be paired with a <code class="inline">&lt;label&gt;</code> for accessibility.</p>
+    <div class="code-panel">
+      <div class="code-label">html</div>
+      <pre><code>&lt;<span class="tag">form</span>&gt;
+  &lt;<span class="tag">label</span> <span class="attr">for</span>=<span class="str">"email"</span>&gt;Email&lt;/<span class="tag">label</span>&gt;
+  &lt;<span class="tag">input</span> <span class="attr">id</span>=<span class="str">"email"</span> <span class="attr">name</span>=<span class="str">"email"</span> <span class="attr">type</span>=<span class="str">"email"</span> <span class="attr">required</span>&gt;
+  &lt;<span class="tag">button</span> <span class="attr">type</span>=<span class="str">"submit"</span>&gt;Send&lt;/<span class="tag">button</span>&gt;
+&lt;/<span class="tag">form</span>&gt;</code></pre>
+    </div>
+  </section>
+ 
+  <section class="doc-section" id="html-semantic">
+    <div class="sec-head"><span class="sec-num">09</span><h2>Semantic HTML & Accessibility</h2></div>
+    <p>Semantic tags describe meaning, not just appearance: <code class="inline">&lt;header&gt;</code>, <code class="inline">&lt;nav&gt;</code>, <code class="inline">&lt;main&gt;</code>, <code class="inline">&lt;article&gt;</code>, <code class="inline">&lt;section&gt;</code>, and <code class="inline">&lt;footer&gt;</code> tell both browsers and screen readers what each part of the page is for, instead of relying on a generic <code class="inline">&lt;div&gt;</code> for everything.</p>
+    <ul>
+      <li>Use one <code class="inline">&lt;main&gt;</code> per page for the primary content.</li>
+      <li>Give images meaningful <code class="inline">alt</code> text, not filenames.</li>
+      <li>Make sure interactive elements are reachable by keyboard (Tab key).</li>
+    </ul>
+  </section>
+ 
+  <!-- CSS -->
+  <section class="doc-section" id="css-syntax">
+    <div class="sec-head"><span class="sec-num">10</span><h2>Selectors & Specificity</h2></div>
+    <p>A CSS rule is a selector followed by declarations in braces. Selectors can target a tag, a class (<code class="inline">.name</code>), an id (<code class="inline">#name</code>), or a combination. When two rules conflict, the more specific selector wins; ids beat classes, and classes beat tag names.</p>
+    <div class="code-panel">
+      <div class="code-label">css</div>
+      <pre><code><span class="tag">p</span> {
+  <span class="prop">color</span>: <span class="val">#333</span>;
+}
+<span class="tag">.card</span> <span class="tag">h2</span> {
+  <span class="prop">font-weight</span>: <span class="val">700</span>;
+}
+<span class="tag">#hero</span> {
+  <span class="prop">text-align</span>: <span class="val">center</span>;
+}</code></pre>
+    </div>
+  </section>
+ 
+  <section class="doc-section" id="css-box-model">
+    <div class="sec-head"><span class="sec-num">11</span><h2>The Box Model</h2></div>
+    <p>Every element is a rectangular box made of four layers, from the inside out: <b>content</b>, <b>padding</b>, <b>border</b>, and <b>margin</b>. By default, width and height apply only to the content — setting <code class="inline">box-sizing: border-box</code> makes padding and border count inside that width instead, which is why almost every project sets it globally.</p>
+    <div class="code-panel">
+      <div class="code-label">css</div>
+      <pre><code><span class="tag">*</span> {
+  <span class="prop">box-sizing</span>: <span class="val">border-box</span>;
+}
+<span class="tag">.box</span> {
+  <span class="prop">width</span>: <span class="val">200px</span>;
+  <span class="prop">padding</span>: <span class="val">20px</span>;
+  <span class="prop">border</span>: <span class="val">1px solid #ccc</span>;
+  <span class="prop">margin</span>: <span class="val">16px</span>;
+}</code></pre>
+    </div>
+  </section>
+ 
+  <section class="doc-section" id="css-typography">
+    <div class="sec-head"><span class="sec-num">12</span><h2>Colors, Units & Typography</h2></div>
+    <p>Colors can be named, hex (<code class="inline">#7c3aed</code>), or functional (<code class="inline">rgb()</code>, <code class="inline">hsl()</code>). For sizing, <code class="inline">px</code> is fixed, <code class="inline">%</code> is relative to a parent, and <code class="inline">rem</code> is relative to the root font size — <code class="inline">rem</code> is the standard choice for anything that should scale with user font-size preferences.</p>
+    <div class="code-panel">
+      <div class="code-label">css</div>
+      <pre><code><span class="tag">body</span> {
+  <span class="prop">font-family</span>: <span class="val">"Inter", sans-serif</span>;
+  <span class="prop">font-size</span>: <span class="val">1rem</span>;
+  <span class="prop">line-height</span>: <span class="val">1.6</span>;
+  <span class="prop">color</span>: <span class="val">hsl(240, 10%, 15%)</span>;
+}</code></pre>
+    </div>
+  </section>
+ 
+  <section class="doc-section" id="css-flexbox">
+    <div class="sec-head"><span class="sec-num">13</span><h2>Flexbox</h2></div>
+    <p>Flexbox lays out children in a single row or column and distributes space between them. Set <code class="inline">display: flex</code> on the parent; <code class="inline">justify-content</code> controls alignment along the main axis, <code class="inline">align-items</code> along the cross axis.</p>
+    <div class="code-panel">
+      <div class="code-label">css</div>
+      <pre><code><span class="tag">.row</span> {
+  <span class="prop">display</span>: <span class="val">flex</span>;
+  <span class="prop">justify-content</span>: <span class="val">space-between</span>;
+  <span class="prop">align-items</span>: <span class="val">center</span>;
+  <span class="prop">gap</span>: <span class="val">12px</span>;
+}</code></pre>
+    </div>
+  </section>
+ 
+  <section class="doc-section" id="css-grid">
+    <div class="sec-head"><span class="sec-num">14</span><h2>CSS Grid</h2></div>
+    <p>Grid lays elements out in two dimensions at once — rows and columns together. <code class="inline">grid-template-columns</code> defines the column tracks; <code class="inline">fr</code> units split remaining space proportionally.</p>
+    <div class="code-panel">
+      <div class="code-label">css</div>
+      <pre><code><span class="tag">.grid</span> {
+  <span class="prop">display</span>: <span class="val">grid</span>;
+  <span class="prop">grid-template-columns</span>: <span class="val">repeat(3, 1fr)</span>;
+  <span class="prop">gap</span>: <span class="val">16px</span>;
+}</code></pre>
+    </div>
+  </section>
+ 
+  <section class="doc-section" id="css-positioning">
+    <div class="sec-head"><span class="sec-num">15</span><h2>Positioning & Display</h2></div>
+    <p><code class="inline">position: relative</code> moves an element relative to where it would normally sit; <code class="inline">absolute</code> removes it from normal flow and positions it against its nearest positioned ancestor; <code class="inline">fixed</code> pins it to the viewport, which is how sticky headers and modals are built.</p>
+    <div class="code-panel">
+      <div class="code-label">css</div>
+      <pre><code><span class="tag">.tooltip</span> {
+  <span class="prop">position</span>: <span class="val">absolute</span>;
+  <span class="prop">top</span>: <span class="val">100%</span>;
+  <span class="prop">left</span>: <span class="val">0</span>;
+}</code></pre>
+    </div>
+  </section>
+ 
+  <section class="doc-section" id="css-responsive">
+    <div class="sec-head"><span class="sec-num">16</span><h2>Responsive Design</h2></div>
+    <p>Media queries apply rules only when the viewport matches a condition, usually a maximum width, letting the same page rearrange itself for phones, tablets, and desktops.</p>
+    <div class="code-panel">
+      <div class="code-label">css</div>
+      <pre><code><span class="tag">.grid</span> {
+  <span class="prop">grid-template-columns</span>: <span class="val">repeat(3, 1fr)</span>;
+}
+<span class="cm">/* stack into one column below 700px */</span>
+<span class="tag">@media</span> (<span class="prop">max-width</span>: <span class="val">700px</span>) {
+  <span class="tag">.grid</span> {
+    <span class="prop">grid-template-columns</span>: <span class="val">1fr</span>;
+  }
+}</code></pre>
+    </div>
+  </section>
+ 
+  <section class="doc-section" id="css-animation">
+    <div class="sec-head"><span class="sec-num">17</span><h2>Transitions & Animations</h2></div>
+    <p><code class="inline">transition</code> smoothly animates a property change (like on hover). <code class="inline">@keyframes</code> defines a multi-step animation that can loop or run once, attached to an element via <code class="inline">animation</code>.</p>
+    <div class="code-panel">
+      <div class="code-label">css</div>
+      <pre><code><span class="tag">.btn</span> {
+  <span class="prop">transition</span>: <span class="val">background-color 0.2s ease</span>;
+}
+<span class="tag">.btn</span><span class="tag">:hover</span> {
+  <span class="prop">background-color</span>: <span class="val">#7c3aed</span>;
+}</code></pre>
+    </div>
+  </section>
+ 
+  <!-- JAVASCRIPT BASICS -->
+  <section class="doc-section" id="js-basics">
+    <div class="sec-head"><span class="sec-num">18</span><h2>Variables & Data Types</h2></div>
+    <p>Variables are declared with <code class="inline">let</code> (can change) or <code class="inline">const</code> (can't be reassigned) — <code class="inline">var</code> is legacy and best avoided. JavaScript's core types are <code class="inline">string</code>, <code class="inline">number</code>, <code class="inline">boolean</code>, <code class="inline">null</code>, <code class="inline">undefined</code>, <code class="inline">object</code>, and <code class="inline">array</code>.</p>
+    <div class="code-panel">
+      <div class="code-label">js</div>
+      <pre><code><span class="kw">const</span> name = <span class="str">"Asha"</span>;
+<span class="kw">let</span> age = <span class="num">28</span>;
+<span class="kw">const</span> isStudent = <span class="kw">true</span>;
+<span class="kw">let</span> score = <span class="kw">null</span>; <span class="cm">// intentionally empty</span></code></pre>
+    </div>
+  </section>
+ 
+  <section class="doc-section" id="js-operators">
+    <div class="sec-head"><span class="sec-num">19</span><h2>Operators & Control Flow</h2></div>
+    <p>Comparisons should use <code class="inline">===</code> and <code class="inline">!==</code> (strict equality), which check type as well as value, unlike <code class="inline">==</code>. <code class="inline">if / else if / else</code> branches on conditions; <code class="inline">for</code> and <code class="inline">while</code> repeat work.</p>
+    <div class="code-panel">
+      <div class="code-label">js</div>
+      <pre><code><span class="kw">if</span> (score &gt;= <span class="num">90</span>) {
+  <span class="fn">console</span>.log(<span class="str">"Grade A"</span>);
+} <span class="kw">else if</span> (score &gt;= <span class="num">70</span>) {
+  <span class="fn">console</span>.log(<span class="str">"Grade B"</span>);
+} <span class="kw">else</span> {
+  <span class="fn">console</span>.log(<span class="str">"Keep going"</span>);
+}
+ 
+<span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i &lt; <span class="num">5</span>; i++) {
+  <span class="fn">console</span>.log(i);
+}</code></pre>
+    </div>
+  </section>
+ 
+  <section class="doc-section" id="js-functions">
+    <div class="sec-head"><span class="sec-num">20</span><h2>Functions & Scope</h2></div>
+    <p>A function packages reusable logic. Variables declared with <code class="inline">let</code>/<code class="inline">const</code> only exist inside the block <code class="inline">{ }</code> they're declared in — this is called block scope, and it's why a variable created inside an <code class="inline">if</code> statement isn't visible outside it.</p>
+    <div class="code-panel">
+      <div class="code-label">js</div>
+      <pre><code><span class="kw">function</span> <span class="fn">greet</span>(name) {
+  <span class="kw">return</span> <span class="str">`Hello, ${name}!`</span>;
+}
+ 
+<span class="fn">console</span>.log(<span class="fn">greet</span>(<span class="str">"World"</span>)); <span class="cm">// "Hello, World!"</span></code></pre>
+    </div>
+  </section>
+ 
+  <section class="doc-section" id="js-arrays-objects">
+    <div class="sec-head"><span class="sec-num">21</span><h2>Arrays & Objects</h2></div>
+    <p>Arrays hold ordered lists; objects hold key–value pairs. Array methods like <code class="inline">map</code>, <code class="inline">filter</code>, and <code class="inline">reduce</code> transform data without writing manual loops, and are the backbone of most modern JavaScript.</p>
+    <div class="code-panel">
+      <div class="code-label">js</div>
+      <pre><code><span class="kw">const</span> user = { name: <span class="str">"Asha"</span>, age: <span class="num">28</span> };
+<span class="kw">const</span> scores = [<span class="num">70</span>, <span class="num">85</span>, <span class="num">92</span>];
+ 
+<span class="kw">const</span> passed = scores.<span class="fn">filter</span>(s =&gt; s &gt;= <span class="num">75</span>);
+<span class="kw">const</span> doubled = scores.<span class="fn">map</span>(s =&gt; s * <span class="num">2</span>);</code></pre>
+    </div>
+  </section>
+ 
+  <section class="doc-section" id="js-dom">
+    <div class="sec-head"><span class="sec-num">22</span><h2>DOM Manipulation</h2></div>
+    <p>The DOM is the live, in-memory version of your HTML. JavaScript can select elements and change their content, attributes, or classes, and the browser repaints the page instantly.</p>
+    <div class="code-panel">
+      <div class="code-label">js</div>
+      <pre><code><span class="kw">const</span> title = <span class="fn">document</span>.<span class="fn">querySelector</span>(<span class="str">"#title"</span>);
+title.textContent = <span class="str">"Updated!"</span>;
+title.classList.<span class="fn">add</span>(<span class="str">"highlight"</span>);</code></pre>
+    </div>
+  </section>
+ 
+  <section class="doc-section" id="js-events">
+    <div class="sec-head"><span class="sec-num">23</span><h2>Events</h2></div>
+    <p>Events let JavaScript react to user actions — clicks, key presses, form submissions. <code class="inline">addEventListener</code> attaches a function that runs whenever that event fires.</p>
+    <div class="code-panel">
+      <div class="code-label">js</div>
+      <pre><code><span class="kw">const</span> btn = <span class="fn">document</span>.<span class="fn">querySelector</span>(<span class="str">"button"</span>);
+btn.<span class="fn">addEventListener</span>(<span class="str">"click"</span>, () =&gt; {
+  <span class="fn">console</span>.log(<span class="str">"Clicked!"</span>);
+});</code></pre>
+    </div>
+  </section>
+ 
+  <!-- JAVASCRIPT ADVANCED -->
+  <section class="doc-section" id="js-es6">
+    <div class="sec-head"><span class="sec-num">24</span><h2>Modern JS (ES6+)</h2></div>
+    <p>Arrow functions shorten function syntax and don't rebind <code class="inline">this</code>. Destructuring pulls values straight out of arrays or objects. Template literals embed variables directly inside strings using backticks.</p>
+    <div class="code-panel">
+      <div class="code-label">js</div>
+      <pre><code><span class="kw">const</span> add = (a, b) =&gt; a + b;
+<span class="kw">const</span> { name, age } = user;
+<span class="kw">const</span> [first, second] = scores;
+<span class="fn">console</span>.log(<span class="str">`${name} is ${age}`</span>);</code></pre>
+    </div>
+  </section>
+ 
+  <section class="doc-section" id="js-async">
+    <div class="sec-head"><span class="sec-num">25</span><h2>Promises, Async/Await & Fetch</h2></div>
+    <p>A <code class="inline">Promise</code> represents a value that isn't ready yet — like data from a network request. <code class="inline">async / await</code> lets you write asynchronous code that reads top-to-bottom instead of nesting callbacks. <code class="inline">fetch</code> is the built-in way to call an API.</p>
+    <div class="code-panel">
+      <div class="code-label">js</div>
+      <pre><code><span class="kw">async function</span> <span class="fn">getUser</span>(id) {
+  <span class="kw">const</span> res = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">`/api/users/${id}`</span>);
+  <span class="kw">const</span> data = <span class="kw">await</span> res.<span class="fn">json</span>();
+  <span class="kw">return</span> data;
+}</code></pre>
+    </div>
+  </section>
+ 
+  <section class="doc-section" id="js-classes">
+    <div class="sec-head"><span class="sec-num">26</span><h2>Classes & OOP</h2></div>
+    <p>Classes are templates for creating objects with shared structure and behavior. The <code class="inline">constructor</code> runs when a new instance is created; methods defined on the class are shared by every instance.</p>
+    <div class="code-panel">
+      <div class="code-label">js</div>
+      <pre><code><span class="kw">class</span> <span class="fn">User</span> {
+  <span class="fn">constructor</span>(name) {
+    <span class="kw">this</span>.name = name;
+  }
+  <span class="fn">greet</span>() {
+    <span class="kw">return</span> <span class="str">`Hi, I'm ${this.name}`</span>;
+  }
+}
+ 
+<span class="kw">const</span> u = <span class="kw">new</span> <span class="fn">User</span>(<span class="str">"Asha"</span>);</code></pre>
+    </div>
+  </section>
+ 
+  <section class="doc-section" id="js-storage">
+    <div class="sec-head"><span class="sec-num">27</span><h2>Storage & Error Handling</h2></div>
+    <p><code class="inline">localStorage</code> persists small amounts of data in the browser between visits, always as strings — objects need <code class="inline">JSON.stringify</code> and <code class="inline">JSON.parse</code>. <code class="inline">try / catch</code> stops an error from crashing the whole script.</p>
+    <div class="code-panel">
+      <div class="code-label">js</div>
+      <pre><code>localStorage.<span class="fn">setItem</span>(<span class="str">"user"</span>, <span class="fn">JSON</span>.<span class="fn">stringify</span>(user));
+ 
+<span class="kw">try</span> {
+  <span class="kw">const</span> saved = <span class="fn">JSON</span>.<span class="fn">parse</span>(localStorage.<span class="fn">getItem</span>(<span class="str">"user"</span>));
+} <span class="kw">catch</span> (err) {
+  <span class="fn">console</span>.error(<span class="str">"Couldn't read saved data"</span>, err);
+}</code></pre>
+    </div>
+  </section>
+ 
+  <footer>Built as a personal reference — HTML, CSS and JavaScript, from first tag to first API call.</footer>
+</main>
+ 
+<script>
+  // active link highlight on scroll
+  const sections = document.querySelectorAll('.doc-section');
+  const links = document.querySelectorAll('.nav-link');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`.nav-link[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+ 
+  // sidebar search filter
+  document.getElementById('navSearch').addEventListener('input', (e) => {
+    const q = e.target.value.toLowerCase();
+    links.forEach(link => {
+      const match = link.textContent.toLowerCase().includes(q);
+      link.style.display = match ? 'block' : 'none';
+    });
+    document.querySelectorAll('.nav-group').forEach(group => {
+      const anyVisible = [...group.querySelectorAll('.nav-link')].some(l => l.style.display !== 'none');
+      group.style.display = anyVisible ? 'block' : 'none';
+    });
+  });
+</script>
+</body>
+</html>
+ 
+
+

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C Programming Basics to Advanced Quiz (50 Questions)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 700px;
+            padding: 30px;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #eef0f3;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #285973;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            height: 10px;
+            border-radius: 5px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #285973;
+            transition: width 0.3s ease;
+        }
+
+        .question-number {
+            font-size: 14px;
+            color: #5f6368;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            color: #202124;
+            margin-bottom: 20px;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background-color: #f8f9fa;
+            border: 2px solid #dadce0;
+            border-radius: 8px;
+            padding: 14px 18px;
+            font-size: 16px;
+            color: #3c4043;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .option-btn:hover {
+            background-color: #e3f2fd;
+            border-color: #285973;
+        }
+
+        .option-btn.correct {
+            background-color: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+            font-weight: bold;
+        }
+
+        .option-btn.incorrect {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+            font-weight: bold;
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+        }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .result-box.correct-msg {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .result-box.incorrect-msg {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .next-btn {
+            margin-top: 25px;
+            background-color: #285973;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.2s;
+            display: none;
+        }
+
+        .next-btn:hover {
+            background-color: #1d3f52;
+        }
+
+        .score-container {
+            text-align: center;
+            display: none;
+        }
+
+        .score-container h2 {
+            color: #202124;
+            margin-bottom: 15px;
+        }
+
+        .score-text {
+            font-size: 22px;
+            color: #285973;
+            margin-bottom: 25px;
+        }
+
+        .restart-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .restart-btn:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div class="header">
+        <h1>C Programming Basics to Advanced Quiz</h1>
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+    </div>
+
+    <div id="quiz-box">
+        <div class="question-number" id="question-number">Question 1 of 50</div>
+        <div class="question-text" id="question-text">Loading question...</div>
+        
+        <div class="options-container" id="options-container">
+            <!-- Options dynamically loaded -->
+        </div>
+
+        <div class="result-box" id="result-box"></div>
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question</button>
+    </div>
+
+    <div class="score-container" id="score-container">
+        <h2>Quiz Completed!</h2>
+        <div class="score-text" id="score-text">You scored 0 out of 50</div>
+        <button class="restart-btn" onclick="restartQuiz()">Restart Quiz</button>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        // --- BASICS & FUNDAMENTALS ---
+        { question: "Who is known as the father of C language?", options: ["Dennis Ritchie", "James Gosling", "Bjarne Stroustrup", "Ken Thompson"], correct: 0 },
+        { question: "In which year was C language developed at AT&T Bell Laboratories?", options: ["1969", "1972", "1980", "1985"], correct: 1 },
+        { question: "What is the mandatory function name for every executable C program?", options: ["start()", "main()", "run()", "init()"], correct: 1 },
+        { question: "Which header file is required for input/output functions like printf() and scanf()?", options: ["<stdlib.h>", "<conio.h>", "<stdio.h>", "<math.h>"], correct: 2 },
+        { question: "Which format specifier is used to print an integer in printf()?", options: ["%c", "%f", "%d", "%s"], correct: 2 },
+        { question: "Which format specifier is used to print a float value with decimal precision?", options: ["%d", "%f", "%lf", "%p"], correct: 1 },
+        { question: "Which escape sequence represents a new line in C?", options: ["\\t", "\\n", "\\r", "\\b"], correct: 1 },
+        { question: "How many keywords are there in the ANSI C (C89) standard?", options: ["32", "48", "64", "256"], correct: 0 },
+        { question: "Which operator is used to get the memory size of a variable or type in bytes?", options: ["size()", "sizeof", "len()", "capacity"], correct: 1 },
+        { question: "Which symbol is used to get the memory address of a variable in scanf()?", options: ["*", "&", "#", "@"], correct: 1 },
+
+        // --- OPERATORS & CONTROL FLOW ---
+        { question: "What is the result of integer division 7 / 2 in C?", options: ["3.5", "3", "4", "3.0"], correct: 1 },
+        { question: "Which operator calculates the remainder of integer division in C?", options: ["/", "%", "//", "mod"], correct: 1 },
+        { question: "What is the operator precedence order of arithmetic operators in C?", options: ["+ - * /", "* / % + -", "+ * / -", "% + - /"], correct: 1 },
+        { question: "Which operator is the ternary conditional operator in C?", options: ["?:", "??", "->", "::"], correct: 0 },
+        { question: "Which loop guarantees execution of its code block at least once?", options: ["for", "while", "do-while", "nested for"], correct: 2 },
+        { question: "Which statement skips the remaining code in the loop and starts the next iteration?", options: ["break", "continue", "goto", "return"], correct: 1 },
+        { question: "Which statement terminates a loop or switch block immediately?", options: ["continue", "exit", "break", "return"], correct: 2 },
+        { question: "What default type does an uninitialized local (automatic) variable hold in C?", options: ["0", "Garbage value", "NULL", "1"], correct: 1 },
+        { question: "Which data type is used to store a single character in C?", options: ["string", "char", "chr", "text"], correct: 1 },
+        { question: "What is the ASCII value of character 'A'?", options: ["65", "97", "48", "66"], correct: 0 },
+
+        // --- ARRAYS, STRINGS & STORAGE CLASSES ---
+        { question: "How are array elements indexed in C?", options: ["1-based", "0-based", "-1-based", "User defined"], correct: 1 },
+        { question: "How do you declare an integer array of size 10 in C?", options: ["int arr(10);", "int arr[10];", "array int arr[10];", "int arr = new int[10];"], correct: 1 },
+        { question: "What character automatically terminates every string in C?", options: ["'\\0' (Null character)", "'\\n'", "' ' (Space)", "';'"], correct: 0 },
+        { question: "Which header file contains string manipulation functions like strlen() and strcpy()?", options: ["<stdio.h>", "<stdlib.h>", "<string.h>", "<ctype.h>"], correct: 2 },
+        { question: "Which string function is used to compare two strings in C?", options: ["strcat()", "strcmp()", "strcpy()", "strlen()"], correct: 1 },
+        { question: "Which storage class preserves variable value between function calls throughout program lifetime?", options: ["auto", "register", "static", "extern"], correct: 2 },
+        { question: "Which storage class requests the compiler to store the variable in CPU register for fast access?", options: ["auto", "register", "static", "extern"], correct: 1 },
+        { question: "Which storage class is used to declare a global variable accessible across multiple C files?", options: ["auto", "static", "extern", "register"], correct: 2 },
+        { question: "What is the default storage class for local variables inside a function?", options: ["auto", "static", "extern", "register"], correct: 0 },
+        { question: "What is the return type of the strlen() function in C?", options: ["int", "size_t", "char", "float"], correct: 1 },
+
+        // --- POINTERS & MEMORY MANAGEMENT ---
+        { question: "What is a Pointer in C?", options: ["A variable that stores data value", "A variable that stores memory address of another variable", "A function declaration", "A mathematical constant"], correct: 1 },
+        { question: "Which operator is used for dereferencing (getting value at address) a pointer?", options: ["&", "*", "->", "."], correct: 1 },
+        { question: "What is a NULL pointer in C?", options: ["A pointer pointing to address 0", "An uninitialized pointer", "A pointer pointing to a function", "A dangling pointer"], correct: 0 },
+        { question: "What is a Dangling Pointer in C?", options: ["A pointer pointing to deallocated/freed memory space", "A pointer initialized to NULL", "A pointer to pointer", "A void pointer"], correct: 0 },
+        { question: "What is a Void Pointer (void *) in C?", options: ["A generic pointer that can hold address of any data type", "A pointer that points to nothing", "A pointer that returns void", "An invalid pointer"], correct: 0 },
+        { question: "Which dynamic memory allocation function allocates memory and initializes all bytes to zero?", options: ["malloc()", "calloc()", "realloc()", "free()"], correct: 1 },
+        { question: "Which dynamic memory function is used to allocate uninitialized memory on the heap?", options: ["malloc()", "calloc()", "realloc()", "alloc()"], correct: 0 },
+        { question: "Which function is used to change the size of previously allocated memory on heap?", options: ["malloc()", "calloc()", "realloc()", "resize()"], correct: 2 },
+        { question: "Which function is used to release dynamically allocated memory back to heap?", options: ["delete()", "free()", "remove()", "clear()"], correct: 1 },
+        { question: "What header file must be included to use dynamic memory functions like malloc() and free()?", options: ["<stdio.h>", "<stdlib.h>", "<memory.h>", "<conio.h>"], correct: 1 },
+
+        // --- STRUCTURES, UNIONS & PREPROCESSORS ---
+        { question: "Which keyword is used to group variables of different data types into a user-defined type?", options: ["class", "struct", "union", "typedef"], correct: 1 },
+        { question: "Which operator is used to access structure members through a structure pointer?", options: [".", "->", "::", "*."], correct: 1 },
+        { question: "Which operator is used to access structure members using a normal structure variable?", options: [".", "->", "::", "&"], correct: 0 },
+        { question: "What is the key difference between struct and union in memory allocation?", options: ["Union allocates memory equal to sum of all members", "Union shares memory equal to size of its largest member", "Struct shares same memory address for all members", "Union cannot store primitive types"], correct: 1 },
+        { question: "Which keyword allows creating an alias/custom name for existing data types?", options: ["define", "typedef", "alias", "type"], correct: 1 },
+        { question: "Preprocessor directives in C always begin with which character?", options: ["$", "#", "@", "&"], correct: 1 },
+        { question: "Which preprocessor directive is used to define macros and constants in C?", options: ["#include", "#define", "#macro", "#const"], correct: 1 },
+        { question: "What function is used to open a file in C?", options: ["open()", "fopen()", "file_open()", "read_file()"], correct: 1 },
+        { question: "Which file mode is used to append data to an existing file without overwriting?", options: ["\"r\"", "\"w\"", "\"a\"", "\"r+\""], correct: 2 },
+        { question: "What value does fopen() return if a file fails to open?", options: ["0", "-1", "NULL", "EOF"], correct: 2 }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    const questionNumberEl = document.getElementById("question-number");
+    const questionTextEl = document.getElementById("question-text");
+    const optionsContainerEl = document.getElementById("options-container");
+    const resultBoxEl = document.getElementById("result-box");
+    const nextBtnEl = document.getElementById("next-btn");
+    const progressBarEl = document.getElementById("progress-bar");
+    const quizBoxEl = document.getElementById("quiz-box");
+    const scoreContainerEl = document.getElementById("score-container");
+    const scoreTextEl = document.getElementById("score-text");
+
+    function loadQuestion() {
+        const currentQuiz = quizData[currentQuestionIndex];
+        
+        questionNumberEl.innerText = `Question ${currentQuestionIndex + 1} of ${quizData.length}`;
+        questionTextEl.innerText = currentQuiz.question;
+        progressBarEl.style.width = `${((currentQuestionIndex + 1) / quizData.length) * 100}%`;
+
+        optionsContainerEl.innerHTML = "";
+        resultBoxEl.style.display = "none";
+        nextBtnEl.style.display = "none";
+
+        currentQuiz.options.forEach((option, index) => {
+            const button = document.createElement("button");
+            button.classList.add("option-btn");
+            button.innerText = option;
+            button.onclick = () => selectOption(index, button);
+            optionsContainerEl.appendChild(button);
+        });
+    }
+
+    function selectOption(selectedIndex, selectedBtn) {
+        const currentQuiz = quizData[currentQuestionIndex];
+        const allButtons = optionsContainerEl.querySelectorAll(".option-btn");
+
+        allButtons.forEach(btn => btn.disabled = true);
+
+        if (selectedIndex === currentQuiz.correct) {
+            selectedBtn.classList.add("correct");
+            resultBoxEl.className = "result-box correct-msg";
+            resultBoxEl.innerText = "YES! Correct Answer! 🎉";
+            score++;
+        } else {
+            selectedBtn.classList.add("incorrect");
+            allButtons[currentQuiz.correct].classList.add("correct");
+            resultBoxEl.className = "result-box incorrect-msg";
+            resultBoxEl.innerText = "NOT CORRECT! Wrong Answer. ❌";
+        }
+
+        resultBoxEl.style.display = "block";
+        nextBtnEl.style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < quizData.length) {
+            loadQuestion();
+        } else {
+            showScore();
+        }
+    }
+
+    function showScore() {
+        quizBoxEl.style.display = "none";
+        scoreContainerEl.style.display = "block";
+        scoreTextEl.innerText = `You scored ${score} out of ${quizData.length}!`;
+    }
+
+    function restartQuiz() {
+        currentQuestionIndex = 0;
+        score = 0;
+        quizBoxEl.style.display = "block";
+        scoreContainerEl.style.display = "none";
+        loadQuestion();
+    }
+
+    // Start Quiz
+    loadQuestion();
+</script>
+
+</body>
+</html>

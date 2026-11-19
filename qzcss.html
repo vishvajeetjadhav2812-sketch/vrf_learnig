@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Quiz - VRA Learning</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0d0e14;
+            --bg-secondary: #171a24;
+            --bg-tertiary: #1d212d;
+            --text-primary: #f2ede2;
+            --text-secondary: #9aa1b4;
+            --border-color: #272b38;
+            --accent: #264de4;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-primary); color: var(--text-primary); min-height: 100vh; }
+        header { background-color: var(--bg-secondary); border-bottom: 1px solid var(--border-color); padding: 1.1rem 2.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .brand-logo { font-family: 'Fraunces', serif; font-size: 1.5rem; text-decoration: none; color: var(--text-primary); }
+        .brand-logo span { color: var(--accent); }
+        .quiz-container { max-width: 700px; margin: 3rem auto; padding: 2rem; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; }
+        .q-header { display: flex; justify-content: space-between; margin-bottom: 1.5rem; color: var(--text-secondary); font-size: 0.9rem; }
+        .question { font-size: 1.2rem; margin-bottom: 1.5rem; line-height: 1.5; font-weight: 500; }
+        .options { display: flex; flex-direction: column; gap: 0.8rem; }
+        .opt-btn { background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.9rem 1.2rem; border-radius: 6px; text-align: left; cursor: pointer; font-size: 0.95rem; transition: all 0.2s; }
+        .opt-btn:hover { border-color: var(--accent); }
+        .opt-btn.correct { background: #1e3a29; border-color: #4CAF50; color: #a3e2a5; }
+        .opt-btn.wrong { background: #3a1e1e; border-color: #f44336; color: #e2a3a3; }
+        .footer-nav { margin-top: 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .next-btn { background: var(--accent); color: #fff; border: none; padding: 0.7rem 1.5rem; border-radius: 4px; cursor: pointer; font-weight: 600; display: none; }
+        .score-box { text-align: center; padding: 2rem 0; }
+        .score-box h2 { font-family: 'Fraunces', serif; font-size: 2rem; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="qz_section.html" class="brand-logo"><span>VRA</span> CSS Quiz</a>
+    </header>
+
+    <div class="quiz-container">
+        <div id="quiz-box">
+            <div class="q-header">
+                <span id="q-count">Question 1 of 3</span>
+                <span id="score-tracker">Score: 0</span>
+            </div>
+            <div class="question" id="question-text">Loading question...</div>
+            <div class="options" id="options-container"></div>
+            <div class="footer-nav">
+                <div></div>
+                <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question &rarr;</button>
+            </div>
+        </div>
+        <div id="result-box" class="score-box" style="display: none;">
+            <h2>Quiz Completed!</h2>
+            <p id="final-score" style="font-size: 1.2rem; color: var(--text-secondary); margin-bottom: 2rem;"></p>
+            <a href="qz_section.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">&larr; Back to Quizzes</a>
+        </div>
+    </div>
+
+    <script>
+    const questions = [
+        { q: "What is the full form of CSS?", options: ["Cascading Style Sheets", "Creative Style Sheets", "Computer Style Sheets", "Colorful Style Sheets"], answer: 0 },
+        { q: "Which symbol is used as the selector for an HTML element's ID?", options: [".", "#", "*", "::"], answer: 1 },
+        { q: "Which symbol is used to select a Class in CSS?", options: ["#", ".", "@", "$"], answer: 1 },
+        { q: "Which of the following is the Universal Selector?", options: ["all", "body", "*", "html"], answer: 2 },
+        { q: "Which CSS property is used to change text color?", options: ["text-color", "font-color", "color", "fg-color"], answer: 2 },
+        { q: "Which property is used to apply a background color?", options: ["bg-color", "background-color", "color-bg", "background-style"], answer: 1 },
+        { q: "Which property is used to change font size?", options: ["text-size", "font-size", "size", "font-height"], answer: 1 },
+        { q: "What is the space inside an element's border called?", options: ["margin", "padding", "outline", "gap"], answer: 1 },
+        { q: "What is the space outside an element's border called?", options: ["padding", "spacing", "margin", "border-space"], answer: 2 },
+        { q: "Which property is used to center-align text?", options: ["align-text: center;", "text-align: center;", "float: center;", "margin: auto;"], answer: 1 },
+        { q: "Which property removes the underline from a link?", options: ["text-decoration: none;", "text-style: no-underline;", "decoration: none;", "font-style: normal;"], answer: 0 },
+        { q: "Which property is used to make text bold?", options: ["font-weight: bold;", "text-weight: bold;", "font-style: bold;", "bold: true;"], answer: 0 },
+        { q: "What is the syntax to enable Flexbox layout?", options: ["display: flex;", "layout: flex;", "flex: 1;", "box-type: flex;"], answer: 0 },
+        { q: "Which property aligns items along the main axis in Flexbox?", options: ["align-items", "justify-content", "align-content", "flex-align"], answer: 1 },
+        { q: "Which property aligns items along the cross axis in Flexbox?", options: ["justify-content", "align-items", "cross-align", "flex-center"], answer: 1 },
+        { q: "Which part is at the innermost center of the CSS Box Model?", options: ["Border", "Padding", "Content", "Margin"], answer: 2 },
+        { q: "Which property enables border-box sizing mode?", options: ["box-sizing: border-box;", "box-type: border;", "size: border-box;", "box-model: border;"], answer: 0 },
+        { q: "Which syntax removes an element from normal document flow and gives it absolute positioning?", options: ["position: absolute;", "position: relative;", "position: fixed;", "float: absolute;"], answer: 0 },
+        { q: "Which property keeps an element fixed relative to the viewport?", options: ["position: absolute;", "position: fixed;", "position: sticky;", "position: static;"], answer: 1 },
+        { q: "Which property controls the stacking order of overlapping elements?", options: ["z-index", "stack-order", "layer-index", "depth"], answer: 0 },
+        { q: "What is the correct syntax for CSS comments?", options: ["// comment", "<!-- comment -->", "/* comment */", "' comment"], answer: 2 },
+        { q: "Which property is used to create rounded corners?", options: ["border-radius", "corner-radius", "border-style", "box-radius"], answer: 0 },
+        { q: "Which property hides an element while preserving its space?", options: ["display: none;", "visibility: hidden;", "opacity: 0;", "hide: true;"], answer: 1 },
+        { q: "Which property completely hides and removes an element from the document layout?", options: ["visibility: hidden;", "display: none;", "opacity: 0;", "clear: both;"], answer: 1 },
+        { q: "Which CSS rule is used for responsive design media queries?", options: ["@keyframes", "@media", "@import", "@font-face"], answer: 1 },
+        { q: "Which rule is used to load custom fonts?", options: ["@font-face", "@custom-font", "@import-font", "@font-family"], answer: 0 },
+        { q: "What is the syntax to create a CSS Grid container?", options: ["display: grid;", "grid-template: true;", "layout: grid;", "box: grid;"], answer: 0 },
+        { q: "Which property defines column widths in CSS Grid?", options: ["grid-template-columns", "grid-columns-width", "grid-width", "columns-template"], answer: 0 },
+        { q: "Which pseudo-class applies styles when an element is hovered?", options: [":active", ":focus", ":hover", "::after"], answer: 2 },
+        { q: "Which pseudo-element inserts content before an element's content?", options: [":before", "::before", ":first-child", "::prepend"], answer: 1 },
+        { q: "Which property removes bullet points from list items?", options: ["list-style: none;", "bullet-style: none;", "text-decoration: none;", "list-type: clear;"], answer: 0 },
+        { q: "Which property is used to change text to uppercase or lowercase?", options: ["text-case", "text-transform", "font-transform", "text-style"], answer: 1 },
+        { q: "Which property increases spacing between characters?", options: ["letter-spacing", "character-spacing", "word-spacing", "line-height"], answer: 0 },
+        { q: "Which property controls vertical spacing between lines of text?", options: ["line-height", "vertical-spacing", "line-gap", "text-height"], answer: 0 },
+        { q: "Which property applies a drop shadow to text?", options: ["box-shadow", "text-shadow", "shadow", "font-shadow"], answer: 1 },
+        { q: "Which property applies a drop shadow to a box or div?", options: ["box-shadow", "div-shadow", "border-shadow", "element-shadow"], answer: 0 },
+        { q: "What is the valid range for the CSS opacity property?", options: ["0 to 100", "0.0 to 1.0", "1 to 10", "-1 to 1"], answer: 1 },
+        { q: "Which property sets the duration of a transition?", options: ["transition-time", "transition-duration", "speed", "animate-time"], answer: 1 },
+        { q: "Which property applies a keyframe animation?", options: ["animation", "keyframes", "transition", "transform"], answer: 0 },
+        { q: "Which property is used to rotate or scale an element?", options: ["transition", "transform", "translate", "convert"], answer: 1 },
+        { q: "Which property defines spacing between items in CSS Grid?", options: ["grid-gap / gap", "margin", "padding", "space"], answer: 0 },
+        { q: "Which CSS directive is used to import external CSS files?", options: ["@include", "@import", "@link", "@use"], answer: 1 },
+        { q: "Which property limits the maximum width of an element?", options: ["max-width", "limit-width", "width-max", "bound-width"], answer: 0 },
+        { q: "Which property changes the cursor to a hand pointer icon?", options: ["cursor: hand;", "cursor: pointer;", "mouse: pointer;", "pointer: true;"], answer: 1 },
+        { q: "Which property reverses the flexbox row direction?", options: ["flex-direction: row-reverse;", "flex-reverse: true;", "direction: reverse;", "flex-flow: reverse;"], answer: 0 },
+        { q: "Which property allows flex items to wrap onto multiple lines?", options: ["flex-wrap: wrap;", "wrap: flex;", "flex-flow: wrap-line;", "display-wrap: true;"], answer: 0 },
+        { q: "What is the syntax to prevent a background image from repeating?", options: ["background-repeat: no-repeat;", "bg-repeat: false;", "image-repeat: none;", "background-single: true;"], answer: 0 },
+        { q: "Which property stretches a background image to cover the container?", options: ["background-size: cover;", "image-size: fit;", "bg-fit: cover;", "background-stretch: full;"], answer: 0 },
+        { q: "Which syntax represents RGB color with transparency (Alpha)?", options: ["rgba(r,g,b,a)", "rgb(r,g,b,t)", "hex-alpha()", "color-transparency()"], answer: 0 },
+        { q: "What is the default CSS positioning mode?", options: ["relative", "absolute", "static", "fixed"], answer: 2 }
+    ];
+
+        let currentQ = 0;
+        let score = 0;
+
+        function loadQuestion() {
+            const q = questions[currentQ];
+            document.getElementById("q-count").innerText = `Question ${currentQ + 1} of ${questions.length}`;
+            document.getElementById("question-text").innerText = q.q;
+            const container = document.getElementById("options-container");
+            container.innerHTML = "";
+            document.getElementById("next-btn").style.display = "none";
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement("button");
+                btn.className = "opt-btn";
+                btn.innerText = opt;
+                btn.onclick = () => selectOption(idx, btn);
+                container.appendChild(btn);
+            });
+        }
+
+        function selectOption(idx, btn) {
+            const btns = document.querySelectorAll(".opt-btn");
+            btns.forEach(b => b.style.pointerEvents = "none");
+            
+            if(idx === questions[currentQ].answer) {
+                btn.classList.add("correct");
+                score++;
+                document.getElementById("score-tracker").innerText = `Score: ${score}`;
+            } else {
+                btn.classList.add("wrong");
+                btns[questions[currentQ].answer].classList.add("correct");
+            }
+            document.getElementById("next-btn").style.display = "block";
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            if(currentQ < questions.length) {
+                loadQuestion();
+            } else {
+                document.getElementById("quiz-box").style.display = "none";
+                document.getElementById("result-box").style.display = "block";
+                document.getElementById("final-score").innerText = `You scored ${score} out of ${questions.length}!`;
+            }
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>

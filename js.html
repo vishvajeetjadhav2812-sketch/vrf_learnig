@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Quiz - VRA Learning</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0d0e14;
+            --bg-secondary: #171a24;
+            --bg-tertiary: #1d212d;
+            --text-primary: #f2ede2;
+            --text-secondary: #9aa1b4;
+            --border-color: #272b38;
+            --accent: #f7df1e;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-primary); color: var(--text-primary); min-height: 100vh; }
+        header { background-color: var(--bg-secondary); border-bottom: 1px solid var(--border-color); padding: 1.1rem 2.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .brand-logo { font-family: 'Fraunces', serif; font-size: 1.5rem; text-decoration: none; color: var(--text-primary); }
+        .brand-logo span { color: var(--accent); }
+        .quiz-container { max-width: 700px; margin: 3rem auto; padding: 2rem; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; }
+        .q-header { display: flex; justify-content: space-between; margin-bottom: 1.5rem; color: var(--text-secondary); font-size: 0.9rem; }
+        .question { font-size: 1.2rem; margin-bottom: 1.5rem; line-height: 1.5; font-weight: 500; }
+        .options { display: flex; flex-direction: column; gap: 0.8rem; }
+        .opt-btn { background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.9rem 1.2rem; border-radius: 6px; text-align: left; cursor: pointer; font-size: 0.95rem; transition: all 0.2s; }
+        .opt-btn:hover { border-color: var(--accent); }
+        .opt-btn.correct { background: #1e3a29; border-color: #4CAF50; color: #a3e2a5; }
+        .opt-btn.wrong { background: #3a1e1e; border-color: #f44336; color: #e2a3a3; }
+        .footer-nav { margin-top: 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .next-btn { background: var(--accent); color: #000; border: none; padding: 0.7rem 1.5rem; border-radius: 4px; cursor: pointer; font-weight: 600; display: none; }
+        .score-box { text-align: center; padding: 2rem 0; }
+        .score-box h2 { font-family: 'Fraunces', serif; font-size: 2rem; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="qz_section.html" class="brand-logo"><span>VRA</span> JS Quiz</a>
+    </header>
+
+    <div class="quiz-container">
+        <div id="quiz-box">
+            <div class="q-header">
+                <span id="q-count">Question 1 of 3</span>
+                <span id="score-tracker">Score: 0</span>
+            </div>
+            <div class="question" id="question-text">Loading question...</div>
+            <div class="options" id="options-container"></div>
+            <div class="footer-nav">
+                <div></div>
+                <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question &rarr;</button>
+            </div>
+        </div>
+        <div id="result-box" class="score-box" style="display: none;">
+            <h2>Quiz Completed!</h2>
+            <p id="final-score" style="font-size: 1.2rem; color: var(--text-secondary); margin-bottom: 2rem;"></p>
+            <a href="qz_section.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">&larr; Back to Quizzes</a>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            { q: "Which keyword is used to declare a block-scoped variable in JavaScript?", options: ["var", "let", "constant", "declare"], answer: 1 },
+            { q: "Which keyword is used for a variable that cannot be re-assigned?", options: ["var", "let", "const", "static"], answer: 2 },
+            { q: "What is the file extension for a JavaScript file?", options: [".java", ".js", ".javascript", ".script"], answer: 1 },
+            { q: "Which method is used to print output to the console?", options: ["console.print()", "console.log()", "print.log()", "log.console()"], answer: 1 },
+            { q: "Which function is used to show a browser alert popup?", options: ["alert()", "msg()", "popup()", "prompt()"], answer: 0 },
+            { q: "Which popup method is used to take input from the user?", options: ["alert()", "confirm()", "prompt()", "input()"], answer: 2 },
+            { q: "Which is the strict equality comparison operator?", options: ["==", "===", "=", "!="], answer: 1 },
+            { q: "Which operator is used to check the data type?", options: ["typeof", "instanceof", "type", "checkType"], answer: 0 },
+            { q: "Which property is used to find the length of an array?", options: [".size", ".length", ".count", ".limit"], answer: 1 },
+            { q: "Which method is used to add an element to the end of an array?", options: ["push()", "pop()", "unshift()", "append()"], answer: 0 },
+            { q: "Which method is used to remove an element from the end of an array?", options: ["push()", "pop()", "shift()", "remove()"], answer: 1 },
+            { q: "Which method is used to add an element to the beginning of an array?", options: ["unshift()", "push()", "shift()", "prepend()"], answer: 0 },
+            { q: "Which method is used to remove an element from the beginning of an array?", options: ["shift()", "unshift()", "pop()", "slice()"], answer: 0 },
+            { q: "Which function is used to convert a string to an integer/number?", options: ["parseInt()", "toString()", "parseNum()", "Number.convert()"], answer: 0 },
+            { q: "What is the full form of NaN?", options: ["Not a Number", "New and Number", "Null and Null", "Non-Allocated Number"], answer: 0 },
+            { q: "Which DOM method is used to select an HTML element by its ID?", options: ["document.getElementByName()", "document.getElementById()", "document.querySelectorID()", "document.findId()"], answer: 1 },
+            { q: "Which method is used to match the first element through a CSS selector?", options: ["document.querySelectorAll()", "document.querySelector()", "document.getSelector()", "document.select()"], answer: 1 },
+            { q: "Which method is used to attach an event listener?", options: ["addEventListener()", "attachEvent()", "listenEvent()", "onEvent()"], answer: 0 },
+            { q: "What is the correct syntax for an arrow function?", options: ["() => {}", "function() => {}", "() -> {}", "def () {}"], answer: 0 },
+            { q: "Which quotes are used for Template Literals?", options: ["Single Quotes ' '", "Double Quotes \" \"", "Backticks ` `", "Tilde ~ ~"], answer: 2 },
+            { q: "How do you write string concatenation or dynamic variables in Template Literals?", options: ["${var}", "{{var}}", "<%var%>", "$[var]"], answer: 0 },
+            { q: "Which ES6 array method is used to loop through every element of an array?", options: ["forEach()", "loop()", "forArray()", "each()"], answer: 0 },
+            { q: "Which array method returns a new modified array?", options: ["forEach()", "map()", "filter()", "reduce()"], answer: 1 },
+            { q: "Which method filters elements based on a condition?", options: ["filter()", "map()", "find()", "search()"], answer: 0 },
+            { q: "Which array method is used to find a single matching element?", options: ["filter()", "find()", "search()", "get()"], answer: 1 },
+            { q: "Which method is used to convert a JSON string into a JavaScript Object?", options: ["JSON.parse()", "JSON.stringify()", "JSON.toObject()", "Object.parse()"], answer: 0 },
+            { q: "Which method is used to convert a JavaScript Object into a JSON string?", options: ["JSON.stringify()", "JSON.parse()", "JSON.toString()", "Object.stringify()"], answer: 0 },
+            { q: "Which ES6 object is used for handling asynchronous tasks?", options: ["Promise", "Async", "Callback", "Event"], answer: 0 },
+            { q: "Which handler executes when a Promise is resolved?", options: [".then()", ".catch()", ".finally()", ".done()"], answer: 0 },
+            { q: "Which handler is used to handle a Promise rejection or error?", options: [".then()", ".catch()", ".error()", ".reject()"], answer: 1 },
+            { q: "Which keyword is used to wait for a promise to complete inside an async function?", options: ["wait", "await", "hold", "pause"], answer: 1 },
+            { q: "Which timer function is used to delay code execution?", options: ["setInterval()", "setTimeout()", "delay()", "wait()"], answer: 1 },
+            { q: "Which method runs code repeatedly at a fixed time interval?", options: ["setTimeout()", "setInterval()", "repeat()", "loopTimer()"], answer: 1 },
+            { q: "Which method is used to get an array of an object's keys?", options: ["Object.keys(obj)", "obj.getKeys()", "Object.values(obj)", "Keys.get(obj)"], answer: 0 },
+            { q: "What is the symbol for the Rest/Spread operator?", options: ["...", "---", "&&&", "==="], answer: 0 },
+            { q: "When does a variable have the data type 'undefined'?", options: ["Jab variable declare ho par value assign na ho", "Jab value 0 ho", "Jab value null ho", "Jab variable exist na kare"], answer: 0 },
+            { q: "What is a function without a name called?", options: ["Anonymous Function", "Named Function", "System Function", "Void Function"], answer: 0 },
+            { q: "Which method is used to save data in Local Storage?", options: ["localStorage.setItem()", "localStorage.save()", "localStorage.add()", "localStorage.store()"], answer: 0 },
+            { q: "Which method is used to read data from Local Storage?", options: ["localStorage.getItem()", "localStorage.read()", "localStorage.fetch()", "localStorage.get()"], answer: 0 },
+            { q: "Is JavaScript single-threaded or multi-threaded?", options: ["Single-threaded", "Multi-threaded", "Dual-threaded", "Non-threaded"], answer: 0 },
+            { q: "Which is the logical AND operator?", options: ["||", "&&", "!", "&"], answer: 1 },
+            { q: "Which is the logical OR operator?", options: ["&&", "||", "!", "|"], answer: 1 },
+            { q: "What is the syntax for the Ternary Operator?", options: ["condition ? true : false", "if ? then : else", "condition : true ? false", "condition -> true | false"], answer: 0 },
+            { q: "What is the full form of DOM?", options: ["Document Object Model", "Data Object Mode", "Desktop Oriented Model", "Digital Outlet Mapping"], answer: 0 },
+            { q: "What is the full form of BOM?", options: ["Browser Object Model", "Basic Object Mode", "Binary Object Map", "Browser Oriented Media"], answer: 0 },
+            { q: "Which event method is used to prevent form submission reload?", options: ["e.preventDefault()", "e.stopReload()", "e.cancel()", "e.halt()"], answer: 0 },
+            { q: "Which method is used to stop event propagation (bubbling)?", options: ["e.stopPropagation()", "e.preventDefault()", "e.stopEvent()", "e.block()"], answer: 0 },
+            { q: "Whose window object does a 'var' declared in the global scope become a part of?", options: ["window", "document", "globalThis", "Both window & globalThis"], answer: 0 },
+            { q: "Which array method is used to combine or merge arrays?", options: ["concat()", "merge()", "join()", "combine()"], answer: 0 },
+            { q: "Which method converts array elements into a string representation?", options: ["join()", "concat()", "split()", "push()"], answer: 0 }
+        ];
+
+        let currentQ = 0;
+        let score = 0;
+
+        function loadQuestion() {
+            const q = questions[currentQ];
+            document.getElementById("q-count").innerText = `Question ${currentQ + 1} of ${questions.length}`;
+            document.getElementById("question-text").innerText = q.q;
+            const container = document.getElementById("options-container");
+            container.innerHTML = "";
+            document.getElementById("next-btn").style.display = "none";
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement("button");
+                btn.className = "opt-btn";
+                btn.innerText = opt;
+                btn.onclick = () => selectOption(idx, btn);
+                container.appendChild(btn);
+            });
+        }
+
+        function selectOption(idx, btn) {
+            const btns = document.querySelectorAll(".opt-btn");
+            btns.forEach(b => b.style.pointerEvents = "none");
+            
+            if(idx === questions[currentQ].answer) {
+                btn.classList.add("correct");
+                score++;
+                document.getElementById("score-tracker").innerText = `Score: ${score}`;
+            } else {
+                btn.classList.add("wrong");
+                btns[questions[currentQ].answer].classList.add("correct");
+            }
+            document.getElementById("next-btn").style.display = "block";
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            if(currentQ < questions.length) {
+                loadQuestion();
+            } else {
+                document.getElementById("quiz-box").style.display = "none";
+                document.getElementById("result-box").style.display = "block";
+                document.getElementById("final-score").innerText = `You scored ${score} out of ${questions.length}!`;
+            }
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>

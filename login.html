@@ -1,0 +1,287 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VRA Learning - Login</title>
+ 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+ 
+    <style>
+        :root {
+            --bg-primary: #0d0e14;
+            --bg-secondary: #171a24;
+            --bg-tertiary: #1d212d;
+            --text-primary: #f2ede2;
+            --text-secondary: #9aa1b4;
+            --border-color: #272b38;
+            --accent: #c9a66b;
+            --accent-strong: #e8c98a;
+            --accent-glow: rgba(201, 166, 107, 0.22);
+            --error-color: #d8695c;
+        }
+ 
+        [data-theme="light"] {
+            --bg-primary: #f7f4ee;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #efeade;
+            --text-primary: #191a1f;
+            --text-secondary: #5c5f6b;
+            --border-color: #e2ddce;
+            --accent: #9c7a3d;
+            --accent-strong: #7e6230;
+            --accent-glow: rgba(156, 122, 61, 0.16);
+        }
+ 
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+ 
+        body::before {
+            content: '';
+            position: absolute;
+            top: -160px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 620px;
+            height: 620px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            pointer-events: none;
+        }
+ 
+        .login-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-top: 3px solid var(--accent);
+            border-radius: 10px;
+            padding: 2.6rem 2.4rem 2.2rem;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 30px 60px -25px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 1;
+        }
+ 
+        .theme-toggle {
+            position: absolute;
+            top: 1.1rem;
+            right: 1.1rem;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 6px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.78rem;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.25s ease, color 0.25s ease;
+        }
+ 
+        .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+ 
+        .brand-logo {
+            font-family: 'Fraunces', serif;
+            font-size: 1.7rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+ 
+        .brand-logo span.mark { color: var(--accent); }
+ 
+        .subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.92rem;
+            margin-bottom: 2rem;
+        }
+ 
+        .form-group { margin-bottom: 1.2rem; }
+ 
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+ 
+        .form-group input {
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 0.96rem;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+ 
+        .form-group input::placeholder { color: var(--text-secondary); opacity: 0.6; }
+ 
+        .form-group input:focus { border-color: var(--accent); }
+ 
+        .form-group input.invalid { border-color: var(--error-color); }
+ 
+        .error-message {
+            color: var(--error-color);
+            font-size: 0.82rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+ 
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            background-color: var(--accent);
+            color: #171a24;
+            font-size: 0.96rem;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            margin-top: 0.6rem;
+            transition: background-color 0.2s ease;
+        }
+ 
+        .submit-btn:hover { background-color: var(--accent-strong); }
+ 
+        footer {
+            margin-top: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+            position: relative;
+            z-index: 1;
+        }
+ 
+        @media (prefers-reduced-motion: reduce) {
+            * { transition: none !important; }
+        }
+    </style>
+</head>
+<body>
+ 
+    <div class="login-card">
+        <button class="theme-toggle" onclick="toggleTheme()">Dark / Light</button>
+        <div class="brand-logo"><span class="mark">VRA</span> Learning</div>
+        <p class="subtitle">Enter your details to access course materials</p>
+ 
+        <form id="loginForm" novalidate>
+            <div class="form-group">
+                <label for="fullName">Full Name</label>
+                <input type="text" id="fullName" placeholder="e.g. John Doe" required>
+            </div>
+ 
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="e.g. john@example.com" required>
+            </div>
+ 
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="••••••••" required minlength="6">
+                <div class="error-message" id="errorMsg">Please fill in all fields correctly — password needs at least 6 characters.</div>
+            </div>
+ 
+            <button type="submit" class="submit-btn">Login & Continue &rarr;</button>
+        </form>
+    </div>
+ 
+    <footer>
+        &copy; VRA Learning. Secure Authentication Portal.
+    </footer>
+ 
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            if (body.getAttribute('data-theme') === 'light') {
+                body.removeAttribute('data-theme');
+            } else {
+                body.setAttribute('data-theme', 'light');
+            }
+        }
+ 
+        const loginForm = document.getElementById('loginForm');
+        const fullNameInput = document.getElementById('fullName');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const errorMsg = document.getElementById('errorMsg');
+ 
+        loginForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+ 
+            const fullName = fullNameInput.value.trim();
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+ 
+            const isValid = fullName.length > 0 && emailInput.checkValidity() && password.length >= 6;
+ 
+            [fullNameInput, emailInput, passwordInput].forEach(el => el.classList.remove('invalid'));
+ 
+            if (!isValid) {
+                if (fullName.length === 0) fullNameInput.classList.add('invalid');
+                if (!emailInput.checkValidity()) emailInput.classList.add('invalid');
+                if (password.length < 6) passwordInput.classList.add('invalid');
+                errorMsg.style.display = 'block';
+                return;
+            }
+ 
+            errorMsg.style.display = 'none';
+
+            const btn = loginForm.querySelector('.submit-btn');
+            btn.disabled = true;
+
+            fetch('/api/auth', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: fullName, email: email, password: password })
+            })
+            .then(r => r.json().then(data => ({ ok: r.ok, data })))
+            .then(({ ok, data }) => {
+                if (!ok) throw new Error(data.error || 'Login failed');
+                localStorage.setItem('vrf_user', JSON.stringify(data.user));
+                window.location.href = 'index.html';
+            })
+            .catch(err => {
+                errorMsg.textContent = err.message === 'Failed to fetch'
+                    ? 'Server not running. Start it with: node server.js'
+                    : err.message;
+                errorMsg.style.display = 'block';
+                btn.disabled = false;
+            });
+        });
+    </script>
+ 
+</body>
+</html>
+ 
+
+
+
+
+
+
+
+

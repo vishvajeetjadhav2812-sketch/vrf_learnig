@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Basics to OOPs Quiz (50 Questions)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 700px;
+            padding: 30px;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #eef0f3;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #1a73e8;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            height: 10px;
+            border-radius: 5px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #1a73e8;
+            transition: width 0.3s ease;
+        }
+
+        .question-number {
+            font-size: 14px;
+            color: #5f6368;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            color: #202124;
+            margin-bottom: 20px;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background-color: #f8f9fa;
+            border: 2px solid #dadce0;
+            border-radius: 8px;
+            padding: 14px 18px;
+            font-size: 16px;
+            color: #3c4043;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .option-btn:hover {
+            background-color: #e8f0fe;
+            border-color: #1a73e8;
+        }
+
+        .option-btn.correct {
+            background-color: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+            font-weight: bold;
+        }
+
+        .option-btn.incorrect {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+            font-weight: bold;
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+        }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .result-box.correct-msg {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .result-box.incorrect-msg {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .next-btn {
+            margin-top: 25px;
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.2s;
+            display: none;
+        }
+
+        .next-btn:hover {
+            background-color: #1557b0;
+        }
+
+        .score-container {
+            text-align: center;
+            display: none;
+        }
+
+        .score-container h2 {
+            color: #202124;
+            margin-bottom: 15px;
+        }
+
+        .score-text {
+            font-size: 22px;
+            color: #1a73e8;
+            margin-bottom: 25px;
+        }
+
+        .restart-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .restart-btn:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div class="header">
+        <h1>Java Basics to OOPs Quiz</h1>
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+    </div>
+
+    <div id="quiz-box">
+        <div class="question-number" id="question-number">Question 1 of 50</div>
+        <div class="question-text" id="question-text">Loading question...</div>
+        
+        <div class="options-container" id="options-container">
+            <!-- Options dynamically loaded -->
+        </div>
+
+        <div class="result-box" id="result-box"></div>
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question</button>
+    </div>
+
+    <div class="score-container" id="score-container">
+        <h2>Quiz Completed!</h2>
+        <div class="score-text" id="score-text">You scored 0 out of 50</div>
+        <button class="restart-btn" onclick="restartQuiz()">Restart Quiz</button>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        // --- BASICS & FUNDAMENTALS ---
+        { question: "Which of the following is NOT a Java keyword?", options: ["static", "Boolean", "void", "private"], correct: 1 },
+        { question: "What is the entry point method for any standalone Java application?", options: ["public void main(String[] args)", "public static void main(String[] args)", "public static int main(String[] args)", "static void main(String args)"], correct: 1 },
+        { question: "What is the default value of a boolean primitive variable in Java?", options: ["true", "false", "0", "null"], correct: 1 },
+        { question: "Which data type is used to store fractional numbers with 64-bit precision?", options: ["float", "double", "int", "short"], correct: 1 },
+        { question: "What is the size of an int data type in Java?", options: ["8 bits", "16 bits", "32 bits", "64 bits"], correct: 2 },
+        { question: "Which Java component converts bytecode into machine executable code?", options: ["JDK", "JRE", "JVM", "JDB"], correct: 2 },
+        { question: "What is the return type of the hashCode() method in Java?", options: ["int", "long", "String", "Object"], correct: 0 },
+        { question: "Which operator is used to compare two primitive values for equality?", options: ["=", "==", "equals", "==="], correct: 1 },
+        { question: "What will be the output of 10 % 3 in Java?", options: ["3", "1", "0", "3.33"], correct: 1 },
+        { question: "Which package is automatically imported into every Java program?", options: ["java.util", "java.io", "java.lang", "java.net"], correct: 2 },
+
+        // --- CONTROL FLOW & ARRAYS ---
+        { question: "Which loop is guaranteed to execute at least once?", options: ["for loop", "while loop", "do-while loop", "foreach loop"], correct: 2 },
+        { question: "Which statement is used to terminate a loop prematurely in Java?", options: ["continue", "exit", "break", "return"], correct: 2 },
+        { question: "How do you correctly declare an array of integers in Java?", options: ["int arr = new int[];", "int[] arr = new int[5];", "array int arr[5];", "int arr = {1, 2, 3};"], correct: 1 },
+        { question: "What happens if you access an array element outside its valid index range?", options: ["Returns null", "Returns 0", "Throws ArrayIndexOutOfBoundsException", "Causes a compile-time error"], correct: 2 },
+        { question: "What is the default value of objects in an uninitialized Object array?", options: ["0", "false", "empty string", "null"], correct: 3 },
+        { question: "Which property is used to get the length of an array in Java?", options: ["length()", "size()", "length", "getSize()"], correct: 2 },
+        { question: "Which statement skips the current iteration and jumps to the next iteration of a loop?", options: ["break", "continue", "skip", "pass"], correct: 1 },
+        { question: "Can a switch statement in Java accept String variables?", options: ["Yes (Java 7+)", "No", "Only if length <= 5", "Only in Android"], correct: 0 },
+        { question: "What is the output of System.out.println(5 + 5 + \"Java\"); ?", options: ["55Java", "10Java", "Java55", "Error"], correct: 1 },
+        { question: "What is the output of System.out.println(\"Java\" + 5 + 5); ?", options: ["Java10", "Java55", "10Java", "Error"], correct: 1 },
+
+        // --- CORE OOPS CONCEPTS ---
+        { question: "Which OOP concept wraps data and methods operating on that data into a single unit?", options: ["Inheritance", "Polymorphism", "Encapsulation", "Abstraction"], correct: 2 },
+        { question: "Hiding internal implementation details and showing only necessary features is called:", options: ["Abstraction", "Encapsulation", "Inheritance", "Overloading"], correct: 0 },
+        { question: "Which keyword is used by a class to inherit another class?", options: ["implements", "extends", "inherits", "super"], correct: 1 },
+        { question: "Does Java support multiple inheritance through classes?", options: ["Yes", "No", "Only with abstract classes", "Only in latest versions"], correct: 1 },
+        { question: "What mechanism allows achieving multiple inheritance in Java?", options: ["Abstract Classes", "Interfaces", "Packages", "Inner Classes"], correct: 1 },
+        { question: "Which keyword is used by a class to implement an interface?", options: ["extends", "implements", "interface", "using"], correct: 1 },
+        { question: "Defining multiple methods in the same class with the same name but different parameters is called:", options: ["Method Overriding", "Method Overloading", "Method Shadowing", "Dynamic Binding"], correct: 1 },
+        { question: "A subclass providing a specific implementation of a method defined in its superclass is called:", options: ["Method Overloading", "Method Overriding", "Method Hiding", "Static Binding"], correct: 1 },
+        { question: "Method Overloading is an example of which type of polymorphism?", options: ["Compile-time Polymorphism", "Run-time Polymorphism", "Dynamic Polymorphism", "Late Binding"], correct: 0 },
+        { question: "Method Overriding is an example of which type of polymorphism?", options: ["Compile-time Polymorphism", "Run-time Polymorphism", "Static Polymorphism", "Early Binding"], correct: 1 },
+
+        // --- ACCESS MODIFIERS & KEYWORDS ---
+        { question: "Which access modifier restricts access strictly to within the same class?", options: ["public", "protected", "default", "private"], correct: 3 },
+        { question: "Which modifier allows access within the same package and by subclasses in other packages?", options: ["private", "default", "protected", "public"], correct: 2 },
+        { question: "If no access modifier is specified for a class member, what is its default access level?", options: ["public", "private", "protected", "Package-private (default)"], correct: 3 },
+        { question: "Which keyword refers to the current instance of a class?", options: ["super", "this", "self", "parent"], correct: 1 },
+        { question: "Which keyword is used to access members of the immediate parent class?", options: ["this", "super", "base", "parent"], correct: 1 },
+
+        // --- ADVANCED OOPS & MEMORY MANAGEMENT ---
+        { question: "Can an abstract class have constructors in Java?", options: ["Yes", "No", "Only private constructors", "Only static constructors"], correct: 0 },
+        { question: "Can you instantiate an abstract class directly using the 'new' keyword?", options: ["Yes", "No", "Only if it has no abstract methods", "Only inside main()"], correct: 1 },
+        { question: "All variables declared inside an interface are implicitly:", options: ["private and static", "public, static, and final", "protected and final", "transient and volatile"], correct: 1 },
+        { question: "What happens when a variable is declared as 'final'?", options: ["It cannot be accessed outside the class", "Its value cannot be modified once initialized", "It cannot be inherited", "It is stored in stack memory"], correct: 1 },
+        { question: "What happens when a class is declared as 'final'?", options: ["It cannot be instantiated", "It cannot be subclassed (inherited)", "All its methods must be static", "It cannot contain variables"], correct: 1 },
+        { question: "What happens when a method is declared as 'final'?", options: ["It cannot be overloaded", "It cannot be overridden", "It cannot be private", "It returns null"], correct: 1 },
+        { question: "Which memory region in Java stores class definitions and static variables?", options: ["Heap Memory", "Stack Memory", "Metaspace / Method Area", "PC Register"], correct: 2 },
+        { question: "Where are local variables and method call stacks stored in Java?", options: ["Heap Memory", "Stack Memory", "Metaspace", "Garbage Collector"], correct: 1 },
+        { question: "Where are dynamically created objects stored in Java?", options: ["Stack Memory", "Heap Memory", "Register", "Code Segment"], correct: 1 },
+        { question: "Which class is the root of the class hierarchy in Java?", options: ["System", "Class", "Object", "Root"], correct: 2 },
+        { question: "What is a Constructor in Java?", options: ["A special block used to initialize objects", "A tool to compile bytecode", "A keyword to create classes", "A destructor for memory cleanup"], correct: 0 },
+        { question: "Does a constructor have a return type in Java?", options: ["Yes, void", "Yes, int", "No, not even void", "Yes, Object"], correct: 2 },
+        { question: "What is Garbage Collection in Java?", options: ["Manual memory cleanup by developers", "Automatic process that frees memory of unreferenced objects", "Syntax error checking", "Compiling code into bytecode"], correct: 1 },
+        { question: "Which method is invoked by the Garbage Collector before an object is garbage collected?", options: ["clean()", "destroy()", "finalize()", "delete()"], correct: 2 },
+        { question: "Which keyword is used to allocate memory for a new object?", options: ["class", "new", "instance", "alloc"], correct: 1 }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    const questionNumberEl = document.getElementById("question-number");
+    const questionTextEl = document.getElementById("question-text");
+    const optionsContainerEl = document.getElementById("options-container");
+    const resultBoxEl = document.getElementById("result-box");
+    const nextBtnEl = document.getElementById("next-btn");
+    const progressBarEl = document.getElementById("progress-bar");
+    const quizBoxEl = document.getElementById("quiz-box");
+    const scoreContainerEl = document.getElementById("score-container");
+    const scoreTextEl = document.getElementById("score-text");
+
+    function loadQuestion() {
+        const currentQuiz = quizData[currentQuestionIndex];
+        
+        questionNumberEl.innerText = `Question ${currentQuestionIndex + 1} of ${quizData.length}`;
+        questionTextEl.innerText = currentQuiz.question;
+        progressBarEl.style.width = `${((currentQuestionIndex + 1) / quizData.length) * 100}%`;
+
+        optionsContainerEl.innerHTML = "";
+        resultBoxEl.style.display = "none";
+        nextBtnEl.style.display = "none";
+
+        currentQuiz.options.forEach((option, index) => {
+            const button = document.createElement("button");
+            button.classList.add("option-btn");
+            button.innerText = option;
+            button.onclick = () => selectOption(index, button);
+            optionsContainerEl.appendChild(button);
+        });
+    }
+
+    function selectOption(selectedIndex, selectedBtn) {
+        const currentQuiz = quizData[currentQuestionIndex];
+        const allButtons = optionsContainerEl.querySelectorAll(".option-btn");
+
+        allButtons.forEach(btn => btn.disabled = true);
+
+        if (selectedIndex === currentQuiz.correct) {
+            selectedBtn.classList.add("correct");
+            resultBoxEl.className = "result-box correct-msg";
+            resultBoxEl.innerText = "YES! Correct Answer! 🎉";
+            score++;
+        } else {
+            selectedBtn.classList.add("incorrect");
+            allButtons[currentQuiz.correct].classList.add("correct");
+            resultBoxEl.className = "result-box incorrect-msg";
+            resultBoxEl.innerText = "NOT CORRECT! Wrong Answer. ❌";
+        }
+
+        resultBoxEl.style.display = "block";
+        nextBtnEl.style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < quizData.length) {
+            loadQuestion();
+        } else {
+            showScore();
+        }
+    }
+
+    function showScore() {
+        quizBoxEl.style.display = "none";
+        scoreContainerEl.style.display = "block";
+        scoreTextEl.innerText = `You scored ${score} out of ${quizData.length}!`;
+    }
+
+    function restartQuiz() {
+        currentQuestionIndex = 0;
+        score = 0;
+        quizBoxEl.style.display = "block";
+        scoreContainerEl.style.display = "none";
+        loadQuestion();
+    }
+
+    // Start Quiz
+    loadQuestion();
+</script>
+
+</body>
+</html>
